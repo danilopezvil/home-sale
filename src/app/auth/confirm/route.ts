@@ -2,8 +2,8 @@ import { type EmailOtpType } from "@supabase/supabase-js";
 import { NextResponse, type NextRequest } from "next/server";
 
 import {
-  clearSupabaseSession,
-  persistSupabaseSession,
+  clearSupabaseSessionOnResponse,
+  persistSupabaseSessionOnResponse,
   supabaseServerAnonClient,
 } from "@/lib/supabase/server";
 
@@ -18,13 +18,14 @@ export async function GET(request: NextRequest) {
     const { data, error } = await supabaseServerAnonClient.auth.exchangeCodeForSession(code);
 
     if (error || !data.session) {
-      await clearSupabaseSession();
-      return NextResponse.redirect(new URL("/admin", request.url));
+      const response = NextResponse.redirect(new URL("/admin", request.url));
+      clearSupabaseSessionOnResponse(response);
+      return response;
     }
 
-    await persistSupabaseSession(data.session);
-
-    return NextResponse.redirect(new URL(next, request.url));
+    const response = NextResponse.redirect(new URL(next, request.url));
+    persistSupabaseSessionOnResponse(response, data.session);
+    return response;
   }
 
   if (!tokenHash || !type) {
@@ -37,11 +38,12 @@ export async function GET(request: NextRequest) {
   });
 
   if (error || !data.session) {
-    await clearSupabaseSession();
-    return NextResponse.redirect(new URL("/admin", request.url));
+    const response = NextResponse.redirect(new URL("/admin", request.url));
+    clearSupabaseSessionOnResponse(response);
+    return response;
   }
 
-  await persistSupabaseSession(data.session);
-
-  return NextResponse.redirect(new URL(next, request.url));
+  const response = NextResponse.redirect(new URL(next, request.url));
+  persistSupabaseSessionOnResponse(response, data.session);
+  return response;
 }
