@@ -2,6 +2,7 @@ import "server-only";
 
 import { createClient } from "@supabase/supabase-js";
 import { cookies } from "next/headers";
+import { type NextResponse } from "next/server";
 
 import { env } from "@/lib/env";
 
@@ -51,11 +52,34 @@ export async function persistSupabaseSession(session: {
   });
 }
 
+export function persistSupabaseSessionOnResponse(
+  response: NextResponse,
+  session: {
+    access_token: string;
+    refresh_token: string;
+    expires_at?: number;
+  },
+) {
+  response.cookies.set(ACCESS_TOKEN_COOKIE, session.access_token, {
+    ...baseCookieOptions,
+    expires: session.expires_at ? new Date(session.expires_at * 1000) : undefined,
+  });
+
+  response.cookies.set(REFRESH_TOKEN_COOKIE, session.refresh_token, {
+    ...baseCookieOptions,
+  });
+}
+
 export async function clearSupabaseSession() {
   const cookieStore = await cookies();
 
   cookieStore.delete(ACCESS_TOKEN_COOKIE);
   cookieStore.delete(REFRESH_TOKEN_COOKIE);
+}
+
+export function clearSupabaseSessionOnResponse(response: NextResponse) {
+  response.cookies.delete(ACCESS_TOKEN_COOKIE);
+  response.cookies.delete(REFRESH_TOKEN_COOKIE);
 }
 
 export async function getSessionUser() {
