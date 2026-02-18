@@ -60,3 +60,26 @@ Check these items in order:
    - Under **Authentication → Providers → Email**, ensure the provider is enabled and Magic Link is enabled.
 6. **Check Supabase Auth logs for delivery/validation errors**
    - In Supabase Dashboard, review Auth logs for issues like rate limits, blocked recipients, or provider errors.
+
+## Supabase Storage bucket setup for item images
+
+The admin item image upload flow uses the bucket name `item-images` and stores files under `items/<item_id>/...`.
+
+1. In Supabase, open **Storage → Buckets**.
+2. Create a new bucket named **`item-images`**.
+3. Set bucket visibility:
+   - **Public bucket** (recommended for this app as currently written): enable Public so `getPublicUrl(...)` links are directly viewable in the storefront.
+   - If you require private access, you must switch image rendering to signed URLs instead of public URLs.
+4. Optional but recommended: set a file size limit and restrict MIME types to images.
+
+### SQL example (optional bucket creation)
+
+```sql
+insert into storage.buckets (id, name, public)
+values ('item-images', 'item-images', true)
+on conflict (id) do nothing;
+```
+
+### Suggested storage policies
+
+Because admin uploads use the service role key on the server, RLS policies are not strictly required for those server actions. If you also want browser-side reads for public assets, use a public bucket. For private buckets, add explicit policies aligned to your auth model.
