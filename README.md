@@ -42,3 +42,21 @@ ADMIN_EMAILS=admin@example.com,ops@example.com
 - The email link lands on `/auth/confirm`, which verifies the one-time token and stores auth cookies in secure `HttpOnly` cookies.
 - `/admin/items` and `/admin/reservations` are protected server-side and redirect to `/admin` if the user is unauthenticated or not listed in `ADMIN_EMAILS`.
 - Middleware refreshes the session from Supabase refresh token for `/admin/*` routes and keeps cookies updated.
+
+### If the magic-link email is not sent
+
+Check these items in order:
+
+1. **Email must be in `ADMIN_EMAILS`**
+   - The `/admin` action exits early when the submitted email is not in `ADMIN_EMAILS`, so no email is sent in that case.
+2. **User must already exist in Supabase Auth**
+   - This app calls `signInWithOtp` with `shouldCreateUser: false`, so Supabase will not create a new account on first sign-in.
+   - Create/invite the admin user first in **Authentication → Users**.
+3. **Redirect URL must match exactly**
+   - Add `http://localhost:3000/auth/confirm` (and your production `/auth/confirm`) under **Authentication → URL Configuration → Redirect URLs**.
+4. **Site URL must be configured**
+   - Under **Authentication → URL Configuration**, set **Site URL** to your current app URL.
+5. **Email provider must be enabled**
+   - Under **Authentication → Providers → Email**, ensure the provider is enabled and Magic Link is enabled.
+6. **Check Supabase Auth logs for delivery/validation errors**
+   - In Supabase Dashboard, review Auth logs for issues like rate limits, blocked recipients, or provider errors.
