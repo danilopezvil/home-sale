@@ -107,5 +107,16 @@ export async function getSessionUser() {
     return null;
   }
 
+  cookieStore.set(ACCESS_TOKEN_COOKIE, data.session.access_token, {
+    ...baseCookieOptions,
+    expires: data.session.expires_at
+      ? new Date(data.session.expires_at * 1000)
+      : undefined,
+  });
+
+  cookieStore.set(REFRESH_TOKEN_COOKIE, data.session.refresh_token, {
+    ...baseCookieOptions,
+  });
+
   return data.session.user;
 }
