@@ -1,7 +1,7 @@
 import { requireAdminUser } from "@/lib/admin-auth";
 
 export default async function AdminReservationsPage() {
-  const user = await requireAdminUser();
+  const user = await requireAdminUser("/admin/reservations");
 
   return (
     <section className="rounded-lg border border-slate-200 bg-white p-8 shadow-sm">
