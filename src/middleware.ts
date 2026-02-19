@@ -29,32 +29,40 @@ export async function middleware(request: NextRequest) {
   const accessToken = request.cookies.get(ACCESS_TOKEN_COOKIE)?.value;
   const refreshToken = request.cookies.get(REFRESH_TOKEN_COOKIE)?.value;
 
-  let hasUser = false;
-
   if (accessToken) {
     const { data } = await supabase.auth.getUser(accessToken);
-    hasUser = Boolean(data.user);
-  }
 
-  if (!hasUser && refreshToken) {
-    const { data } = await supabase.auth.refreshSession({ refresh_token: refreshToken });
-
-    if (data.session) {
-      response.cookies.set(ACCESS_TOKEN_COOKIE, data.session.access_token, {
-        ...baseCookieOptions,
-        expires: data.session.expires_at
-          ? new Date(data.session.expires_at * 1000)
-          : undefined,
-      });
-      response.cookies.set(REFRESH_TOKEN_COOKIE, data.session.refresh_token, {
-        ...baseCookieOptions,
-      });
+    if (data.user) {
+      return response;
     }
   }
+
+  if (!refreshToken) {
+    return response;
+  }
+
+  const { data } = await supabase.auth.refreshSession({
+    refresh_token: refreshToken,
+  });
+
+  if (!data.session) {
+    response.cookies.delete(ACCESS_TOKEN_COOKIE);
+    response.cookies.delete(REFRESH_TOKEN_COOKIE);
+    return response;
+  }
+
+  response.cookies.set(ACCESS_TOKEN_COOKIE, data.session.access_token, {
+    ...baseCookieOptions,
+    expires: data.session.expires_at
+      ? new Date(data.session.expires_at * 1000)
+      : undefined,
+  });
+
+  response.cookies.set(REFRESH_TOKEN_COOKIE, data.session.refresh_token, baseCookieOptions);
 
   return response;
 }
 
 export const config = {
-  matcher: ["/admin/:path*"],
+  matcher: ["/admin", "/admin/:path*"],
 };

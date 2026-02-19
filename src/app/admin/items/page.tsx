@@ -70,7 +70,7 @@ export default async function AdminItemsPage({
 }: {
   searchParams: Promise<SearchParams>;
 }) {
-  const user = await requireAdminUser();
+  const user = await requireAdminUser("/admin/items");
   const params = await searchParams;
 
   const selectedStatus = statusOptions.includes((params.status as (typeof statusOptions)[number]) ?? "all")
