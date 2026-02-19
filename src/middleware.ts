@@ -1,13 +1,8 @@
 import { NextResponse, type NextRequest } from "next/server";
 
 import { env } from "@/lib/env";
-import {
-  ACCESS_TOKEN_COOKIE,
-  REFRESH_TOKEN_COOKIE,
-} from "@/lib/supabase/server";
+import { ACCESS_TOKEN_COOKIE, REFRESH_TOKEN_COOKIE } from "@/lib/supabase/server";
 import { createClient } from "@supabase/supabase-js";
-
-const adminEmails = new Set(env.ADMIN_EMAILS.map((email) => email.toLowerCase()));
 
 const baseCookieOptions = {
   httpOnly: true,
@@ -34,14 +29,14 @@ export async function middleware(request: NextRequest) {
   const accessToken = request.cookies.get(ACCESS_TOKEN_COOKIE)?.value;
   const refreshToken = request.cookies.get(REFRESH_TOKEN_COOKIE)?.value;
 
-  let userEmail: string | null = null;
+  let hasUser = false;
 
   if (accessToken) {
     const { data } = await supabase.auth.getUser(accessToken);
-    userEmail = data.user?.email?.toLowerCase() ?? null;
+    hasUser = Boolean(data.user);
   }
 
-  if (!userEmail && refreshToken) {
+  if (!hasUser && refreshToken) {
     const { data } = await supabase.auth.refreshSession({ refresh_token: refreshToken });
 
     if (data.session) {
@@ -54,16 +49,7 @@ export async function middleware(request: NextRequest) {
       response.cookies.set(REFRESH_TOKEN_COOKIE, data.session.refresh_token, {
         ...baseCookieOptions,
       });
-      userEmail = data.session.user.email?.toLowerCase() ?? null;
     }
-  }
-
-  const path = request.nextUrl.pathname;
-  const isProtectedPage =
-    path.startsWith("/admin/items") || path.startsWith("/admin/reservations");
-
-  if (isProtectedPage && (!userEmail || !adminEmails.has(userEmail))) {
-    return NextResponse.redirect(new URL("/admin", request.url));
   }
 
   return response;
