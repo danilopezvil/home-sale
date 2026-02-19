@@ -8,6 +8,12 @@ import {
   supabaseServerAnonClient,
 } from "@/lib/supabase/server";
 
+type SearchParams = {
+  error?: string;
+  next?: string;
+  email?: string;
+};
+
 async function getSiteUrl() {
   const requestHeaders = await headers();
   const host = requestHeaders.get("x-forwarded-host") ?? requestHeaders.get("host");
@@ -48,8 +54,31 @@ async function signOut() {
   await clearSupabaseSession();
 }
 
-export default async function AdminPage() {
+function getAccessErrorMessage(params: SearchParams) {
+  if (params.error === "not-signed-in") {
+    return `Please sign in first to access ${params.next ?? "that page"}.`;
+  }
+
+  if (params.error === "not-allowed") {
+    if (params.email) {
+      return `${params.email} is signed in but is not listed in ADMIN_EMAILS.`;
+    }
+
+    return "Your current account is not listed in ADMIN_EMAILS.";
+  }
+
+  return null;
+}
+
+export default async function AdminPage({
+  searchParams,
+}: {
+  searchParams: Promise<SearchParams>;
+}) {
   const user = await getSessionUser();
+  const params = await searchParams;
+  const accessError = getAccessErrorMessage(params);
+
   const isAdmin = user?.email
     ? env.ADMIN_EMAILS.map((email) => email.toLowerCase()).includes(user.email.toLowerCase())
     : false;
@@ -57,6 +86,10 @@ export default async function AdminPage() {
   return (
     <section className="rounded-lg border border-slate-200 bg-white p-8 shadow-sm">
       <h1 className="text-2xl font-semibold">Admin</h1>
+
+      {accessError && (
+        <p className="mt-3 rounded-md border border-amber-200 bg-amber-50 p-3 text-sm text-amber-800">{accessError}</p>
+      )}
 
       {!user && (
         <>
