@@ -85,16 +85,27 @@ export function clearSupabaseSessionOnResponse(response: NextResponse) {
 export async function getSessionUser() {
   const cookieStore = await cookies();
   const accessToken = cookieStore.get(ACCESS_TOKEN_COOKIE)?.value;
+  const refreshToken = cookieStore.get(REFRESH_TOKEN_COOKIE)?.value;
 
-  if (!accessToken) {
+  if (accessToken) {
+    const { data, error } = await supabaseServerAnonClient.auth.getUser(accessToken);
+
+    if (!error && data.user) {
+      return data.user;
+    }
+  }
+
+  if (!refreshToken) {
     return null;
   }
 
-  const { data, error } = await supabaseServerAnonClient.auth.getUser(accessToken);
+  const { data, error } = await supabaseServerAnonClient.auth.refreshSession({
+    refresh_token: refreshToken,
+  });
 
-  if (error || !data.user) {
+  if (error || !data.session?.user) {
     return null;
   }
 
-  return data.user;
+  return data.session.user;
 }

@@ -4,9 +4,9 @@ import { notFound } from "next/navigation";
 import { supabaseServerAnonClient } from "@/lib/supabase/server";
 
 type ItemDetailPageProps = {
-  params: {
+  params: Promise<{
     id: string;
-  };
+  }>;
 };
 
 type ItemRow = {
@@ -97,11 +97,13 @@ async function getItemImages(itemId: string) {
 }
 
 export default async function ItemDetailPage({ params }: ItemDetailPageProps) {
+  const { id } = await params;
+
   try {
     const { data, error } = await supabaseServerAnonClient
       .from("items")
       .select("id, title, description, price, category, condition, status")
-      .eq("id", params.id)
+       .eq("id", id)
       .maybeSingle();
 
     if (error) {
