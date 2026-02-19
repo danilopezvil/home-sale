@@ -1,7 +1,7 @@
 import { NextResponse, type NextRequest } from "next/server";
 
 import { env } from "@/lib/env";
-import { ACCESS_TOKEN_COOKIE } from "@/lib/supabase/server";
+import { ACCESS_TOKEN_COOKIE, REFRESH_TOKEN_COOKIE, baseCookieOptions } from "@/lib/supabase/server";
 import { createClient } from "@supabase/supabase-js";
 
 export async function middleware(request: NextRequest) {

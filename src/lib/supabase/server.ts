@@ -11,7 +11,7 @@ const url = env.NEXT_PUBLIC_SUPABASE_URL;
 export const ACCESS_TOKEN_COOKIE = "sb-access-token";
 export const REFRESH_TOKEN_COOKIE = "sb-refresh-token";
 
-const baseCookieOptions = {
+export const baseCookieOptions = {
   httpOnly: true,
   sameSite: "lax" as const,
   secure: process.env.NODE_ENV === "production",
