@@ -1,15 +1,8 @@
 import { NextResponse, type NextRequest } from "next/server";
 
 import { env } from "@/lib/env";
-import { ACCESS_TOKEN_COOKIE, REFRESH_TOKEN_COOKIE } from "@/lib/supabase/server";
+import { ACCESS_TOKEN_COOKIE } from "@/lib/supabase/server";
 import { createClient } from "@supabase/supabase-js";
-
-const baseCookieOptions = {
-  httpOnly: true,
-  sameSite: "lax" as const,
-  secure: process.env.NODE_ENV === "production",
-  path: "/",
-};
 
 export async function middleware(request: NextRequest) {
   const response = NextResponse.next();
