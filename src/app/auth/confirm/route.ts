@@ -3,6 +3,7 @@ import { NextResponse, type NextRequest } from "next/server";
 
 import {
   clearSupabaseSessionOnResponse,
+  createSupabaseRouteHandlerClient,
   persistSupabaseSessionOnResponse,
   supabaseServerAnonClient,
 } from "@/lib/supabase/server";
@@ -15,7 +16,8 @@ export async function GET(request: NextRequest) {
   const next = searchParams.get("next") ?? "/admin";
 
   if (code) {
-    const { data, error } = await supabaseServerAnonClient.auth.exchangeCodeForSession(code);
+    const supabase = createSupabaseRouteHandlerClient(request);
+    const { data, error } = await supabase.auth.exchangeCodeForSession(code);
 
     if (error || !data.session) {
       const response = NextResponse.redirect(new URL("/admin", request.url));

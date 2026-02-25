@@ -37,7 +37,7 @@ async function sendMagicLink(formData: FormData) {
     return;
   }
 
-  const redirectTo = `${await getSiteUrl()}/auth/confirm?next=/admin/items`;
+  const redirectTo = `${await getSiteUrl()}/auth/magic?next=/admin/items`;
 
   await supabaseServerAnonClient.auth.signInWithOtp({
     email,

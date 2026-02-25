@@ -2,7 +2,7 @@ import "server-only";
 
 import { createClient } from "@supabase/supabase-js";
 import { cookies } from "next/headers";
-import { type NextResponse } from "next/server";
+import { type NextRequest, type NextResponse } from "next/server";
 
 import { env } from "@/lib/env";
 
@@ -80,6 +80,55 @@ export async function clearSupabaseSession() {
 export function clearSupabaseSessionOnResponse(response: NextResponse) {
   response.cookies.delete(ACCESS_TOKEN_COOKIE);
   response.cookies.delete(REFRESH_TOKEN_COOKIE);
+}
+
+/**
+ * Creates a per-request Supabase client using PKCE flow with cookie-backed
+ * storage. Call this inside a Server Action so that Next.js can write the
+ * PKCE code-verifier cookie back to the browser before the action response
+ * is sent.
+ */
+export async function createSupabaseServerActionClient() {
+  const cookieStore = await cookies();
+
+  return createClient(url, env.NEXT_PUBLIC_SUPABASE_ANON_KEY, {
+    auth: {
+      autoRefreshToken: false,
+      persistSession: false,
+      detectSessionInUrl: false,
+      flowType: "pkce",
+      storage: {
+        getItem: (key: string) => cookieStore.get(key)?.value ?? null,
+        setItem: (key: string, value: string) => {
+          cookieStore.set(key, value, { ...baseCookieOptions, maxAge: 300 });
+        },
+        removeItem: (key: string) => {
+          cookieStore.delete(key);
+        },
+      },
+    },
+  });
+}
+
+/**
+ * Creates a per-request Supabase client for a Route Handler. Reads the PKCE
+ * code-verifier from the incoming request's cookies; writes are no-ops because
+ * Route Handlers set cookies on NextResponse, not via cookies().
+ */
+export function createSupabaseRouteHandlerClient(request: NextRequest) {
+  return createClient(url, env.NEXT_PUBLIC_SUPABASE_ANON_KEY, {
+    auth: {
+      autoRefreshToken: false,
+      persistSession: false,
+      detectSessionInUrl: false,
+      flowType: "pkce",
+      storage: {
+        getItem: (key: string) => request.cookies.get(key)?.value ?? null,
+        setItem: () => {},
+        removeItem: () => {},
+      },
+    },
+  });
 }
 
 export async function getSessionUser() {
