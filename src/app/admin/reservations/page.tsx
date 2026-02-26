@@ -2,6 +2,7 @@ import { CalendarCheck2, CheckCheck, Ban, ShoppingBag, Clock, CheckCircle2, XCir
 
 import { requireAdminUser } from "@/lib/admin-auth";
 import { supabaseServiceRoleClient } from "@/lib/supabase/server";
+import { getTranslations, type Dictionary } from "@/lib/i18n";
 import {
   cancelReservationAction,
   confirmReservationAction,
@@ -26,12 +27,12 @@ type ReservationRow = {
 const STATUS_OPTIONS = ["all", "pending", "confirmed", "cancelled"] as const;
 type StatusOption = (typeof STATUS_OPTIONS)[number];
 
-function StatusBadge({ status }: { status: string }) {
+function StatusBadge({ status, t }: { status: string; t: Dictionary["adminReservations"]["status"] }) {
   if (status === "confirmed") {
     return (
       <span className="flex items-center gap-1 rounded-full border border-emerald-200 bg-emerald-50 px-2.5 py-0.5 text-xs font-medium text-emerald-700">
         <CheckCircle2 size={11} />
-        Confirmed
+        {t.confirmed}
       </span>
     );
   }
@@ -39,14 +40,14 @@ function StatusBadge({ status }: { status: string }) {
     return (
       <span className="flex items-center gap-1 rounded-full border border-amber-200 bg-amber-50 px-2.5 py-0.5 text-xs font-medium text-amber-700">
         <Clock size={11} />
-        Pending
+        {t.pending}
       </span>
     );
   }
   return (
     <span className="flex items-center gap-1 rounded-full border border-stone-200 bg-stone-100 px-2.5 py-0.5 text-xs font-medium text-stone-500">
       <XCircle size={11} />
-      Cancelled
+      {t.cancelled}
     </span>
   );
 }
@@ -59,38 +60,43 @@ function formatDate(iso: string | null) {
   });
 }
 
-function ConfirmButton({ reservationId }: { reservationId: string }) {
+function ConfirmButton({ reservationId, label }: { reservationId: string; label: string }) {
   return (
     <form action={confirmReservationAction}>
       <input type="hidden" name="reservationId" value={reservationId} />
       <button type="submit" className="flex items-center gap-1.5 rounded-lg bg-emerald-500 px-3 py-1.5 text-xs font-semibold text-white transition hover:bg-emerald-600">
-        <CheckCheck size={13} /> Confirm
+        <CheckCheck size={13} /> {label}
       </button>
     </form>
   );
 }
 
-function CancelButton({ reservationId, itemId }: { reservationId: string; itemId: string }) {
+function CancelButton({ reservationId, itemId, label }: { reservationId: string; itemId: string; label: string }) {
   return (
     <form action={cancelReservationAction}>
       <input type="hidden" name="reservationId" value={reservationId} />
       <input type="hidden" name="itemId" value={itemId} />
       <button type="submit" className="flex items-center gap-1.5 rounded-lg border border-red-200 px-3 py-1.5 text-xs font-semibold text-red-500 transition hover:bg-red-50">
-        <Ban size={13} /> Cancel
+        <Ban size={13} /> {label}
       </button>
     </form>
   );
 }
 
-function MarkSoldButton({ itemId }: { itemId: string }) {
+function MarkSoldButton({ itemId, label }: { itemId: string; label: string }) {
   return (
     <form action={markSoldAction}>
       <input type="hidden" name="itemId" value={itemId} />
       <button type="submit" className="flex items-center gap-1.5 rounded-lg bg-stone-800 px-3 py-1.5 text-xs font-semibold text-white transition hover:bg-stone-900">
-        <ShoppingBag size={13} /> Mark sold
+        <ShoppingBag size={13} /> {label}
       </button>
     </form>
   );
+}
+
+function getStatusFilterLabel(t: Dictionary["adminReservations"]["status"], s: StatusOption): string {
+  if (s === "all") return t.all;
+  return (t as Record<string, string>)[s] ?? s;
 }
 
 export default async function AdminReservationsPage({
@@ -99,7 +105,7 @@ export default async function AdminReservationsPage({
   searchParams: Promise<SearchParams>;
 }) {
   await requireAdminUser("/admin/reservations");
-  const params = await searchParams;
+  const [params, t] = await Promise.all([searchParams, getTranslations()]);
 
   const selectedStatus: StatusOption = (STATUS_OPTIONS as readonly string[]).includes(
     params.status ?? "",
@@ -119,7 +125,7 @@ export default async function AdminReservationsPage({
   }
 
   const { data, error } = await query;
-  const reservations = (data ?? []) as ReservationRow[];
+  const reservations = (data ?? []) as unknown as ReservationRow[];
 
   return (
     <section className="space-y-6">
@@ -127,8 +133,8 @@ export default async function AdminReservationsPage({
         <div className="flex items-center gap-3">
           <CalendarCheck2 size={22} className="text-orange-400" />
           <div>
-            <h1 className="text-2xl font-bold text-stone-900">Reservations</h1>
-            <p className="text-sm text-stone-500">Confirm, cancel, or mark items sold.</p>
+            <h1 className="text-2xl font-bold text-stone-900">{t.adminReservations.heading}</h1>
+            <p className="text-sm text-stone-500">{t.adminReservations.subtitle}</p>
           </div>
         </div>
       </header>
@@ -140,7 +146,7 @@ export default async function AdminReservationsPage({
       )}
       {error && (
         <p className="rounded-xl border border-red-200 bg-red-50 p-3 text-sm text-red-600">
-          Failed to load reservations: {error.message}
+          {t.adminReservations.error} {error.message}
         </p>
       )}
 
@@ -148,7 +154,7 @@ export default async function AdminReservationsPage({
         {/* Filter */}
         <form className="flex flex-wrap items-end gap-3" action="/admin/reservations" method="get">
           <label className="text-sm font-medium text-stone-700">
-            Filter
+            {t.adminReservations.filter.label}
             <select
               name="status"
               defaultValue={selectedStatus}
@@ -156,7 +162,7 @@ export default async function AdminReservationsPage({
             >
               {STATUS_OPTIONS.map((s) => (
                 <option key={s} value={s}>
-                  {s === "all" ? "All statuses" : s.charAt(0).toUpperCase() + s.slice(1)}
+                  {getStatusFilterLabel(t.adminReservations.status, s)}
                 </option>
               ))}
             </select>
@@ -165,14 +171,14 @@ export default async function AdminReservationsPage({
             type="submit"
             className="rounded-lg bg-stone-800 px-4 py-2 text-sm font-semibold text-white transition hover:bg-stone-900"
           >
-            Apply
+            {t.adminReservations.filter.apply}
           </button>
         </form>
 
         {reservations.length === 0 ? (
           <div className="mt-8 flex flex-col items-center justify-center py-8 text-center">
             <CalendarCheck2 size={32} className="text-stone-200" />
-            <p className="mt-3 text-sm text-stone-500">No reservations found.</p>
+            <p className="mt-3 text-sm text-stone-500">{t.adminReservations.empty}</p>
           </div>
         ) : (
           <div className="mt-6 space-y-3">
@@ -186,7 +192,7 @@ export default async function AdminReservationsPage({
                   <div className="space-y-1">
                     <p className="font-semibold text-stone-900">
                       {r.items?.title ?? (
-                        <span className="italic text-stone-400">Deleted item</span>
+                        <span className="italic text-stone-400">{t.adminReservations.labels.deletedItem}</span>
                       )}
                     </p>
                     <div className="flex flex-wrap gap-x-3 gap-y-0.5 text-xs text-stone-500">
@@ -204,17 +210,17 @@ export default async function AdminReservationsPage({
                     </div>
                     <div className="flex flex-wrap gap-x-3 gap-y-0.5 text-xs text-stone-400">
                       <span className="flex items-center gap-1">
-                        <CalendarDays size={11} /> Submitted {formatDate(r.created_at)}
+                        <CalendarDays size={11} /> {t.adminReservations.labels.submitted} {formatDate(r.created_at)}
                       </span>
                       {r.reserved_at && (
                         <span className="flex items-center gap-1">
-                          <Clock size={11} /> Pickup {formatDate(r.reserved_at)}
+                          <Clock size={11} /> {t.adminReservations.labels.pickup} {formatDate(r.reserved_at)}
                         </span>
                       )}
                     </div>
                   </div>
 
-                  <StatusBadge status={r.status} />
+                  <StatusBadge status={r.status} t={t.adminReservations.status} />
                 </div>
 
                 {r.message && (
@@ -226,11 +232,15 @@ export default async function AdminReservationsPage({
 
                 {r.status !== "cancelled" && (
                   <div className="mt-3 flex flex-wrap gap-2">
-                    {r.status === "pending" && <ConfirmButton reservationId={r.id} />}
-                    {(r.status === "pending" || r.status === "confirmed") && (
-                      <CancelButton reservationId={r.id} itemId={r.item_id} />
+                    {r.status === "pending" && (
+                      <ConfirmButton reservationId={r.id} label={t.adminReservations.actions.confirm} />
                     )}
-                    {r.status === "confirmed" && <MarkSoldButton itemId={r.item_id} />}
+                    {(r.status === "pending" || r.status === "confirmed") && (
+                      <CancelButton reservationId={r.id} itemId={r.item_id} label={t.adminReservations.actions.cancel} />
+                    )}
+                    {r.status === "confirmed" && (
+                      <MarkSoldButton itemId={r.item_id} label={t.adminReservations.actions.markSold} />
+                    )}
                   </div>
                 )}
               </div>

@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Package, ChevronUp, ChevronDown, Pencil } from "lucide-react";
+import { Package, ChevronUp, ChevronDown, Pencil, FileJson } from "lucide-react";
 
 import {
   moveItemImageAction,
@@ -9,6 +9,7 @@ import { ItemForm, UploadImagesForm } from "@/app/admin/items/item-form";
 import { requireAdminUser } from "@/lib/admin-auth";
 import { supabaseServiceRoleClient } from "@/lib/supabase/server";
 import { getCategoryMeta } from "@/lib/category-meta";
+import { getTranslations, type Dictionary } from "@/lib/i18n";
 
 type SearchParams = {
   status?: string;
@@ -23,7 +24,7 @@ type ItemRow = {
   title: string;
   description: string | null;
   price: number | string;
-  category: (typeof categoryValues)[number] | null;
+  category: string | null;
   condition: string;
   pickup_area: string | null;
   status: "available" | "reserved" | "sold";
@@ -44,21 +45,19 @@ const currencyFormatter = new Intl.NumberFormat("en-US", {
   currency: "USD",
 });
 
-function formatWords(value: string | null | undefined) {
-  if (!value) {
-    return "N/A";
-  }
-
-  return value
-    .split("_")
-    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-    .join(" ");
-}
-
 function statusBadgeClasses(status: ItemRow["status"]) {
   if (status === "available") return "border-emerald-200 bg-emerald-50 text-emerald-700";
   if (status === "reserved")  return "border-amber-200 bg-amber-50 text-amber-700";
   return "border-stone-200 bg-stone-100 text-stone-600";
+}
+
+function getStatusLabel(t: Dictionary["adminItems"]["status"], status: string): string {
+  return (t as Record<string, string>)[status] ?? status;
+}
+
+function getCatLabel(categories: Dictionary["categories"], key: string | null | undefined): string {
+  if (!key) return categories.other;
+  return (categories as Record<string, string>)[key] ?? key;
 }
 
 export default async function AdminItemsPage({
@@ -67,7 +66,7 @@ export default async function AdminItemsPage({
   searchParams: Promise<SearchParams>;
 }) {
   await requireAdminUser("/admin/items");
-  const params = await searchParams;
+  const [params, t] = await Promise.all([searchParams, getTranslations()]);
 
   const selectedStatus = statusOptions.includes((params.status as (typeof statusOptions)[number]) ?? "all")
     ? ((params.status as (typeof statusOptions)[number]) ?? "all")
@@ -114,12 +113,21 @@ export default async function AdminItemsPage({
   return (
     <section className="space-y-6">
       <header className="rounded-2xl border border-stone-200 bg-white p-6 shadow-sm">
-        <div className="flex items-center gap-3">
-          <Package size={22} className="text-orange-400" />
-          <div>
-            <h1 className="text-2xl font-bold text-stone-900">Items</h1>
-            <p className="text-sm text-stone-500">Create, edit, and manage listings.</p>
+        <div className="flex items-center justify-between gap-3">
+          <div className="flex items-center gap-3">
+            <Package size={22} className="text-orange-400" />
+            <div>
+              <h1 className="text-2xl font-bold text-stone-900">{t.adminItems.heading}</h1>
+              <p className="text-sm text-stone-500">{t.adminItems.subtitle}</p>
+            </div>
           </div>
+          <Link
+            href="/admin/items/import"
+            className="flex items-center gap-2 rounded-xl border border-stone-200 px-4 py-2 text-sm font-medium text-stone-600 transition hover:border-orange-200 hover:text-orange-600"
+          >
+            <FileJson size={15} />
+            {t.adminItems.importJson}
+          </Link>
         </div>
       </header>
 
@@ -150,58 +158,63 @@ export default async function AdminItemsPage({
           condition: "good",
           pickup_area: "",
         }}
+        t={t.itemForm}
+        categories={t.categories}
       />
 
       <section className="rounded-2xl border border-stone-200 bg-white p-6 shadow-sm">
         <form className="flex flex-wrap items-end gap-3" action="/admin/items" method="get">
           <label className="text-sm font-medium text-stone-700">
-            Status
+            {t.adminItems.filter.status}
             <select name="status" defaultValue={selectedStatus} className="ml-2 rounded-lg border border-stone-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-300">
               {statusOptions.map((status) => (
-                <option key={status} value={status}>{formatWords(status)}</option>
+                <option key={status} value={status}>
+                  {getStatusLabel(t.adminItems.status, status)}
+                </option>
               ))}
             </select>
           </label>
           <input
             name="search"
             defaultValue={searchTerm}
-            placeholder="Search title, description, category…"
+            placeholder={t.adminItems.filter.search}
             className="rounded-lg border border-stone-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-300"
           />
           <button type="submit" className="rounded-lg bg-stone-800 px-4 py-2 text-sm font-semibold text-white transition hover:bg-stone-900">
-            Apply
+            {t.adminItems.filter.apply}
           </button>
         </form>
 
         {items.length === 0 ? (
-          <p className="mt-6 text-sm text-stone-500">No items found for this filter.</p>
+          <p className="mt-6 text-sm text-stone-500">{t.adminItems.empty}</p>
         ) : (
           <div className="mt-6 overflow-x-auto">
             <table className="min-w-full divide-y divide-stone-100 text-sm">
               <thead>
                 <tr className="text-left text-xs font-medium uppercase tracking-wide text-stone-400">
-                  <th className="px-3 py-3">Item</th>
-                  <th className="px-3 py-3">Price</th>
-                  <th className="px-3 py-3">Category</th>
-                  <th className="px-3 py-3">Condition</th>
-                  <th className="px-3 py-3">Pickup Area</th>
-                  <th className="px-3 py-3">Status</th>
-                  <th className="px-3 py-3">Actions</th>
+                  <th className="px-3 py-3">{t.adminItems.table.item}</th>
+                  <th className="px-3 py-3">{t.adminItems.table.price}</th>
+                  <th className="px-3 py-3">{t.adminItems.table.category}</th>
+                  <th className="px-3 py-3">{t.adminItems.table.condition}</th>
+                  <th className="px-3 py-3">{t.adminItems.table.pickupArea}</th>
+                  <th className="px-3 py-3">{t.adminItems.table.status}</th>
+                  <th className="px-3 py-3">{t.adminItems.table.actions}</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-stone-100">
                 {items.map((item) => {
                   const cat = getCategoryMeta(item.category);
+                  const condLabel = (t.items.condition as Record<string, string>)[item.condition] ?? item.condition;
                   return (
                   <tr key={item.id} className="hover:bg-stone-50">
                     <td className="px-3 py-3 font-medium text-stone-900">{item.title}</td>
                     <td className="px-3 py-3 font-semibold text-stone-800">{currencyFormatter.format(Number(item.price))}</td>
-                    <td className="px-3 py-3 text-stone-600">{cat.emoji} {cat.label}</td>
-                    <td className="px-3 py-3 text-stone-600">{formatWords(item.condition)}</td>
+                    <td className="px-3 py-3 text-stone-600">{cat.emoji} {getCatLabel(t.categories, item.category)}</td>
+                    <td className="px-3 py-3 text-stone-600">{condLabel}</td>
                     <td className="px-3 py-3 text-stone-600">{item.pickup_area || "—"}</td>
                     <td className="px-3 py-3">
                       <span className={`inline-flex rounded-full border px-2.5 py-0.5 text-xs font-medium ${statusBadgeClasses(item.status)}`}>
-                        {formatWords(item.status)}
+                        {getStatusLabel(t.adminItems.status, item.status)}
                       </span>
                     </td>
                     <td className="px-3 py-3">
@@ -210,13 +223,13 @@ export default async function AdminItemsPage({
                           href={`/admin/items?status=${selectedStatus}&search=${encodeURIComponent(searchTerm)}&edit=${item.id}`}
                           className="flex items-center gap-1 rounded-lg border border-stone-200 px-3 py-1.5 text-xs font-medium text-stone-700 transition hover:border-orange-200 hover:text-orange-600"
                         >
-                          <Pencil size={11} /> Edit
+                          <Pencil size={11} /> {t.adminItems.actions.edit}
                         </Link>
                         <form action={toggleItemStatusAction}>
                           <input type="hidden" name="itemId" value={item.id} />
                           <input type="hidden" name="currentStatus" value={item.status} />
                           <button type="submit" className="rounded-lg border border-stone-200 px-3 py-1.5 text-xs font-medium text-stone-700 transition hover:bg-stone-100">
-                            {item.status === "sold" ? "↩ Available" : "Mark Sold"}
+                            {item.status === "sold" ? t.adminItems.actions.makeAvailable : t.adminItems.actions.markSold}
                           </button>
                         </form>
                       </div>
@@ -243,20 +256,22 @@ export default async function AdminItemsPage({
               condition: editItem.condition,
               pickup_area: editItem.pickup_area ?? "",
             } as Parameters<typeof ItemForm>[0]["initialValues"]}
+            t={t.itemForm}
+            categories={t.categories}
           />
 
-          <UploadImagesForm itemId={editItem.id} />
+          <UploadImagesForm itemId={editItem.id} t={t.uploadForm} />
 
           <section className="rounded-2xl border border-stone-200 bg-white p-6 shadow-sm">
             <div className="flex items-center justify-between gap-3">
-              <h3 className="text-lg font-bold text-stone-900">Image Order</h3>
+              <h3 className="text-lg font-bold text-stone-900">{t.adminItems.imageOrder}</h3>
               <Link href="/admin/items" className="rounded-lg border border-stone-200 px-3 py-1.5 text-xs font-medium text-stone-600 transition hover:bg-stone-50">
-                ✓ Done editing
+                {t.adminItems.actions.doneEditing}
               </Link>
             </div>
 
             {(imagesByItem.get(editItem.id) ?? []).length === 0 ? (
-              <p className="mt-4 text-sm text-stone-500">No images uploaded for this item yet.</p>
+              <p className="mt-4 text-sm text-stone-500">{t.adminItems.noImages}</p>
             ) : (
               <ul className="mt-4 space-y-2">
                 {(imagesByItem.get(editItem.id) ?? []).map((image, index, array) => (

@@ -12,21 +12,21 @@ export const categoryValues = [
   "other",
 ] as const;
 
-export const CATEGORY_META: Record<string, { label: string; emoji: string }> = {
-  furniture:   { label: "Furniture",   emoji: "🛋️" },
-  kitchen:     { label: "Kitchen",     emoji: "🍳" },
-  living_room: { label: "Living Room", emoji: "📺" },
-  bedroom:     { label: "Bedroom",     emoji: "🛏️" },
-  books:       { label: "Books",       emoji: "📚" },
-  electronics: { label: "Electronics", emoji: "💻" },
-  clothing:    { label: "Clothing",    emoji: "👕" },
-  outdoor:     { label: "Outdoor",     emoji: "🌳" },
-  tools:       { label: "Tools",       emoji: "🔧" },
-  decor:       { label: "Decor",       emoji: "✨" },
-  other:       { label: "Other",       emoji: "📦" },
+export const CATEGORY_META: Record<string, { emoji: string }> = {
+  furniture:   { emoji: "🛋️" },
+  kitchen:     { emoji: "🍳" },
+  living_room: { emoji: "📺" },
+  bedroom:     { emoji: "🛏️" },
+  books:       { emoji: "📚" },
+  electronics: { emoji: "💻" },
+  clothing:    { emoji: "👕" },
+  outdoor:     { emoji: "🌳" },
+  tools:       { emoji: "🔧" },
+  decor:       { emoji: "✨" },
+  other:       { emoji: "📦" },
 };
 
-export function getCategoryMeta(key: string | null | undefined) {
-  if (!key) return { label: "Other", emoji: "📦" };
-  return CATEGORY_META[key] ?? { label: key, emoji: "📦" };
+export function getCategoryMeta(key: string | null | undefined): { emoji: string } {
+  if (!key) return { emoji: "📦" };
+  return CATEGORY_META[key] ?? { emoji: "📦" };
 }

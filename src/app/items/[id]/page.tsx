@@ -5,6 +5,7 @@ import { ArrowLeft, CheckCircle2, Clock, XCircle, Tag, Sparkles, MapPin } from "
 
 import { supabaseServerAnonClient } from "@/lib/supabase/server";
 import { getCategoryMeta } from "@/lib/category-meta";
+import { getTranslations, type Dictionary } from "@/lib/i18n";
 import { ReserveForm } from "./reserve-form";
 
 type ItemDetailPageProps = { params: Promise<{ id: string }> };
@@ -32,14 +33,6 @@ const currency = new Intl.NumberFormat("en-US", {
   maximumFractionDigits: 0,
 });
 
-const CONDITION_LABEL: Record<string, string> = {
-  new:      "New",
-  like_new: "Like New",
-  good:     "Good",
-  fair:     "Fair",
-  parts:    "For Parts",
-};
-
 const CONDITION_COLOR: Record<string, string> = {
   new:      "bg-emerald-100 text-emerald-700",
   like_new: "bg-teal-100 text-teal-700",
@@ -48,12 +41,12 @@ const CONDITION_COLOR: Record<string, string> = {
   parts:    "bg-stone-100 text-stone-600",
 };
 
-function StatusBadge({ status }: { status: string }) {
+function StatusBadge({ status, t }: { status: string; t: Dictionary["itemDetail"]["status"] }) {
   if (status === "available") {
     return (
       <span className="flex items-center gap-1.5 rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1 text-sm font-medium text-emerald-700">
         <CheckCircle2 size={14} />
-        Available
+        {t.available}
       </span>
     );
   }
@@ -61,14 +54,14 @@ function StatusBadge({ status }: { status: string }) {
     return (
       <span className="flex items-center gap-1.5 rounded-full border border-amber-200 bg-amber-50 px-3 py-1 text-sm font-medium text-amber-700">
         <Clock size={14} />
-        Reserved
+        {t.reserved}
       </span>
     );
   }
   return (
     <span className="flex items-center gap-1.5 rounded-full border border-stone-200 bg-stone-100 px-3 py-1 text-sm font-medium text-stone-600">
       <XCircle size={14} />
-      Sold
+      {t.sold}
     </span>
   );
 }
@@ -83,11 +76,17 @@ async function getItemImages(itemId: string) {
   if (!error) return { images: (data ?? []) as ItemImageRow[], error: null };
 
   console.error("Failed to load item images.", error);
-  return { images: [] as ItemImageRow[], error: "Couldn't load images right now." };
+  return { images: [] as ItemImageRow[], error: true };
+}
+
+function getCatLabel(categories: Dictionary["categories"], key: string | null | undefined): string {
+  if (!key) return categories.other;
+  return (categories as Record<string, string>)[key] ?? key;
 }
 
 export default async function ItemDetailPage({ params }: ItemDetailPageProps) {
   const { id } = await params;
+  const t = await getTranslations();
 
   try {
     const { data, error } = await supabaseServerAnonClient
@@ -101,7 +100,7 @@ export default async function ItemDetailPage({ params }: ItemDetailPageProps) {
       return (
         <section className="rounded-2xl border border-red-200 bg-red-50 p-8 text-center">
           <p className="text-2xl">😬</p>
-          <p className="mt-2 font-semibold text-red-800">Couldn&apos;t load this item</p>
+          <p className="mt-2 font-semibold text-red-800">{t.itemDetail.error.load}</p>
         </section>
       );
     }
@@ -112,8 +111,9 @@ export default async function ItemDetailPage({ params }: ItemDetailPageProps) {
     const { images, error: imageError } = await getItemImages(item.id);
     const cat = getCategoryMeta(item.category);
     const price = Number(item.price);
-    const condLabel = CONDITION_LABEL[item.condition] ?? item.condition;
+    const condLabel = (t.items.condition as Record<string, string>)[item.condition] ?? item.condition;
     const condColor = CONDITION_COLOR[item.condition] ?? "bg-stone-100 text-stone-600";
+    const catLabel = getCatLabel(t.categories, item.category);
 
     return (
       <article className="space-y-5">
@@ -122,7 +122,7 @@ export default async function ItemDetailPage({ params }: ItemDetailPageProps) {
           className="inline-flex items-center gap-1.5 text-sm text-stone-500 transition hover:text-stone-800"
         >
           <ArrowLeft size={14} />
-          Back to items
+          {t.itemDetail.back}
         </Link>
 
         {/* Main card */}
@@ -132,10 +132,10 @@ export default async function ItemDetailPage({ params }: ItemDetailPageProps) {
               <span className="text-4xl">{cat.emoji}</span>
               <div>
                 <h1 className="text-2xl font-bold text-stone-900">{item.title}</h1>
-                <p className="mt-0.5 text-sm text-stone-500">{cat.label}</p>
+                <p className="mt-0.5 text-sm text-stone-500">{catLabel}</p>
               </div>
             </div>
-            <StatusBadge status={item.status} />
+            <StatusBadge status={item.status} t={t.itemDetail.status} />
           </div>
 
           {item.description && (
@@ -145,11 +145,11 @@ export default async function ItemDetailPage({ params }: ItemDetailPageProps) {
           {/* Images */}
           {imageError ? (
             <p className="mt-5 rounded-xl border border-amber-200 bg-amber-50 p-3 text-sm text-amber-700">
-              {imageError}
+              {t.itemDetail.error.load}
             </p>
           ) : images.length === 0 ? (
             <div className="mt-5 flex items-center justify-center rounded-xl border border-dashed border-stone-200 bg-stone-50 py-12 text-sm text-stone-400">
-              No photos yet
+              {t.itemDetail.noPhotos}
             </div>
           ) : (
             <div className="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
@@ -174,7 +174,7 @@ export default async function ItemDetailPage({ params }: ItemDetailPageProps) {
           <div className="mt-5 flex flex-wrap gap-2">
             <span className="flex items-center gap-1.5 rounded-full border border-stone-200 bg-stone-50 px-3 py-1.5 text-sm font-semibold text-stone-800">
               {price === 0 ? (
-                <span className="text-emerald-600">Free! 🎉</span>
+                <span className="text-emerald-600">{t.itemDetail.free}</span>
               ) : (
                 currency.format(price)
               )}
@@ -191,7 +191,7 @@ export default async function ItemDetailPage({ params }: ItemDetailPageProps) {
             )}
             <span className="flex items-center gap-1.5 rounded-full border border-stone-200 bg-stone-50 px-3 py-1.5 text-sm text-stone-600">
               <Tag size={13} />
-              {cat.label}
+              {catLabel}
             </span>
           </div>
         </section>
@@ -199,26 +199,22 @@ export default async function ItemDetailPage({ params }: ItemDetailPageProps) {
         {/* Reservation section */}
         <section className="rounded-2xl border border-stone-200 bg-white p-6 shadow-sm">
           <h2 className="text-lg font-bold text-stone-900">
-            {item.status === "available" ? "Reserve this item" : "Reservation"}
+            {item.status === "available" ? t.itemDetail.reserveHeading : t.itemDetail.reservationHeading}
           </h2>
 
           {item.status === "available" ? (
             <div className="mt-4">
-              <ReserveForm itemId={item.id} />
+              <ReserveForm itemId={item.id} t={t.reserveForm} />
             </div>
           ) : item.status === "reserved" ? (
             <div className="mt-3 flex items-start gap-3 rounded-xl border border-amber-200 bg-amber-50 p-4">
               <Clock size={18} className="mt-0.5 shrink-0 text-amber-500" />
-              <p className="text-sm text-amber-800">
-                This item has already been reserved. Check back in case the reservation falls through!
-              </p>
+              <p className="text-sm text-amber-800">{t.itemDetail.reservedMessage}</p>
             </div>
           ) : (
             <div className="mt-3 flex items-start gap-3 rounded-xl border border-stone-200 bg-stone-50 p-4">
               <XCircle size={18} className="mt-0.5 shrink-0 text-stone-400" />
-              <p className="text-sm text-stone-600">
-                This item has been sold. Browse other available items!
-              </p>
+              <p className="text-sm text-stone-600">{t.itemDetail.soldMessage}</p>
             </div>
           )}
         </section>
@@ -229,7 +225,7 @@ export default async function ItemDetailPage({ params }: ItemDetailPageProps) {
     return (
       <section className="rounded-2xl border border-red-200 bg-red-50 p-8 text-center">
         <p className="text-2xl">😬</p>
-        <p className="mt-2 font-semibold text-red-800">Something went wrong</p>
+        <p className="mt-2 font-semibold text-red-800">{t.itemDetail.error.general}</p>
       </section>
     );
   }

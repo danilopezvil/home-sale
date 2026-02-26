@@ -3,18 +3,19 @@ import { Package, CalendarCheck, LogOut, LogIn } from "lucide-react";
 
 import { env } from "@/lib/env";
 import { getSessionUser } from "@/lib/supabase/server";
+import { getTranslations, type Dictionary } from "@/lib/i18n";
 import { signOutAction } from "./actions";
 import { LoginForm } from "./login-form";
 
 type SearchParams = { error?: string; next?: string; email?: string };
 
-function getAccessErrorMessage(params: SearchParams) {
+function getAccessErrorMessage(params: SearchParams, t: Dictionary["admin"]["errors"]) {
   if (params.error === "not-signed-in") {
-    return `Sign in first to access ${params.next ?? "that page"}.`;
+    return `${t.notSignedIn} ${params.next ?? "that page"}.`;
   }
   if (params.error === "not-allowed") {
-    if (params.email) return `${params.email} is not listed in ADMIN_EMAILS.`;
-    return "Your account is not listed in ADMIN_EMAILS.";
+    if (params.email) return `${params.email} ${t.notAllowed}`;
+    return t.notAllowedGeneral;
   }
   return null;
 }
@@ -24,9 +25,12 @@ export default async function AdminPage({
 }: {
   searchParams: Promise<SearchParams>;
 }) {
-  const user = await getSessionUser();
-  const params = await searchParams;
-  const accessError = getAccessErrorMessage(params);
+  const [user, t, params] = await Promise.all([
+    getSessionUser(),
+    getTranslations(),
+    searchParams,
+  ]);
+  const accessError = getAccessErrorMessage(params, t.admin.errors);
 
   const isAdmin = user?.email
     ? env.ADMIN_EMAILS.map((e) => e.toLowerCase()).includes(user.email.toLowerCase())
@@ -35,8 +39,8 @@ export default async function AdminPage({
   return (
     <section className="space-y-6">
       <header className="rounded-2xl border border-stone-200 bg-white p-6 shadow-sm">
-        <h1 className="text-2xl font-bold text-stone-900">Admin ⚙️</h1>
-        <p className="mt-1 text-sm text-stone-500">Manage your sale from here.</p>
+        <h1 className="text-2xl font-bold text-stone-900">{t.admin.heading}</h1>
+        <p className="mt-1 text-sm text-stone-500">{t.admin.subtitle}</p>
       </header>
 
       {accessError && (
@@ -50,12 +54,10 @@ export default async function AdminPage({
         <div className="rounded-2xl border border-stone-200 bg-white p-6 shadow-sm">
           <div className="flex items-center gap-2 text-stone-700">
             <LogIn size={18} className="text-orange-400" />
-            <p className="font-medium">Sign in to continue</p>
+            <p className="font-medium">{t.admin.signIn.heading}</p>
           </div>
-          <p className="mt-1 text-sm text-stone-500">
-            Enter your admin email to receive a magic link.
-          </p>
-          <LoginForm />
+          <p className="mt-1 text-sm text-stone-500">{t.admin.signIn.subtitle}</p>
+          <LoginForm t={t.loginForm} />
         </div>
       )}
 
@@ -63,8 +65,9 @@ export default async function AdminPage({
       {user && !isAdmin && (
         <div className="rounded-2xl border border-stone-200 bg-white p-6 shadow-sm">
           <p className="text-sm text-stone-600">
-            Signed in as <span className="font-semibold">{user.email}</span> — but this email
-            isn&apos;t in <code className="rounded bg-stone-100 px-1.5 py-0.5 text-xs">ADMIN_EMAILS</code>.
+            {t.admin.signedInAs}{" "}
+            <span className="font-semibold">{user.email}</span>{" "}
+            {t.admin.notAdmin}
           </p>
           <form action={signOutAction} className="mt-4">
             <button
@@ -72,7 +75,7 @@ export default async function AdminPage({
               className="flex items-center gap-2 rounded-xl border border-stone-200 px-4 py-2 text-sm font-medium text-stone-700 transition hover:bg-stone-50"
             >
               <LogOut size={15} />
-              Sign out
+              {t.admin.signOut}
             </button>
           </form>
         </div>
@@ -82,7 +85,8 @@ export default async function AdminPage({
       {user && isAdmin && (
         <div className="rounded-2xl border border-stone-200 bg-white p-6 shadow-sm">
           <p className="text-sm text-stone-500">
-            Signed in as <span className="font-semibold text-stone-800">{user.email}</span>
+            {t.admin.signedInAs}{" "}
+            <span className="font-semibold text-stone-800">{user.email}</span>
           </p>
 
           <div className="mt-5 grid gap-3 sm:grid-cols-2">
@@ -92,8 +96,8 @@ export default async function AdminPage({
             >
               <Package size={22} className="text-orange-400" />
               <div>
-                <p className="font-semibold text-stone-900">Items</p>
-                <p className="text-xs text-stone-500">Create, edit & manage listings</p>
+                <p className="font-semibold text-stone-900">{t.admin.menu.items.label}</p>
+                <p className="text-xs text-stone-500">{t.admin.menu.items.subtitle}</p>
               </div>
             </Link>
 
@@ -103,8 +107,8 @@ export default async function AdminPage({
             >
               <CalendarCheck size={22} className="text-orange-400" />
               <div>
-                <p className="font-semibold text-stone-900">Reservations</p>
-                <p className="text-xs text-stone-500">Confirm, cancel & mark sold</p>
+                <p className="font-semibold text-stone-900">{t.admin.menu.reservations.label}</p>
+                <p className="text-xs text-stone-500">{t.admin.menu.reservations.subtitle}</p>
               </div>
             </Link>
           </div>
@@ -115,7 +119,7 @@ export default async function AdminPage({
               className="flex items-center gap-2 rounded-xl border border-stone-200 px-4 py-2 text-sm font-medium text-stone-600 transition hover:bg-stone-50"
             >
               <LogOut size={15} />
-              Sign out
+              {t.admin.signOut}
             </button>
           </form>
         </div>
