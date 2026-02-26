@@ -1,13 +1,13 @@
 import Image from "next/image";
+import Link from "next/link";
 import { notFound } from "next/navigation";
+import { ArrowLeft, CheckCircle2, Clock, XCircle, Tag, Sparkles, MapPin } from "lucide-react";
 
 import { supabaseServerAnonClient } from "@/lib/supabase/server";
+import { getCategoryMeta } from "@/lib/category-meta";
+import { ReserveForm } from "./reserve-form";
 
-type ItemDetailPageProps = {
-  params: Promise<{
-    id: string;
-  }>;
-};
+type ItemDetailPageProps = { params: Promise<{ id: string }> };
 
 type ItemRow = {
   id: string;
@@ -16,6 +16,7 @@ type ItemRow = {
   price: number | string;
   category: string | null;
   condition: string;
+  pickup_area: string | null;
   status: string;
 };
 
@@ -23,77 +24,66 @@ type ItemImageRow = {
   id: string;
   image_url: string;
   sort_order?: number;
-  display_order?: number;
 };
 
-const currencyFormatter = new Intl.NumberFormat("en-US", {
+const currency = new Intl.NumberFormat("en-US", {
   style: "currency",
   currency: "USD",
+  maximumFractionDigits: 0,
 });
 
-function formatWords(value: string | null | undefined) {
-  if (!value) {
-    return "N/A";
-  }
+const CONDITION_LABEL: Record<string, string> = {
+  new:      "New",
+  like_new: "Like New",
+  good:     "Good",
+  fair:     "Fair",
+  parts:    "For Parts",
+};
 
-  return value
-    .split("_")
-    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-    .join(" ");
-}
+const CONDITION_COLOR: Record<string, string> = {
+  new:      "bg-emerald-100 text-emerald-700",
+  like_new: "bg-teal-100 text-teal-700",
+  good:     "bg-sky-100 text-sky-700",
+  fair:     "bg-amber-100 text-amber-700",
+  parts:    "bg-stone-100 text-stone-600",
+};
 
-function statusBadgeClasses(status: string) {
+function StatusBadge({ status }: { status: string }) {
   if (status === "available") {
-    return "border-emerald-200 bg-emerald-50 text-emerald-700";
+    return (
+      <span className="flex items-center gap-1.5 rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1 text-sm font-medium text-emerald-700">
+        <CheckCircle2 size={14} />
+        Available
+      </span>
+    );
   }
-
   if (status === "reserved") {
-    return "border-amber-200 bg-amber-50 text-amber-700";
+    return (
+      <span className="flex items-center gap-1.5 rounded-full border border-amber-200 bg-amber-50 px-3 py-1 text-sm font-medium text-amber-700">
+        <Clock size={14} />
+        Reserved
+      </span>
+    );
   }
-
-  if (status === "sold") {
-    return "border-slate-300 bg-slate-100 text-slate-700";
-  }
-
-  return "border-slate-200 bg-slate-50 text-slate-700";
+  return (
+    <span className="flex items-center gap-1.5 rounded-full border border-stone-200 bg-stone-100 px-3 py-1 text-sm font-medium text-stone-600">
+      <XCircle size={14} />
+      Sold
+    </span>
+  );
 }
 
 async function getItemImages(itemId: string) {
-  const bySortOrder = await supabaseServerAnonClient
+  const { data, error } = await supabaseServerAnonClient
     .from("item_images")
     .select("id, image_url, sort_order")
     .eq("item_id", itemId)
     .order("sort_order", { ascending: true });
 
-  if (!bySortOrder.error) {
-    return {
-      images: (bySortOrder.data ?? []) as ItemImageRow[],
-      error: null as string | null,
-    };
-  }
+  if (!error) return { images: (data ?? []) as ItemImageRow[], error: null };
 
-  const byDisplayOrder = await supabaseServerAnonClient
-    .from("item_images")
-    .select("id, image_url, display_order")
-    .eq("item_id", itemId)
-    .order("display_order", { ascending: true });
-
-  if (!byDisplayOrder.error) {
-    return {
-      images: (byDisplayOrder.data ?? []) as ItemImageRow[],
-      error: null as string | null,
-    };
-  }
-
-  console.error("Failed to load item images.", {
-    sortOrderError: bySortOrder.error,
-    displayOrderError: byDisplayOrder.error,
-  });
-
-  return {
-    images: [] as ItemImageRow[],
-    error: "We couldn't load item images right now.",
-  };
+  console.error("Failed to load item images.", error);
+  return { images: [] as ItemImageRow[], error: "Couldn't load images right now." };
 }
 
 export default async function ItemDetailPage({ params }: ItemDetailPageProps) {
@@ -102,56 +92,75 @@ export default async function ItemDetailPage({ params }: ItemDetailPageProps) {
   try {
     const { data, error } = await supabaseServerAnonClient
       .from("items")
-      .select("id, title, description, price, category, condition, status")
-       .eq("id", id)
+      .select("id, title, description, price, category, condition, pickup_area, status")
+      .eq("id", id)
       .maybeSingle();
 
     if (error) {
       console.error("Failed to load item.", error);
-
       return (
-        <section className="rounded-lg border border-red-200 bg-red-50 p-8 shadow-sm">
-          <h1 className="text-2xl font-semibold text-red-900">Item</h1>
-          <p className="mt-2 text-red-700">We couldn&apos;t load this item right now. Please try again later.</p>
+        <section className="rounded-2xl border border-red-200 bg-red-50 p-8 text-center">
+          <p className="text-2xl">😬</p>
+          <p className="mt-2 font-semibold text-red-800">Couldn&apos;t load this item</p>
         </section>
       );
     }
 
-    if (!data) {
-      notFound();
-    }
+    if (!data) notFound();
 
     const item = data as ItemRow;
     const { images, error: imageError } = await getItemImages(item.id);
+    const cat = getCategoryMeta(item.category);
+    const price = Number(item.price);
+    const condLabel = CONDITION_LABEL[item.condition] ?? item.condition;
+    const condColor = CONDITION_COLOR[item.condition] ?? "bg-stone-100 text-stone-600";
 
     return (
-      <article className="space-y-6">
-        <section className="rounded-lg border border-slate-200 bg-white p-8 shadow-sm">
+      <article className="space-y-5">
+        <Link
+          href="/items"
+          className="inline-flex items-center gap-1.5 text-sm text-stone-500 transition hover:text-stone-800"
+        >
+          <ArrowLeft size={14} />
+          Back to items
+        </Link>
+
+        {/* Main card */}
+        <section className="rounded-2xl border border-stone-200 bg-white p-6 shadow-sm">
           <div className="flex flex-wrap items-start justify-between gap-4">
-            <div>
-              <h1 className="text-2xl font-semibold text-slate-900">{item.title}</h1>
-              <p className="mt-2 text-slate-600">{item.description || "No description provided."}</p>
+            <div className="flex items-start gap-3">
+              <span className="text-4xl">{cat.emoji}</span>
+              <div>
+                <h1 className="text-2xl font-bold text-stone-900">{item.title}</h1>
+                <p className="mt-0.5 text-sm text-stone-500">{cat.label}</p>
+              </div>
             </div>
-            <span
-              className={`inline-flex rounded-full border px-3 py-1 text-sm font-medium ${statusBadgeClasses(item.status)}`}
-            >
-              {formatWords(item.status)}
-            </span>
+            <StatusBadge status={item.status} />
           </div>
 
+          {item.description && (
+            <p className="mt-4 text-sm leading-relaxed text-stone-600">{item.description}</p>
+          )}
+
+          {/* Images */}
           {imageError ? (
-            <p className="mt-6 rounded-md border border-amber-200 bg-amber-50 p-3 text-sm text-amber-700">{imageError}</p>
+            <p className="mt-5 rounded-xl border border-amber-200 bg-amber-50 p-3 text-sm text-amber-700">
+              {imageError}
+            </p>
           ) : images.length === 0 ? (
-            <div className="mt-6 rounded-lg border border-dashed border-slate-300 bg-slate-50 p-8 text-center text-sm text-slate-600">
-              No images available for this item.
+            <div className="mt-5 flex items-center justify-center rounded-xl border border-dashed border-stone-200 bg-stone-50 py-12 text-sm text-stone-400">
+              No photos yet
             </div>
           ) : (
-            <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-              {images.map((image, index) => (
-                <div key={image.id} className="relative aspect-[4/3] overflow-hidden rounded-lg border border-slate-200 bg-slate-100">
+            <div className="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+              {images.map((img, i) => (
+                <div
+                  key={img.id}
+                  className="relative aspect-[4/3] overflow-hidden rounded-xl border border-stone-200 bg-stone-100"
+                >
                   <Image
-                    src={image.image_url}
-                    alt={`${item.title} image ${index + 1}`}
+                    src={img.image_url}
+                    alt={`${item.title} — photo ${i + 1}`}
                     fill
                     sizes="(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw"
                     className="object-cover"
@@ -161,41 +170,66 @@ export default async function ItemDetailPage({ params }: ItemDetailPageProps) {
             </div>
           )}
 
-          <dl className="mt-6 grid gap-4 text-sm sm:grid-cols-2">
-            <div className="rounded-md border border-slate-200 p-4">
-              <dt className="text-slate-500">Price</dt>
-              <dd className="mt-1 text-base font-medium text-slate-900">{currencyFormatter.format(Number(item.price))}</dd>
-            </div>
-            <div className="rounded-md border border-slate-200 p-4">
-              <dt className="text-slate-500">Category</dt>
-              <dd className="mt-1 text-base font-medium text-slate-900">{formatWords(item.category)}</dd>
-            </div>
-            <div className="rounded-md border border-slate-200 p-4">
-              <dt className="text-slate-500">Condition</dt>
-              <dd className="mt-1 text-base font-medium text-slate-900">{formatWords(item.condition)}</dd>
-            </div>
-            <div className="rounded-md border border-slate-200 p-4">
-              <dt className="text-slate-500">Status</dt>
-              <dd className="mt-1 text-base font-medium text-slate-900">{formatWords(item.status)}</dd>
-            </div>
-          </dl>
+          {/* Info chips */}
+          <div className="mt-5 flex flex-wrap gap-2">
+            <span className="flex items-center gap-1.5 rounded-full border border-stone-200 bg-stone-50 px-3 py-1.5 text-sm font-semibold text-stone-800">
+              {price === 0 ? (
+                <span className="text-emerald-600">Free! 🎉</span>
+              ) : (
+                currency.format(price)
+              )}
+            </span>
+            <span className={`flex items-center gap-1.5 rounded-full px-3 py-1.5 text-sm font-medium ${condColor}`}>
+              <Sparkles size={13} />
+              {condLabel}
+            </span>
+            {item.pickup_area && (
+              <span className="flex items-center gap-1.5 rounded-full border border-stone-200 bg-stone-50 px-3 py-1.5 text-sm text-stone-600">
+                <MapPin size={13} />
+                {item.pickup_area}
+              </span>
+            )}
+            <span className="flex items-center gap-1.5 rounded-full border border-stone-200 bg-stone-50 px-3 py-1.5 text-sm text-stone-600">
+              <Tag size={13} />
+              {cat.label}
+            </span>
+          </div>
         </section>
 
-        <section className="rounded-lg border border-slate-200 bg-white p-8 shadow-sm">
-          <h2 className="text-xl font-semibold text-slate-900">Reserve</h2>
-          <p className="mt-2 text-slate-600">
-            Reservation form coming soon. Please check back later to submit your reservation request.
-          </p>
+        {/* Reservation section */}
+        <section className="rounded-2xl border border-stone-200 bg-white p-6 shadow-sm">
+          <h2 className="text-lg font-bold text-stone-900">
+            {item.status === "available" ? "Reserve this item" : "Reservation"}
+          </h2>
+
+          {item.status === "available" ? (
+            <div className="mt-4">
+              <ReserveForm itemId={item.id} />
+            </div>
+          ) : item.status === "reserved" ? (
+            <div className="mt-3 flex items-start gap-3 rounded-xl border border-amber-200 bg-amber-50 p-4">
+              <Clock size={18} className="mt-0.5 shrink-0 text-amber-500" />
+              <p className="text-sm text-amber-800">
+                This item has already been reserved. Check back in case the reservation falls through!
+              </p>
+            </div>
+          ) : (
+            <div className="mt-3 flex items-start gap-3 rounded-xl border border-stone-200 bg-stone-50 p-4">
+              <XCircle size={18} className="mt-0.5 shrink-0 text-stone-400" />
+              <p className="text-sm text-stone-600">
+                This item has been sold. Browse other available items!
+              </p>
+            </div>
+          )}
         </section>
       </article>
     );
-  } catch (error) {
-    console.error("Unexpected error while loading item details.", error);
-
+  } catch (err) {
+    console.error("Unexpected error while loading item details.", err);
     return (
-      <section className="rounded-lg border border-red-200 bg-red-50 p-8 shadow-sm">
-        <h1 className="text-2xl font-semibold text-red-900">Item</h1>
-        <p className="mt-2 text-red-700">We couldn&apos;t load this item right now. Please try again later.</p>
+      <section className="rounded-2xl border border-red-200 bg-red-50 p-8 text-center">
+        <p className="text-2xl">😬</p>
+        <p className="mt-2 font-semibold text-red-800">Something went wrong</p>
       </section>
     );
   }

@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { Package, ChevronUp, ChevronDown, Pencil } from "lucide-react";
 
 import {
   moveItemImageAction,
@@ -7,6 +8,7 @@ import {
 import { ItemForm, UploadImagesForm } from "@/app/admin/items/item-form";
 import { requireAdminUser } from "@/lib/admin-auth";
 import { supabaseServiceRoleClient } from "@/lib/supabase/server";
+import { getCategoryMeta } from "@/lib/category-meta";
 
 type SearchParams = {
   status?: string;
@@ -21,7 +23,7 @@ type ItemRow = {
   title: string;
   description: string | null;
   price: number | string;
-  category: string | null;
+  category: (typeof categoryValues)[number] | null;
   condition: string;
   pickup_area: string | null;
   status: "available" | "reserved" | "sold";
@@ -54,15 +56,9 @@ function formatWords(value: string | null | undefined) {
 }
 
 function statusBadgeClasses(status: ItemRow["status"]) {
-  if (status === "available") {
-    return "border-emerald-200 bg-emerald-50 text-emerald-700";
-  }
-
-  if (status === "reserved") {
-    return "border-amber-200 bg-amber-50 text-amber-700";
-  }
-
-  return "border-slate-300 bg-slate-100 text-slate-700";
+  if (status === "available") return "border-emerald-200 bg-emerald-50 text-emerald-700";
+  if (status === "reserved")  return "border-amber-200 bg-amber-50 text-amber-700";
+  return "border-stone-200 bg-stone-100 text-stone-600";
 }
 
 export default async function AdminItemsPage({
@@ -70,7 +66,7 @@ export default async function AdminItemsPage({
 }: {
   searchParams: Promise<SearchParams>;
 }) {
-  const user = await requireAdminUser("/admin/items");
+  await requireAdminUser("/admin/items");
   const params = await searchParams;
 
   const selectedStatus = statusOptions.includes((params.status as (typeof statusOptions)[number]) ?? "all")
@@ -117,26 +113,30 @@ export default async function AdminItemsPage({
 
   return (
     <section className="space-y-6">
-      <header className="rounded-lg border border-slate-200 bg-white p-6 shadow-sm">
-        <h1 className="text-2xl font-semibold text-slate-900">Admin Items</h1>
-        <p className="mt-2 text-slate-600">Signed in as {user.email}.</p>
-        <p className="mt-1 text-slate-600">Create, edit, and manage item status and images.</p>
+      <header className="rounded-2xl border border-stone-200 bg-white p-6 shadow-sm">
+        <div className="flex items-center gap-3">
+          <Package size={22} className="text-orange-400" />
+          <div>
+            <h1 className="text-2xl font-bold text-stone-900">Items</h1>
+            <p className="text-sm text-stone-500">Create, edit, and manage listings.</p>
+          </div>
+        </div>
       </header>
 
       {params.success ? (
-        <p className="rounded-md border border-emerald-200 bg-emerald-50 p-3 text-sm text-emerald-700">{params.success}</p>
+        <p className="rounded-xl border border-emerald-200 bg-emerald-50 p-3 text-sm text-emerald-700">{params.success}</p>
       ) : null}
       {params.error ? (
-        <p className="rounded-md border border-red-200 bg-red-50 p-3 text-sm text-red-700">{params.error}</p>
+        <p className="rounded-xl border border-red-200 bg-red-50 p-3 text-sm text-red-600">{params.error}</p>
       ) : null}
       {itemsError ? (
-        <p className="rounded-md border border-red-200 bg-red-50 p-3 text-sm text-red-700">
-          Failed to load items. {itemsError.message}
+        <p className="rounded-xl border border-red-200 bg-red-50 p-3 text-sm text-red-600">
+          Failed to load items: {itemsError.message}
         </p>
       ) : null}
       {imagesError ? (
-        <p className="rounded-md border border-red-200 bg-red-50 p-3 text-sm text-red-700">
-          Failed to load images. {imagesError.message}
+        <p className="rounded-xl border border-red-200 bg-red-50 p-3 text-sm text-red-600">
+          Failed to load images: {imagesError.message}
         </p>
       ) : null}
 
@@ -152,83 +152,78 @@ export default async function AdminItemsPage({
         }}
       />
 
-      <section className="rounded-lg border border-slate-200 bg-white p-6 shadow-sm">
-        <h2 className="text-xl font-semibold text-slate-900">Items</h2>
-
-        <form className="mt-4 grid gap-3 md:grid-cols-[180px_1fr_auto] md:items-end" action="/admin/items" method="get">
-          <label className="text-sm font-medium text-slate-700">
+      <section className="rounded-2xl border border-stone-200 bg-white p-6 shadow-sm">
+        <form className="flex flex-wrap items-end gap-3" action="/admin/items" method="get">
+          <label className="text-sm font-medium text-stone-700">
             Status
-            <select name="status" defaultValue={selectedStatus} className="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 text-sm">
+            <select name="status" defaultValue={selectedStatus} className="ml-2 rounded-lg border border-stone-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-300">
               {statusOptions.map((status) => (
-                <option key={status} value={status}>
-                  {formatWords(status)}
-                </option>
+                <option key={status} value={status}>{formatWords(status)}</option>
               ))}
             </select>
           </label>
-          <label className="text-sm font-medium text-slate-700">
-            Search
-            <input
-              name="search"
-              defaultValue={searchTerm}
-              placeholder="Search title, description, category"
-              className="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 text-sm"
-            />
-          </label>
-          <button type="submit" className="rounded-md bg-slate-900 px-4 py-2 text-sm font-medium text-white">
+          <input
+            name="search"
+            defaultValue={searchTerm}
+            placeholder="Search title, description, category…"
+            className="rounded-lg border border-stone-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-300"
+          />
+          <button type="submit" className="rounded-lg bg-stone-800 px-4 py-2 text-sm font-semibold text-white transition hover:bg-stone-900">
             Apply
           </button>
         </form>
 
         {items.length === 0 ? (
-          <p className="mt-6 text-sm text-slate-600">No items found for this filter.</p>
+          <p className="mt-6 text-sm text-stone-500">No items found for this filter.</p>
         ) : (
           <div className="mt-6 overflow-x-auto">
-            <table className="min-w-full divide-y divide-slate-200 text-sm">
+            <table className="min-w-full divide-y divide-stone-100 text-sm">
               <thead>
-                <tr className="text-left text-slate-600">
-                  <th className="px-2 py-3">Title</th>
-                  <th className="px-2 py-3">Price</th>
-                  <th className="px-2 py-3">Category</th>
-                  <th className="px-2 py-3">Condition</th>
-                  <th className="px-2 py-3">Pickup Area</th>
-                  <th className="px-2 py-3">Status</th>
-                  <th className="px-2 py-3">Actions</th>
+                <tr className="text-left text-xs font-medium uppercase tracking-wide text-stone-400">
+                  <th className="px-3 py-3">Item</th>
+                  <th className="px-3 py-3">Price</th>
+                  <th className="px-3 py-3">Category</th>
+                  <th className="px-3 py-3">Condition</th>
+                  <th className="px-3 py-3">Pickup Area</th>
+                  <th className="px-3 py-3">Status</th>
+                  <th className="px-3 py-3">Actions</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-100">
-                {items.map((item) => (
-                  <tr key={item.id}>
-                    <td className="px-2 py-3 font-medium text-slate-900">{item.title}</td>
-                    <td className="px-2 py-3 text-slate-700">{currencyFormatter.format(Number(item.price))}</td>
-                    <td className="px-2 py-3 text-slate-700">{item.category || "N/A"}</td>
-                    <td className="px-2 py-3 text-slate-700">{formatWords(item.condition)}</td>
-                    <td className="px-2 py-3 text-slate-700">{item.pickup_area || "N/A"}</td>
-                    <td className="px-2 py-3">
+              <tbody className="divide-y divide-stone-100">
+                {items.map((item) => {
+                  const cat = getCategoryMeta(item.category);
+                  return (
+                  <tr key={item.id} className="hover:bg-stone-50">
+                    <td className="px-3 py-3 font-medium text-stone-900">{item.title}</td>
+                    <td className="px-3 py-3 font-semibold text-stone-800">{currencyFormatter.format(Number(item.price))}</td>
+                    <td className="px-3 py-3 text-stone-600">{cat.emoji} {cat.label}</td>
+                    <td className="px-3 py-3 text-stone-600">{formatWords(item.condition)}</td>
+                    <td className="px-3 py-3 text-stone-600">{item.pickup_area || "—"}</td>
+                    <td className="px-3 py-3">
                       <span className={`inline-flex rounded-full border px-2.5 py-0.5 text-xs font-medium ${statusBadgeClasses(item.status)}`}>
                         {formatWords(item.status)}
                       </span>
                     </td>
-                    <td className="px-2 py-3">
+                    <td className="px-3 py-3">
                       <div className="flex flex-wrap gap-2">
                         <Link
                           href={`/admin/items?status=${selectedStatus}&search=${encodeURIComponent(searchTerm)}&edit=${item.id}`}
-                          className="rounded-md border border-slate-300 px-3 py-1.5 text-xs font-medium text-slate-700"
+                          className="flex items-center gap-1 rounded-lg border border-stone-200 px-3 py-1.5 text-xs font-medium text-stone-700 transition hover:border-orange-200 hover:text-orange-600"
                         >
-                          Edit
+                          <Pencil size={11} /> Edit
                         </Link>
-
                         <form action={toggleItemStatusAction}>
                           <input type="hidden" name="itemId" value={item.id} />
                           <input type="hidden" name="currentStatus" value={item.status} />
-                          <button type="submit" className="rounded-md border border-slate-300 px-3 py-1.5 text-xs font-medium text-slate-700">
-                            {item.status === "sold" ? "Mark Available" : "Mark Sold"}
+                          <button type="submit" className="rounded-lg border border-stone-200 px-3 py-1.5 text-xs font-medium text-stone-700 transition hover:bg-stone-100">
+                            {item.status === "sold" ? "↩ Available" : "Mark Sold"}
                           </button>
                         </form>
                       </div>
                     </td>
                   </tr>
-                ))}
+                  );
+                })}
               </tbody>
             </table>
           </div>
@@ -247,49 +242,44 @@ export default async function AdminItemsPage({
               category: editItem.category ?? "",
               condition: editItem.condition,
               pickup_area: editItem.pickup_area ?? "",
-            }}
+            } as Parameters<typeof ItemForm>[0]["initialValues"]}
           />
 
           <UploadImagesForm itemId={editItem.id} />
 
-          <section className="rounded-lg border border-slate-200 bg-white p-6 shadow-sm">
+          <section className="rounded-2xl border border-stone-200 bg-white p-6 shadow-sm">
             <div className="flex items-center justify-between gap-3">
-              <h3 className="text-lg font-semibold text-slate-900">Image Order</h3>
-              <Link href="/admin/items" className="text-sm font-medium text-slate-700 underline">
-                Done editing
+              <h3 className="text-lg font-bold text-stone-900">Image Order</h3>
+              <Link href="/admin/items" className="rounded-lg border border-stone-200 px-3 py-1.5 text-xs font-medium text-stone-600 transition hover:bg-stone-50">
+                ✓ Done editing
               </Link>
             </div>
 
             {(imagesByItem.get(editItem.id) ?? []).length === 0 ? (
-              <p className="mt-4 text-sm text-slate-600">No images uploaded for this item yet.</p>
+              <p className="mt-4 text-sm text-stone-500">No images uploaded for this item yet.</p>
             ) : (
-              <ul className="mt-4 space-y-3">
+              <ul className="mt-4 space-y-2">
                 {(imagesByItem.get(editItem.id) ?? []).map((image, index, array) => (
-                  <li key={image.id} className="flex items-center justify-between gap-3 rounded-md border border-slate-200 p-3">
-                    <span className="truncate text-sm text-slate-700">#{image.sort_order} • {image.image_url}</span>
-                    <div className="flex gap-2">
+                  <li key={image.id} className="flex items-center justify-between gap-3 rounded-xl border border-stone-200 bg-stone-50 p-3">
+                    <span className="truncate text-xs text-stone-600">
+                      <span className="mr-2 font-semibold text-stone-400">#{image.sort_order}</span>
+                      {image.image_url}
+                    </span>
+                    <div className="flex gap-1.5">
                       <form action={moveItemImageAction}>
                         <input type="hidden" name="itemId" value={editItem.id} />
                         <input type="hidden" name="imageId" value={image.id} />
                         <input type="hidden" name="direction" value="up" />
-                        <button
-                          type="submit"
-                          disabled={index === 0}
-                          className="rounded-md border border-slate-300 px-3 py-1 text-xs font-medium text-slate-700 disabled:opacity-40"
-                        >
-                          Up
+                        <button type="submit" disabled={index === 0} className="rounded-lg border border-stone-200 p-1.5 text-stone-600 transition hover:bg-stone-200 disabled:opacity-30">
+                          <ChevronUp size={13} />
                         </button>
                       </form>
                       <form action={moveItemImageAction}>
                         <input type="hidden" name="itemId" value={editItem.id} />
                         <input type="hidden" name="imageId" value={image.id} />
                         <input type="hidden" name="direction" value="down" />
-                        <button
-                          type="submit"
-                          disabled={index === array.length - 1}
-                          className="rounded-md border border-slate-300 px-3 py-1 text-xs font-medium text-slate-700 disabled:opacity-40"
-                        >
-                          Down
+                        <button type="submit" disabled={index === array.length - 1} className="rounded-lg border border-stone-200 p-1.5 text-stone-600 transition hover:bg-stone-200 disabled:opacity-30">
+                          <ChevronDown size={13} />
                         </button>
                       </form>
                     </div>

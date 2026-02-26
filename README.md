@@ -97,6 +97,25 @@ create table if not exists item_images (
 );
 ```
 
+### `reservations` table
+
+```sql
+create table if not exists reservations (
+  id                  uuid primary key default gen_random_uuid(),
+  item_id             uuid not null references items (id),
+  name                text not null,
+  email               text not null,
+  phone               text,
+  message             text,
+  preferred_pickup_at timestamptz,
+  created_at          timestamptz not null default now()
+);
+
+-- Index used by the rate-limit check (email + created_at)
+create index if not exists reservations_email_created_at_idx
+  on reservations (email, created_at);
+```
+
 ### Migrations (if tables already exist)
 
 If your tables were created before these columns existed, add them with:

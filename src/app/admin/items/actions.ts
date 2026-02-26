@@ -5,6 +5,7 @@ import { redirect } from "next/navigation";
 import { z } from "zod";
 
 import { requireAdminUser } from "@/lib/admin-auth";
+import { categoryValues } from "@/lib/category-meta";
 import { supabaseServiceRoleClient } from "@/lib/supabase/server";
 
 const conditionValues = ["new", "like_new", "good", "fair", "parts"] as const;
@@ -18,7 +19,7 @@ const baseItemSchema = z.object({
     .min(1, "Price is required.")
     .transform((value) => Number(value))
     .pipe(z.number({ invalid_type_error: "Price must be a number." }).finite("Price must be a number.").min(0, "Price must be 0 or greater.")),
-  category: z.string().trim().min(1, "Category is required."),
+  category: z.enum(categoryValues, { errorMap: () => ({ message: "Category is required." }) }),
   condition: z.enum(conditionValues, { errorMap: () => ({ message: "Condition is required." }) }),
   pickup_area: z.string().trim().min(1, "Pickup area is required."),
 });
