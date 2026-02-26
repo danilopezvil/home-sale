@@ -16,12 +16,12 @@ const en = {
     browse: "Browse items",
     whatsNew: "What's new",
     categories: [
-      { emoji: "🛋️", label: "Furniture" },
-      { emoji: "📚", label: "Books" },
-      { emoji: "💻", label: "Electronics" },
-      { emoji: "🍳", label: "Kitchen" },
-      { emoji: "✨", label: "Decor" },
-      { emoji: "📦", label: "And more" },
+      { emoji: "🛋️", label: "Furniture", key: "furniture" },
+      { emoji: "📚", label: "Books", key: "books" },
+      { emoji: "💻", label: "Electronics", key: "electronics" },
+      { emoji: "🍳", label: "Kitchen", key: "kitchen" },
+      { emoji: "✨", label: "Decor", key: "decor" },
+      { emoji: "📦", label: "And more", key: "" },
     ],
   },
   items: {
@@ -42,6 +42,13 @@ const en = {
       parts: "For Parts",
     },
     free: "Free!",
+    filterAll: "All",
+    newBadge: "New",
+    sort: {
+      newest: "Newest",
+      priceAsc: "Price ↑",
+      priceDesc: "Price ↓",
+    },
   },
   itemDetail: {
     back: "Back to items",

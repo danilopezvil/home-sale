@@ -25,7 +25,7 @@ export default async function Home() {
           <ArrowRight size={16} />
         </Link>
         <Link
-          href="/items"
+          href="/items?sort=newest"
           className="flex items-center gap-2 rounded-xl border border-stone-200 bg-white px-6 py-3 text-sm font-semibold text-stone-700 shadow-sm transition hover:border-stone-300 hover:bg-stone-50"
         >
           <Sparkles size={16} className="text-orange-400" />
@@ -34,10 +34,10 @@ export default async function Home() {
       </div>
 
       <div className="mt-16 grid grid-cols-3 gap-6 text-center text-sm sm:grid-cols-3">
-        {t.home.categories.map(({ emoji, label }) => (
+        {t.home.categories.map(({ emoji, label, key }) => (
           <Link
             key={label}
-            href="/items"
+            href={key ? `/items?category=${key}` : "/items"}
             className="flex flex-col items-center gap-2 rounded-2xl border border-stone-200 bg-white p-4 shadow-sm transition hover:border-orange-200 hover:shadow-md"
           >
             <span className="text-3xl">{emoji}</span>

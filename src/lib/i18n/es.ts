@@ -18,12 +18,12 @@ const es = {
     browse: "Ver art\u00edculos",
     whatsNew: "Novedades",
     categories: [
-      { emoji: "\ud83d\udecf\ufe0f", label: "Muebles" },
-      { emoji: "\ud83d\udcda", label: "Libros" },
-      { emoji: "\ud83d\udcbb", label: "Electr\u00f3nica" },
-      { emoji: "\ud83c\udf73", label: "Cocina" },
-      { emoji: "\u2728", label: "Decoraci\u00f3n" },
-      { emoji: "\ud83d\udce6", label: "Y m\u00e1s" },
+      { emoji: "\ud83d\udecf\ufe0f", label: "Muebles", key: "furniture" },
+      { emoji: "\ud83d\udcda", label: "Libros", key: "books" },
+      { emoji: "\ud83d\udcbb", label: "Electr\u00f3nica", key: "electronics" },
+      { emoji: "\ud83c\udf73", label: "Cocina", key: "kitchen" },
+      { emoji: "\u2728", label: "Decoraci\u00f3n", key: "decor" },
+      { emoji: "\ud83d\udce6", label: "Y m\u00e1s", key: "" },
     ],
   },
   items: {
@@ -45,6 +45,13 @@ const es = {
       parts: "Para piezas",
     },
     free: "\u00a1Gratis!",
+    filterAll: "Todos",
+    newBadge: "Nuevo",
+    sort: {
+      newest: "Recientes",
+      priceAsc: "Precio \u2191",
+      priceDesc: "Precio \u2193",
+    },
   },
   itemDetail: {
     back: "Volver a art\u00edculos",
