@@ -152,3 +152,125 @@ on conflict (id) do nothing;
 ### Suggested storage policies
 
 Because admin uploads use the service role key on the server, RLS policies are not strictly required for those server actions. If you also want browser-side reads for public assets, use a public bucket. For private buckets, add explicit policies aligned to your auth model.
+
+---
+
+## Deploying to Vercel
+
+### Pre-deploy checklist
+
+Before pushing to production, confirm:
+
+- [ ] `npx tsc --noEmit` passes with no errors
+- [ ] `npm run lint` passes with no errors
+- [ ] All required env vars are documented below and ready to paste into Vercel
+- [ ] Supabase project is on a plan that supports your expected traffic (free tier has pause-on-inactivity)
+- [ ] `item-images` bucket exists and is set to **Public**
+- [ ] Production redirect URL is added to Supabase Auth (`https://yourdomain.com/auth/magic`)
+
+---
+
+### Step 1 — Environment variables
+
+In **Vercel → Project → Settings → Environment Variables**, add the following. Set each to the **Production** environment (add to Preview too if you want preview deploys to work).
+
+#### Required
+
+| Variable | Where to find it |
+|---|---|
+| `NEXT_PUBLIC_SUPABASE_URL` | Supabase → Project Settings → API → Project URL |
+| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Supabase → Project Settings → API → `anon` `public` key |
+| `SUPABASE_SERVICE_ROLE_KEY` | Supabase → Project Settings → API → `service_role` key (**keep secret**) |
+| `ADMIN_EMAILS` | Comma-separated list: `admin@example.com` or `a@x.com,b@x.com` |
+
+#### Optional
+
+| Variable | Notes |
+|---|---|
+| `RESEND_API_KEY` | From [resend.com](https://resend.com) — enables reservation + admin notification emails |
+| `RESEND_FROM_EMAIL` | Must be a verified Resend sender domain, e.g. `noreply@yourdomain.com` |
+| `NEXT_PUBLIC_SITE_URL` | `https://yourdomain.com` — used in the admin notification email CTA link |
+
+> All variables are validated at startup by Zod (`src/lib/env.ts`). A missing required variable throws immediately — the Vercel function will crash on cold start with a clear error message in logs.
+
+---
+
+### Step 2 — Build settings
+
+Vercel auto-detects Next.js. No overrides needed.
+
+| Setting | Value |
+|---|---|
+| Framework preset | **Next.js** (auto-detected) |
+| Build command | `next build` (default) |
+| Output directory | `.next` (default) |
+| Install command | `npm install` (default) |
+| Node.js version | **20.x** (set in Vercel → Project → Settings → General) |
+
+---
+
+### Step 3 — Supabase settings for production
+
+#### Authentication — redirect URLs
+
+In **Supabase → Authentication → URL Configuration**:
+
+1. **Site URL** → `https://yourdomain.com`
+2. **Redirect URLs** — add:
+   ```
+   https://yourdomain.com/auth/magic
+   ```
+   If you use Vercel preview deployments, also add:
+   ```
+   https://*-yourteam.vercel.app/auth/magic
+   ```
+
+Without this, Supabase will reject the magic-link redirect and sign-in will fail silently.
+
+#### Admin user
+
+The app calls `signInWithOtp` with `shouldCreateUser: false`. The admin user **must already exist** in Supabase:
+
+1. Supabase → Authentication → Users → **Invite user** (use the email in `ADMIN_EMAILS`)
+2. The user does not need to set a password — magic link is the only sign-in method used
+
+#### Storage bucket
+
+The `item-images` bucket must exist and be public (see [Storage bucket setup](#supabase-storage-bucket-setup-for-item-images) above). Run this in **SQL Editor** if not done yet:
+
+```sql
+insert into storage.buckets (id, name, public)
+values ('item-images', 'item-images', true)
+on conflict (id) do nothing;
+```
+
+---
+
+### Step 4 — Post-deploy verification
+
+Run through this checklist after each production deploy.
+
+**Public storefront**
+- [ ] `/` loads, hero and category links render correctly
+- [ ] `/items` shows item grid with images, filter pills and sort work
+- [ ] `/items/[id]` shows photos, price, status badge, and reservation form
+- [ ] Submit the reservation form on an `available` item → row appears in Supabase `reservations` table with `status = pending`
+
+**Email (only if Resend is configured)**
+- [ ] Customer receives reservation confirmation email
+- [ ] Admin address(es) in `ADMIN_EMAILS` receive the notification email
+
+**Admin area**
+- [ ] `/admin` shows sign-in form when unauthenticated
+- [ ] Magic-link email arrives → clicking it lands on `/admin` dashboard
+- [ ] `/admin/items` — create an item → verify it appears on `/items`
+- [ ] Upload at least one image → verify it renders on the detail page
+- [ ] Toggle status (Available ↔ Sold) → badge updates on storefront
+- [ ] Select items via checkboxes → **Delete selected** → items removed from storefront and images removed from storage
+- [ ] `/admin/items/import` — paste a valid JSON object → item created successfully
+- [ ] `/admin/reservations` — confirm a reservation → status updates to `confirmed`
+
+**Auth hardening**
+- [ ] Accessing `/admin/items` while signed out redirects to `/admin` with an error
+- [ ] Signing in with a non-`ADMIN_EMAILS` address shows "not in ADMIN_EMAILS" error
+- [ ] Sign out → session cookies cleared → subsequent `/admin` visit requires re-auth

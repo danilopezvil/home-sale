@@ -159,6 +159,7 @@ const en = {
       markSold: "Mark Sold",
       makeAvailable: "\u21a9 Available",
       doneEditing: "\u2713 Done editing",
+      deleteSelected: "Delete selected",
     },
     imageOrder: "Image Order",
     noImages: "No images uploaded for this item yet.",

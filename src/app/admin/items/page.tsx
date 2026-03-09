@@ -1,15 +1,12 @@
 import Link from "next/link";
-import { Package, ChevronUp, ChevronDown, Pencil, FileJson } from "lucide-react";
+import { Package, ChevronUp, ChevronDown, FileJson } from "lucide-react";
 
-import {
-  moveItemImageAction,
-  toggleItemStatusAction,
-} from "@/app/admin/items/actions";
+import { moveItemImageAction } from "@/app/admin/items/actions";
 import { ItemForm, UploadImagesForm } from "@/app/admin/items/item-form";
+import { ItemsTable } from "@/app/admin/items/items-table";
 import { requireAdminUser } from "@/lib/admin-auth";
 import { supabaseServiceRoleClient } from "@/lib/supabase/server";
-import { getCategoryMeta } from "@/lib/category-meta";
-import { getTranslations, type Dictionary } from "@/lib/i18n";
+import { getTranslations } from "@/lib/i18n";
 
 type SearchParams = {
   status?: string;
@@ -40,24 +37,8 @@ type ItemImageRow = {
 
 const statusOptions = ["all", "available", "reserved", "sold"] as const;
 
-const currencyFormatter = new Intl.NumberFormat("en-US", {
-  style: "currency",
-  currency: "USD",
-});
-
-function statusBadgeClasses(status: ItemRow["status"]) {
-  if (status === "available") return "border-emerald-200 bg-emerald-50 text-emerald-700";
-  if (status === "reserved")  return "border-amber-200 bg-amber-50 text-amber-700";
-  return "border-stone-200 bg-stone-100 text-stone-600";
-}
-
-function getStatusLabel(t: Dictionary["adminItems"]["status"], status: string): string {
-  return (t as Record<string, string>)[status] ?? status;
-}
-
-function getCatLabel(categories: Dictionary["categories"], key: string | null | undefined): string {
-  if (!key) return categories.other;
-  return (categories as Record<string, string>)[key] ?? key;
+function getStatusLabel(t: Record<string, string>, status: string): string {
+  return t[status] ?? status;
 }
 
 export default async function AdminItemsPage({
@@ -169,7 +150,7 @@ export default async function AdminItemsPage({
             <select name="status" defaultValue={selectedStatus} className="ml-2 rounded-lg border border-stone-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-300">
               {statusOptions.map((status) => (
                 <option key={status} value={status}>
-                  {getStatusLabel(t.adminItems.status, status)}
+                  {getStatusLabel(t.adminItems.status as Record<string, string>, status)}
                 </option>
               ))}
             </select>
@@ -188,57 +169,15 @@ export default async function AdminItemsPage({
         {items.length === 0 ? (
           <p className="mt-6 text-sm text-stone-500">{t.adminItems.empty}</p>
         ) : (
-          <div className="mt-6 overflow-x-auto">
-            <table className="min-w-full divide-y divide-stone-100 text-sm">
-              <thead>
-                <tr className="text-left text-xs font-medium uppercase tracking-wide text-stone-400">
-                  <th className="px-3 py-3">{t.adminItems.table.item}</th>
-                  <th className="px-3 py-3">{t.adminItems.table.price}</th>
-                  <th className="px-3 py-3">{t.adminItems.table.category}</th>
-                  <th className="px-3 py-3">{t.adminItems.table.condition}</th>
-                  <th className="px-3 py-3">{t.adminItems.table.pickupArea}</th>
-                  <th className="px-3 py-3">{t.adminItems.table.status}</th>
-                  <th className="px-3 py-3">{t.adminItems.table.actions}</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-stone-100">
-                {items.map((item) => {
-                  const cat = getCategoryMeta(item.category);
-                  const condLabel = (t.items.condition as Record<string, string>)[item.condition] ?? item.condition;
-                  return (
-                  <tr key={item.id} className="hover:bg-stone-50">
-                    <td className="px-3 py-3 font-medium text-stone-900">{item.title}</td>
-                    <td className="px-3 py-3 font-semibold text-stone-800">{currencyFormatter.format(Number(item.price))}</td>
-                    <td className="px-3 py-3 text-stone-600">{cat.emoji} {getCatLabel(t.categories, item.category)}</td>
-                    <td className="px-3 py-3 text-stone-600">{condLabel}</td>
-                    <td className="px-3 py-3 text-stone-600">{item.pickup_area || "—"}</td>
-                    <td className="px-3 py-3">
-                      <span className={`inline-flex rounded-full border px-2.5 py-0.5 text-xs font-medium ${statusBadgeClasses(item.status)}`}>
-                        {getStatusLabel(t.adminItems.status, item.status)}
-                      </span>
-                    </td>
-                    <td className="px-3 py-3">
-                      <div className="flex flex-wrap gap-2">
-                        <Link
-                          href={`/admin/items?status=${selectedStatus}&search=${encodeURIComponent(searchTerm)}&edit=${item.id}`}
-                          className="flex items-center gap-1 rounded-lg border border-stone-200 px-3 py-1.5 text-xs font-medium text-stone-700 transition hover:border-orange-200 hover:text-orange-600"
-                        >
-                          <Pencil size={11} /> {t.adminItems.actions.edit}
-                        </Link>
-                        <form action={toggleItemStatusAction}>
-                          <input type="hidden" name="itemId" value={item.id} />
-                          <input type="hidden" name="currentStatus" value={item.status} />
-                          <button type="submit" className="rounded-lg border border-stone-200 px-3 py-1.5 text-xs font-medium text-stone-700 transition hover:bg-stone-100">
-                            {item.status === "sold" ? t.adminItems.actions.makeAvailable : t.adminItems.actions.markSold}
-                          </button>
-                        </form>
-                      </div>
-                    </td>
-                  </tr>
-                  );
-                })}
-              </tbody>
-            </table>
+          <div className="mt-6">
+            <ItemsTable
+              items={items}
+              selectedStatus={selectedStatus}
+              searchTerm={searchTerm}
+              t={t.adminItems}
+              categories={t.categories}
+              conditionT={t.items.condition}
+            />
           </div>
         )}
       </section>
@@ -285,7 +224,7 @@ export default async function AdminItemsPage({
                         <input type="hidden" name="itemId" value={editItem.id} />
                         <input type="hidden" name="imageId" value={image.id} />
                         <input type="hidden" name="direction" value="up" />
-                        <button type="submit" disabled={index === 0} className="rounded-lg border border-stone-200 p-1.5 text-stone-600 transition hover:bg-stone-200 disabled:opacity-30">
+                        <button type="submit" disabled={index === 0} title="Move up" className="rounded-lg border border-stone-200 p-1.5 text-stone-600 transition hover:bg-stone-200 disabled:opacity-30">
                           <ChevronUp size={13} />
                         </button>
                       </form>
@@ -293,7 +232,7 @@ export default async function AdminItemsPage({
                         <input type="hidden" name="itemId" value={editItem.id} />
                         <input type="hidden" name="imageId" value={image.id} />
                         <input type="hidden" name="direction" value="down" />
-                        <button type="submit" disabled={index === array.length - 1} className="rounded-lg border border-stone-200 p-1.5 text-stone-600 transition hover:bg-stone-200 disabled:opacity-30">
+                        <button type="submit" disabled={index === array.length - 1} title="Move down" className="rounded-lg border border-stone-200 p-1.5 text-stone-600 transition hover:bg-stone-200 disabled:opacity-30">
                           <ChevronDown size={13} />
                         </button>
                       </form>

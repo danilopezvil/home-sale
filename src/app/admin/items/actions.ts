@@ -289,6 +289,52 @@ export async function uploadItemImagesAction(_: ItemFormState, formData: FormDat
   };
 }
 
+export async function deleteItemsAction(formData: FormData) {
+  await requireAdminUser();
+
+  const itemIds = formData.getAll("itemIds");
+  const parsed = z.array(z.string().uuid()).min(1).safeParse(itemIds);
+
+  if (!parsed.success) {
+    redirect("/admin/items?error=Invalid+item+IDs");
+  }
+
+  const ids = parsed.data;
+
+  const { data: images } = await supabaseServiceRoleClient
+    .from("item_images")
+    .select("image_url")
+    .in("item_id", ids);
+
+  if (images && images.length > 0) {
+    const paths = images
+      .map((img) => {
+        const marker = "/item-images/";
+        const idx = img.image_url.indexOf(marker);
+        return idx !== -1 ? img.image_url.slice(idx + marker.length) : null;
+      })
+      .filter((p): p is string => p !== null);
+
+    if (paths.length > 0) {
+      await supabaseServiceRoleClient.storage.from("item-images").remove(paths);
+    }
+
+    await supabaseServiceRoleClient.from("item_images").delete().in("item_id", ids);
+  }
+
+  const { error } = await supabaseServiceRoleClient.from("items").delete().in("id", ids);
+
+  if (error) {
+    console.error("Failed to delete items.", error);
+    redirect("/admin/items?error=Failed+to+delete+items");
+  }
+
+  revalidatePath("/admin/items");
+  revalidatePath("/items");
+
+  redirect(`/admin/items?success=Deleted+${ids.length}+item(s)`);
+}
+
 export async function moveItemImageAction(formData: FormData) {
   await requireAdminUser();
 

@@ -165,6 +165,7 @@ const es = {
       markSold: "Marcar vendido",
       makeAvailable: "\u21a9 Disponible",
       doneEditing: "\u2713 Listo",
+      deleteSelected: "Eliminar seleccionados",
     },
     imageOrder: "Orden de im\u00e1genes",
     noImages: "No se han subido im\u00e1genes para este art\u00edculo.",
