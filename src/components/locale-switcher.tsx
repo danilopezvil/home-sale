@@ -15,14 +15,12 @@ export function LocaleSwitcher({ locale }: { locale: Locale }) {
   }
 
   return (
-    <div className="flex items-center rounded-lg border border-stone-200 p-0.5 text-xs font-semibold">
+    <div className="flex items-center rounded-lg border border-stone-200 bg-stone-50 p-0.5 text-[11px] font-semibold sm:text-xs">
       <button
         onClick={() => setLocale("en")}
         disabled={isPending}
         className={`rounded-md px-2 py-1 transition ${
-          locale === "en"
-            ? "bg-orange-500 text-white"
-            : "text-stone-500 hover:text-stone-800"
+          locale === "en" ? "bg-orange-500 text-white" : "text-stone-500 hover:text-stone-800"
         }`}
       >
         EN
@@ -31,9 +29,7 @@ export function LocaleSwitcher({ locale }: { locale: Locale }) {
         onClick={() => setLocale("es")}
         disabled={isPending}
         className={`rounded-md px-2 py-1 transition ${
-          locale === "es"
-            ? "bg-orange-500 text-white"
-            : "text-stone-500 hover:text-stone-800"
+          locale === "es" ? "bg-orange-500 text-white" : "text-stone-500 hover:text-stone-800"
         }`}
       >
         ES

@@ -52,6 +52,17 @@ const es = {
       priceAsc: "Precio \u2191",
       priceDesc: "Precio \u2193",
     },
+    sortLabel: "Ordenar",
+    searchPlaceholder: "Buscar por título o categoría",
+    activeFilters: "Filtros activos:",
+    clearFilters: "Limpiar filtros",
+    filtersLabel: "Filtros",
+    gridLabel: "Cuadrícula",
+    listLabel: "Lista",
+    emptyFiltered: {
+      heading: "No hay resultados con los filtros actuales",
+      subtitle: "Prueba ajustando la búsqueda o quitando filtros.",
+    },
   },
   itemDetail: {
     back: "Volver a art\u00edculos",
