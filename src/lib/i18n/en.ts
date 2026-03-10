@@ -49,6 +49,17 @@ const en = {
       priceAsc: "Price ↑",
       priceDesc: "Price ↓",
     },
+    sortLabel: "Sort",
+    searchPlaceholder: "Search by title or category",
+    activeFilters: "Active filters:",
+    clearFilters: "Clear filters",
+    filtersLabel: "Filters",
+    gridLabel: "Grid",
+    listLabel: "List",
+    emptyFiltered: {
+      heading: "No results for current filters",
+      subtitle: "Try removing or adjusting your search and filters.",
+    },
   },
   itemDetail: {
     back: "Back to items",
