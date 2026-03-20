@@ -23,7 +23,7 @@ export type ItemSuggestion = {
   price: number;
   category: (typeof categoryValues)[number];
   condition: "new" | "like_new" | "good" | "fair" | "parts";
-  pickup_area: "";
+  pickup_area: "Casa o domicilio";
 };
 
 type ImageMediaType = "image/jpeg" | "image/png" | "image/webp";
