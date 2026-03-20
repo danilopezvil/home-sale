@@ -17,6 +17,12 @@ const envSchema = z.object({
   // Resend — optional; emails are skipped if not configured
   RESEND_API_KEY: z.string().min(1).optional(),
   RESEND_FROM_EMAIL: z.string().email().optional(),
+  // REST API — optional; API routes return 503 if not set
+  API_SECRET_KEY: z.string().min(32).optional(),
+  // LLM — provider selection and API keys for image analysis
+  LLM_PROVIDER: z.enum(["gemini", "anthropic"]).optional().default("gemini"),
+  GEMINI_API_KEY: z.string().min(1).optional(),
+  ANTHROPIC_API_KEY: z.string().min(1).optional(),
 });
 
 const parsedEnv = envSchema.safeParse({
@@ -26,6 +32,10 @@ const parsedEnv = envSchema.safeParse({
   ADMIN_EMAILS: process.env.ADMIN_EMAILS,
   RESEND_API_KEY: process.env.RESEND_API_KEY,
   RESEND_FROM_EMAIL: process.env.RESEND_FROM_EMAIL,
+  API_SECRET_KEY: process.env.API_SECRET_KEY,
+  LLM_PROVIDER: process.env.LLM_PROVIDER,
+  GEMINI_API_KEY: process.env.GEMINI_API_KEY,
+  ANTHROPIC_API_KEY: process.env.ANTHROPIC_API_KEY,
 });
 
 if (!parsedEnv.success) {

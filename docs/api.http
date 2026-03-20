@@ -1,0 +1,103 @@
+# Home Sale — API requests
+# Requires VS Code extension: REST Client (humao.rest-client)
+#
+# Usage:
+#   1. Copy .env.local.example → .env.local and fill in values
+#   2. Run: npm run dev
+#   3. Click "Send Request" above any request block
+
+@baseUrl = http://localhost:3000
+@apiKey = 5c1c80b8d0e9fc1dffacf94c7968f103e6be33c75db9adac7a8e4e6769a96a20
+
+# ─── POST /api/items/analyze ──────────────────────────────────────────────────
+# Step 1: send a photo → get draft_id + LLM-generated fields
+#
+# NOTE: multipart file upload is not supported by REST Client.
+# Use the curl command below instead for this endpoint.
+#
+# curl equivalent:
+#   curl -X POST http://localhost:3000/api/items/analyze \
+#     -H "Authorization: Bearer PASTE_YOUR_API_SECRET_KEY_HERE" \
+#     -F "image=@/path/to/photo.jpg"
+
+### Test analyze — missing auth (expect 401)
+POST {{baseUrl}}/api/items/analyze
+Content-Type: multipart/form-data; boundary=boundary
+
+--boundary
+Content-Disposition: form-data; name="image"; filename="test.jpg"
+Content-Type: image/jpeg
+
+< ./test-image.jpg
+--boundary--
+
+### Test analyze — no API key (expect 401)
+POST {{baseUrl}}/api/items/analyze
+
+
+# ─── POST /api/items/confirm ──────────────────────────────────────────────────
+# Step 2: confirm (or edit) the draft → item saved to DB
+# Replace draft_id and image_url with the values returned by /analyze
+
+@draftId   = PASTE_DRAFT_ID_FROM_ANALYZE_RESPONSE
+@imageUrl  = PASTE_IMAGE_URL_FROM_ANALYZE_RESPONSE
+
+### Confirm draft → create item (expect 201)
+POST {{baseUrl}}/api/items/confirm
+Authorization: Bearer {{apiKey}}
+Content-Type: application/json
+
+{
+  "draft_id": "{{draftId}}",
+  "image_url": "{{imageUrl}}",
+  "title": "Cast iron skillet 12\"",
+  "description": "Black cast iron, well seasoned. No rust.",
+  "price": 20,
+  "category": "kitchen",
+  "condition": "good",
+  "pickup_area": "Downtown"
+}
+
+### Confirm — missing pickup_area (expect 422 VALIDATION_ERROR)
+POST {{baseUrl}}/api/items/confirm
+Authorization: Bearer {{apiKey}}
+Content-Type: application/json
+
+{
+  "draft_id": "{{draftId}}",
+  "image_url": "{{imageUrl}}",
+  "title": "Cast iron skillet",
+  "price": 20,
+  "category": "kitchen",
+  "condition": "good"
+}
+
+### Confirm — wrong API key (expect 401)
+POST {{baseUrl}}/api/items/confirm
+Authorization: Bearer wrongkey
+Content-Type: application/json
+
+{
+  "draft_id": "{{draftId}}",
+  "image_url": "{{imageUrl}}",
+  "title": "Test",
+  "price": 0,
+  "category": "other",
+  "condition": "good",
+  "pickup_area": "Downtown"
+}
+
+### Confirm — invalid category (expect 422 VALIDATION_ERROR)
+POST {{baseUrl}}/api/items/confirm
+Authorization: Bearer {{apiKey}}
+Content-Type: application/json
+
+{
+  "draft_id": "{{draftId}}",
+  "image_url": "{{imageUrl}}",
+  "title": "Test item",
+  "price": 10,
+  "category": "INVALID_CATEGORY",
+  "condition": "good",
+  "pickup_area": "Downtown"
+}
