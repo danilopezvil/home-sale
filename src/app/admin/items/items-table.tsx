@@ -2,7 +2,7 @@
 
 import { useTransition, useState } from "react";
 import Link from "next/link";
-import { Pencil, Trash2 } from "lucide-react";
+import { Pencil, Trash2, CircleCheckBig, RotateCcw } from "lucide-react";
 
 import { toggleItemStatusAction, deleteItemsAction } from "@/app/admin/items/actions";
 import { getCategoryMeta } from "@/lib/category-meta";
@@ -79,22 +79,27 @@ export function ItemsTable({ items, selectedStatus, searchTerm, t, categories, c
   return (
     <div className="space-y-4">
       {selectedIds.size > 0 && (
-        <div className="notice-danger flex flex-wrap items-center gap-3">
-          <span className="text-sm font-medium">{selectedIds.size} selected</span>
-          <button onClick={handleDelete} disabled={isPending} className="btn-danger px-3 py-2 text-xs">
-            <Trash2 size={12} />
-            {t.actions.deleteSelected}
-          </button>
-          <button onClick={() => setSelectedIds(new Set())} className="btn-ghost px-2 py-1 text-xs font-semibold">
-            Clear
-          </button>
+        <div className="notice-danger flex flex-wrap items-center justify-between gap-3">
+          <div className="flex items-center gap-2">
+            <Trash2 size={14} />
+            <span className="text-sm font-medium">{selectedIds.size} selected</span>
+          </div>
+          <div className="flex flex-wrap gap-2">
+            <button onClick={handleDelete} disabled={isPending} className="btn-danger px-3 py-2 text-xs">
+              <Trash2 size={12} />
+              {t.actions.deleteSelected}
+            </button>
+            <button onClick={() => setSelectedIds(new Set())} className="btn-secondary px-3 py-2 text-xs">
+              Clear
+            </button>
+          </div>
         </div>
       )}
 
       <div className="table-shell">
         <div className="table-wrap">
           <table className="min-w-full text-sm">
-            <thead className="bg-stone-50 text-left text-xs font-semibold uppercase tracking-[0.18em] text-stone-400">
+            <thead className="bg-[hsl(var(--surface-muted))] text-left text-[11px] font-semibold uppercase tracking-[0.18em] text-stone-500">
               <tr>
                 <th className="px-4 py-3">
                   <input
@@ -116,13 +121,13 @@ export function ItemsTable({ items, selectedStatus, searchTerm, t, categories, c
                 <th className="px-4 py-3">{t.table.actions}</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-stone-100">
+            <tbody className="divide-y divide-stone-200">
               {items.map((item) => {
                 const cat = getCategoryMeta(item.category);
                 const condLabel = (conditionT as Record<string, string>)[item.condition] ?? item.condition;
                 const isSelected = selectedIds.has(item.id);
                 return (
-                  <tr key={item.id} className={`${isSelected ? "bg-red-50/50" : "bg-white"} hover:bg-stone-50`}>
+                  <tr key={item.id} className={`${isSelected ? "bg-[hsl(var(--danger-soft))]/70" : "bg-white/80"} hover:bg-[hsl(var(--surface-muted))]`}>
                     <td className="px-4 py-4 align-top">
                       <input
                         type="checkbox"
@@ -132,16 +137,22 @@ export function ItemsTable({ items, selectedStatus, searchTerm, t, categories, c
                       />
                     </td>
                     <td className="px-4 py-4 align-top">
-                      <div>
+                      <div className="space-y-1">
                         <p className="font-semibold text-stone-950">{item.title}</p>
-                        <p className="mt-1 text-xs text-stone-500">ID: {item.id}</p>
+                        <p className="text-xs text-stone-500">ID: {item.id}</p>
                       </div>
                     </td>
-                    <td className="px-4 py-4 font-semibold text-stone-900 align-top">
-                      {currencyFormatter.format(Number(item.price))}
+                    <td className="px-4 py-4 align-top">
+                      <div className="space-y-1">
+                        <p className="font-semibold text-stone-950">{currencyFormatter.format(Number(item.price))}</p>
+                        {Number(item.price) === 0 ? <p className="text-xs text-[hsl(var(--success))]">Free item</p> : null}
+                      </div>
                     </td>
                     <td className="px-4 py-4 text-stone-600 align-top">
-                      {cat.emoji} {getCatLabel(categories, item.category)}
+                      <span className="inline-flex items-center gap-2">
+                        <span>{cat.emoji}</span>
+                        <span>{getCatLabel(categories, item.category)}</span>
+                      </span>
                     </td>
                     <td className="px-4 py-4 text-stone-600 align-top">{condLabel}</td>
                     <td className="px-4 py-4 text-stone-600 align-top">{item.pickup_area || "—"}</td>
@@ -149,17 +160,18 @@ export function ItemsTable({ items, selectedStatus, searchTerm, t, categories, c
                       <span className={statusBadgeClasses(item.status)}>{getStatusLabel(t.status, item.status)}</span>
                     </td>
                     <td className="px-4 py-4 align-top">
-                      <div className="flex flex-wrap gap-2">
+                      <div className="flex min-w-[180px] flex-col gap-2">
                         <Link
                           href={`/admin/items?status=${selectedStatus}&search=${encodeURIComponent(searchTerm)}&edit=${item.id}`}
-                          className="btn-secondary px-3 py-2 text-xs"
+                          className="btn-secondary h-9 justify-start px-3 text-xs"
                         >
                           <Pencil size={11} /> {t.actions.edit}
                         </Link>
                         <form action={toggleItemStatusAction}>
                           <input type="hidden" name="itemId" value={item.id} />
                           <input type="hidden" name="currentStatus" value={item.status} />
-                          <button type="submit" className="btn-secondary px-3 py-2 text-xs">
+                          <button type="submit" className="btn-secondary h-9 w-full justify-start px-3 text-xs">
+                            {item.status === "sold" ? <RotateCcw size={11} /> : <CircleCheckBig size={11} />}
                             {item.status === "sold" ? t.actions.makeAvailable : t.actions.markSold}
                           </button>
                         </form>

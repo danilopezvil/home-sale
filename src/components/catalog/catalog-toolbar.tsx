@@ -5,6 +5,7 @@ import type { SortOption, ViewMode } from "./types";
 type CatalogToolbarProps = {
   title: string;
   countLabel: string;
+  summaryLabel: string;
   searchPlaceholder: string;
   sortLabel: string;
   sortNewestLabel: string;
@@ -26,6 +27,7 @@ type CatalogToolbarProps = {
 export function CatalogToolbar({
   title,
   countLabel,
+  summaryLabel,
   searchPlaceholder,
   sortLabel,
   sortNewestLabel,
@@ -45,12 +47,20 @@ export function CatalogToolbar({
 }: CatalogToolbarProps) {
   return (
     <section className="surface section-pad">
-      <div className="flex flex-col gap-4 border-b border-stone-200 pb-4 lg:flex-row lg:items-end lg:justify-between">
-        <div>
-          <p className="eyebrow">Inventory</p>
-          <h1 className="section-title mt-2">{title}</h1>
-          <p className="section-copy mt-2">{countLabel}</p>
+      <div className="grid gap-4 border-b border-stone-200 pb-5 xl:grid-cols-[minmax(0,1fr)_220px] xl:items-end">
+        <div className="space-y-3">
+          <div className="space-y-2">
+            <p className="eyebrow">Actual sale inventory</p>
+            <h1 className="inventory-title">{title}</h1>
+            <p className="display-subtitle max-w-2xl">{summaryLabel}</p>
+          </div>
+          <div className="flex flex-wrap items-center gap-2">
+            <span className="badge badge-neutral">{countLabel}</span>
+            <span className="badge">Single-copy household items</span>
+            <span className="badge">Pickup-first flow</span>
+          </div>
         </div>
+
         <button
           type="button"
           onClick={onToggleFilters}
@@ -61,7 +71,7 @@ export function CatalogToolbar({
         </button>
       </div>
 
-      <div className="mt-4 grid gap-3 xl:grid-cols-[minmax(0,1fr)_190px_auto] xl:items-center">
+      <div className="mt-5 grid gap-3 xl:grid-cols-[minmax(0,1fr)_220px_auto] xl:items-center">
         <label className="relative block">
           <Search
             size={16}
@@ -71,7 +81,7 @@ export function CatalogToolbar({
             value={searchValue}
             onChange={(event) => onSearchChange(event.target.value)}
             placeholder={searchPlaceholder}
-            className="input-base pl-10"
+            className="input-base h-12 pl-10"
           />
         </label>
 
@@ -84,7 +94,7 @@ export function CatalogToolbar({
             value={selectedSort}
             onChange={(event) => onSortChange(event.target.value as SortOption)}
             aria-label={sortLabel}
-            className="select-base appearance-none pl-10 pr-8"
+            className="select-base h-12 appearance-none pl-10 pr-8"
           >
             <option value="newest">{sortNewestLabel}</option>
             <option value="price_asc">{sortPriceAscLabel}</option>
@@ -92,7 +102,7 @@ export function CatalogToolbar({
           </select>
         </label>
 
-        <div className="inline-flex h-11 items-center rounded-2xl border border-stone-200 bg-stone-50 p-1">
+        <div className="inline-flex h-12 items-center rounded-2xl border border-stone-200 bg-[hsl(var(--surface-muted))] p-1">
           <button
             type="button"
             onClick={() => onViewChange("grid")}

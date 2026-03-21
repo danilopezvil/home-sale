@@ -2,32 +2,32 @@
 @tailwind components;
 @tailwind utilities;
 
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Newsreader:opsz,wght@6..72,500;6..72,600;6..72,700&display=swap');
 
 :root {
-  --bg: 30 20% 97%;
-  --surface: 0 0% 100%;
-  --surface-muted: 30 17% 95%;
-  --surface-strong: 28 22% 90%;
-  --border: 28 16% 84%;
-  --border-strong: 27 19% 73%;
-  --text: 26 21% 12%;
-  --text-muted: 26 11% 40%;
-  --text-soft: 25 8% 52%;
-  --accent: 18 85% 54%;
-  --accent-strong: 18 78% 46%;
-  --accent-soft: 18 100% 96%;
-  --success: 152 47% 40%;
-  --success-soft: 151 64% 95%;
-  --warning: 35 86% 45%;
-  --warning-soft: 40 100% 95%;
-  --danger: 3 71% 47%;
-  --danger-soft: 0 86% 97%;
-  --shadow-sm: 0 1px 2px rgba(28, 25, 23, 0.04);
-  --shadow-md: 0 12px 30px rgba(28, 25, 23, 0.06);
+  --bg: 28 29% 95%;
+  --surface: 32 33% 99%;
+  --surface-muted: 32 24% 92%;
+  --surface-strong: 28 19% 87%;
+  --border: 26 18% 80%;
+  --border-strong: 24 18% 66%;
+  --text: 22 19% 13%;
+  --text-muted: 24 11% 35%;
+  --text-soft: 24 8% 48%;
+  --accent: 18 54% 47%;
+  --accent-strong: 18 53% 37%;
+  --accent-soft: 18 48% 90%;
+  --success: 112 16% 40%;
+  --success-soft: 108 24% 91%;
+  --warning: 31 58% 42%;
+  --warning-soft: 34 54% 90%;
+  --danger: 8 43% 44%;
+  --danger-soft: 8 39% 91%;
+  --shadow-sm: 0 1px 2px rgba(37, 30, 26, 0.04);
+  --shadow-md: 0 10px 30px rgba(37, 30, 26, 0.08);
   --radius-sm: 0.75rem;
   --radius-md: 1rem;
-  --radius-lg: 1.5rem;
+  --radius-lg: 1.25rem;
 }
 
 @layer base {
@@ -46,12 +46,12 @@
     -webkit-font-smoothing: antialiased;
     text-rendering: optimizeLegibility;
     background-image:
-      radial-gradient(circle at top left, rgba(255, 255, 255, 0.85), transparent 28%),
-      linear-gradient(180deg, rgba(255,255,255,0.5), rgba(255,255,255,0));
+      radial-gradient(circle at top left, rgba(255, 250, 245, 0.9), transparent 26%),
+      linear-gradient(180deg, rgba(255,255,255,0.58), rgba(255,255,255,0));
   }
 
   ::selection {
-    background: rgba(234, 88, 12, 0.18);
+    background: rgba(184, 92, 56, 0.18);
   }
 
   a, button, input, select, textarea {
@@ -61,16 +61,17 @@
 
 @layer components {
   .app-shell {
-    @apply mx-auto flex min-h-screen w-full max-w-[1440px] flex-col px-4 py-4 sm:px-6 lg:px-8;
+    @apply mx-auto flex min-h-screen w-full max-w-[1360px] flex-col px-4 py-4 sm:px-6 lg:px-8;
   }
 
   .page-stack {
-    @apply flex flex-1 flex-col gap-5 pb-8 sm:gap-6 sm:pb-10;
+    @apply flex flex-1 flex-col gap-6 pb-8 sm:gap-7 sm:pb-10;
   }
 
   .surface {
-    @apply rounded-[var(--radius-lg)] border bg-white;
+    @apply rounded-[var(--radius-lg)] border;
     border-color: hsl(var(--border));
+    background: hsl(var(--surface));
     box-shadow: var(--shadow-sm);
   }
 
@@ -99,9 +100,33 @@
     @apply text-xl font-semibold tracking-[-0.03em] text-stone-950 sm:text-2xl;
   }
 
+  .display-title {
+    font-family: 'Newsreader', Georgia, serif;
+    @apply text-3xl leading-none tracking-[-0.05em] text-stone-950 sm:text-4xl lg:text-[3.35rem];
+  }
+
+  .display-subtitle {
+    @apply text-sm leading-6 sm:text-base sm:leading-7;
+    color: hsl(var(--text-muted));
+  }
+
   .section-copy {
     @apply text-sm leading-6;
     color: hsl(var(--text-muted));
+  }
+
+  .data-label {
+    @apply text-[11px] font-semibold uppercase tracking-[0.2em];
+    color: hsl(var(--text-soft));
+  }
+
+  .data-value {
+    @apply text-2xl font-semibold tracking-[-0.04em] text-stone-950;
+  }
+
+  .inventory-title {
+    font-family: 'Newsreader', Georgia, serif;
+    @apply text-[1.9rem] leading-[1.02] tracking-[-0.045em] text-stone-950 sm:text-[2.4rem];
   }
 
   .btn-primary,
@@ -115,11 +140,11 @@
     background: hsl(var(--text));
     color: white;
   }
-  .btn-primary:hover { background: hsl(24 16% 18%); }
+  .btn-primary:hover { background: hsl(23 17% 19%); }
 
   .btn-secondary {
     border: 1px solid hsl(var(--border));
-    background: white;
+    background: hsl(var(--surface));
     color: hsl(var(--text));
   }
   .btn-secondary:hover {
@@ -130,20 +155,20 @@
   .btn-ghost {
     color: hsl(var(--text-muted));
   }
-  .btn-ghost:hover { color: hsl(var(--text)); background: rgba(28, 25, 23, 0.04); }
+  .btn-ghost:hover { color: hsl(var(--text)); background: rgba(37, 30, 26, 0.05); }
 
   .btn-danger {
     background: hsl(var(--danger));
     color: white;
   }
-  .btn-danger:hover { background: hsl(3 71% 42%); }
+  .btn-danger:hover { background: hsl(8 43% 38%); }
 
   .input-base,
   .select-base,
   .textarea-base {
     @apply w-full rounded-xl border px-3 py-2.5 text-sm transition placeholder:text-stone-400;
     border-color: hsl(var(--border));
-    background: white;
+    background: hsl(var(--surface));
     color: hsl(var(--text));
   }
 
@@ -157,7 +182,7 @@
   .select-base:focus,
   .textarea-base:focus {
     border-color: hsl(var(--accent));
-    box-shadow: 0 0 0 4px rgba(234, 88, 12, 0.12);
+    box-shadow: 0 0 0 4px rgba(184, 92, 56, 0.1);
   }
 
   .field-shell {
@@ -183,7 +208,7 @@
   .badge {
     @apply inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-medium;
     border: 1px solid hsl(var(--border));
-    background: white;
+    background: rgba(255,255,255,0.7);
     color: hsl(var(--text-muted));
   }
 
@@ -194,19 +219,19 @@
   }
 
   .badge-success {
-    border-color: rgba(16, 185, 129, 0.24);
+    border-color: rgba(96, 116, 90, 0.24);
     background: hsl(var(--success-soft));
     color: hsl(var(--success));
   }
 
   .badge-warning {
-    border-color: rgba(245, 158, 11, 0.24);
+    border-color: rgba(163, 107, 43, 0.2);
     background: hsl(var(--warning-soft));
     color: hsl(var(--warning));
   }
 
   .badge-danger {
-    border-color: rgba(220, 38, 38, 0.24);
+    border-color: rgba(165, 74, 63, 0.22);
     background: hsl(var(--danger-soft));
     color: hsl(var(--danger));
   }
@@ -224,16 +249,17 @@
 
   .notice {
     border-color: hsl(var(--border));
-    background: white;
+    background: hsl(var(--surface));
     color: hsl(var(--text-muted));
   }
-  .notice-danger { border-color: rgba(220, 38, 38, 0.2); background: hsl(var(--danger-soft)); color: hsl(var(--danger)); }
-  .notice-success { border-color: rgba(16, 185, 129, 0.24); background: hsl(var(--success-soft)); color: hsl(var(--success)); }
-  .notice-warning { border-color: rgba(245, 158, 11, 0.24); background: hsl(var(--warning-soft)); color: hsl(var(--warning)); }
+  .notice-danger { border-color: rgba(165, 74, 63, 0.2); background: hsl(var(--danger-soft)); color: hsl(var(--danger)); }
+  .notice-success { border-color: rgba(96, 116, 90, 0.24); background: hsl(var(--success-soft)); color: hsl(var(--success)); }
+  .notice-warning { border-color: rgba(163, 107, 43, 0.22); background: hsl(var(--warning-soft)); color: hsl(var(--warning)); }
 
   .table-shell {
-    @apply overflow-hidden rounded-[var(--radius-md)] border bg-white;
+    @apply overflow-hidden rounded-[var(--radius-md)] border;
     border-color: hsl(var(--border));
+    background: hsl(var(--surface));
   }
 
   .table-wrap {
@@ -249,28 +275,47 @@
   .kpi-card {
     @apply rounded-[var(--radius-md)] border p-4;
     border-color: hsl(var(--border));
-    background: white;
+    background: rgba(255,255,255,0.72);
   }
 
   .stat-value {
     @apply text-2xl font-semibold tracking-[-0.04em] text-stone-950;
   }
 
+  .inventory-metric {
+    @apply flex flex-col gap-1 rounded-2xl border px-4 py-3;
+    border-color: hsl(var(--border));
+    background: rgba(255,255,255,0.72);
+  }
+
+  .catalog-card {
+    @apply rounded-[18px] border;
+    border-color: hsl(var(--border));
+    background: rgba(255,255,255,0.82);
+    box-shadow: var(--shadow-sm);
+  }
+
+  .detail-panel {
+    @apply rounded-[20px] border;
+    border-color: hsl(var(--border));
+    background: rgba(255,255,255,0.82);
+    box-shadow: var(--shadow-sm);
+  }
+
+  .admin-panel {
+    @apply rounded-[18px] border;
+    border-color: hsl(var(--border));
+    background: rgba(255,255,255,0.78);
+    box-shadow: var(--shadow-sm);
+  }
+
+  .admin-metric {
+    @apply rounded-2xl border px-4 py-3;
+    border-color: hsl(var(--border));
+    background: hsl(var(--surface-muted));
+  }
+
   .admin-grid {
-    @apply grid gap-5 xl:grid-cols-[minmax(0,1.1fr)_minmax(360px,0.9fr)];
-  }
-}
-
-@layer utilities {
-  .scrollbar-hide {
-    scrollbar-width: none;
-    -ms-overflow-style: none;
-  }
-  .scrollbar-hide::-webkit-scrollbar {
-    display: none;
-  }
-
-  .text-balance {
-    text-wrap: balance;
+    @apply grid gap-5 xl:grid-cols-[minmax(0,1.25fr)_420px];
   }
 }

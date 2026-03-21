@@ -33,7 +33,7 @@ type UploadImagesFormProps = { itemId: string; t: Dictionary["uploadForm"] };
 const initialItemFormState: ItemFormState = { success: false, message: "" };
 
 function inputClass(hasError: boolean) {
-  return `${hasError ? "border-red-300 bg-red-50" : ""} input-base`;
+  return `${hasError ? "border-red-300 bg-red-50" : ""} input-base h-11`;
 }
 
 function FieldLabel({
@@ -92,16 +92,22 @@ export function ItemForm({ mode, initialValues, t, categories }: ItemFormProps) 
   }));
 
   return (
-    <form action={formAction} className="surface section-pad space-y-4">
-      <div className="flex flex-col gap-3 border-b border-stone-200 pb-4 sm:flex-row sm:items-center sm:justify-between">
-        <div>
-          <p className="eyebrow">{isEdit ? "Update listing" : "Create listing"}</p>
-          <h2 className="mt-2 flex items-center gap-2 text-lg font-semibold tracking-[-0.03em] text-stone-950">
-            {isEdit ? <Save size={18} className="text-stone-500" /> : <Plus size={18} className="text-stone-500" />}
-            {isEdit ? t.edit : t.new}
-          </h2>
+    <form action={formAction} className="admin-panel section-pad space-y-4">
+      <div className="flex flex-col gap-3 border-b border-stone-200 pb-4">
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <div>
+            <p className="eyebrow">{isEdit ? "Update listing" : "Create listing"}</p>
+            <h2 className="mt-2 flex items-center gap-2 text-lg font-semibold tracking-[-0.03em] text-stone-950">
+              {isEdit ? <Save size={18} className="text-stone-500" /> : <Plus size={18} className="text-stone-500" />}
+              {isEdit ? t.edit : t.new}
+            </h2>
+          </div>
+          <span className="badge badge-neutral">
+            <span className="text-red-400">*</span>
+            {t.required}
+          </span>
         </div>
-        <p className="field-note"><span className="text-red-400">*</span> {t.required}</p>
+        <p className="text-sm text-stone-500">Use compact, factual copy: title, condition, pickup and anything that changes the handoff.</p>
       </div>
 
       <FormMessage state={state} />
@@ -109,7 +115,7 @@ export function ItemForm({ mode, initialValues, t, categories }: ItemFormProps) 
       {isEdit ? <input type="hidden" name="id" value={initialValues.id} /> : null}
 
       <div className="grid gap-4 md:grid-cols-2">
-        <div className="field-shell">
+        <div className="field-shell md:col-span-2">
           <FieldLabel htmlFor="item-title" icon={<FileText size={14} />}>{t.fields.title.label}</FieldLabel>
           <input
             id="item-title"
@@ -142,6 +148,22 @@ export function ItemForm({ mode, initialValues, t, categories }: ItemFormProps) 
         </div>
 
         <div className="field-shell">
+          <FieldLabel htmlFor="item-pickup" icon={<MapPin size={14} />}>{t.fields.pickupArea.label}</FieldLabel>
+          <input
+            id="item-pickup"
+            name="pickup_area"
+            type="text"
+            defaultValue={initialValues.pickup_area}
+            className={inputClass(!!state.errors?.pickup_area)}
+            placeholder={t.fields.pickupArea.placeholder}
+            maxLength={200}
+            required
+          />
+          <Hint>{t.fields.pickupArea.hint}</Hint>
+          <FieldError errors={state.errors} name="pickup_area" />
+        </div>
+
+        <div className="field-shell">
           <FieldLabel htmlFor="item-category" icon={<Tag size={14} />}>{t.fields.category.label}</FieldLabel>
           <select id="item-category" name="category" defaultValue={initialValues.category} className={`${inputClass(!!state.errors?.category)} select-base`} required>
             <option value="" disabled>{t.fields.category.placeholder}</option>
@@ -161,22 +183,6 @@ export function ItemForm({ mode, initialValues, t, categories }: ItemFormProps) 
           </select>
           <FieldError errors={state.errors} name="condition" />
         </div>
-
-        <div className="field-shell md:col-span-2">
-          <FieldLabel htmlFor="item-pickup" icon={<MapPin size={14} />}>{t.fields.pickupArea.label}</FieldLabel>
-          <input
-            id="item-pickup"
-            name="pickup_area"
-            type="text"
-            defaultValue={initialValues.pickup_area}
-            className={inputClass(!!state.errors?.pickup_area)}
-            placeholder={t.fields.pickupArea.placeholder}
-            maxLength={200}
-            required
-          />
-          <Hint>{t.fields.pickupArea.hint}</Hint>
-          <FieldError errors={state.errors} name="pickup_area" />
-        </div>
       </div>
 
       <div className="field-shell">
@@ -187,7 +193,7 @@ export function ItemForm({ mode, initialValues, t, categories }: ItemFormProps) 
           id="item-description"
           name="description"
           defaultValue={initialValues.description}
-          className={`${inputClass(!!state.errors?.description)} textarea-base min-h-32 resize-y`}
+          className={`${state.errors?.description ? "border-red-300 bg-red-50" : ""} textarea-base min-h-32 resize-y`}
           placeholder={t.fields.description.placeholder}
           maxLength={2000}
         />
@@ -195,10 +201,13 @@ export function ItemForm({ mode, initialValues, t, categories }: ItemFormProps) 
         <FieldError errors={state.errors} name="description" />
       </div>
 
-      <button type="submit" disabled={pending} className="btn-primary w-full sm:w-auto">
-        {isEdit ? <Save size={15} /> : <Plus size={15} />}
-        {pending ? t.submit.saving : isEdit ? t.submit.save : t.submit.create}
-      </button>
+      <div className="flex flex-col gap-3 border-t border-stone-200 pt-4 sm:flex-row sm:items-center sm:justify-between">
+        <div className="text-xs text-stone-500">Keep descriptions specific: dimensions, wear, missing parts, building access or pickup constraints.</div>
+        <button type="submit" disabled={pending} className="btn-primary h-11 w-full sm:w-auto">
+          {isEdit ? <Save size={15} /> : <Plus size={15} />}
+          {pending ? t.submit.saving : isEdit ? t.submit.save : t.submit.create}
+        </button>
+      </div>
     </form>
   );
 }
@@ -207,7 +216,7 @@ export function UploadImagesForm({ itemId, t }: UploadImagesFormProps) {
   const [state, formAction, pending] = useActionState(uploadItemImagesAction, initialItemFormState);
 
   return (
-    <form action={formAction} className="surface section-pad space-y-4">
+    <form action={formAction} className="admin-panel section-pad space-y-4">
       <div className="border-b border-stone-200 pb-4">
         <p className="eyebrow">Media</p>
         <h3 className="mt-2 flex items-center gap-2 text-lg font-semibold tracking-[-0.03em] text-stone-950">
@@ -235,7 +244,7 @@ export function UploadImagesForm({ itemId, t }: UploadImagesFormProps) {
         <FieldError errors={state.errors} name="images" />
       </div>
 
-      <button type="submit" disabled={pending} className="btn-primary w-full sm:w-auto">
+      <button type="submit" disabled={pending} className="btn-primary h-11 w-full sm:w-auto">
         <ImagePlus size={15} />
         {pending ? t.uploading : t.submit}
       </button>
