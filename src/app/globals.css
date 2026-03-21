@@ -302,20 +302,7 @@
     box-shadow: var(--shadow-sm);
   }
 
-  .admin-panel {
-    @apply rounded-[18px] border;
-    border-color: hsl(var(--border));
-    background: rgba(255,255,255,0.78);
-    box-shadow: var(--shadow-sm);
-  }
-
-  .admin-metric {
-    @apply rounded-2xl border px-4 py-3;
-    border-color: hsl(var(--border));
-    background: hsl(var(--surface-muted));
-  }
-
   .admin-grid {
-    @apply grid gap-5 xl:grid-cols-[minmax(0,1.25fr)_420px];
+    @apply grid gap-5 xl:grid-cols-[minmax(0,1.1fr)_minmax(360px,0.9fr)];
   }
 }
