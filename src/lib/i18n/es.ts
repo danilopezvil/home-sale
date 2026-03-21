@@ -12,18 +12,18 @@ const es = {
   },
   footer: "Todo debe irse. \ud83d\udce6",
   home: {
-    heading: "\u00a1Gran mudanza. \u00a1Hay que vender!",
+    heading: "Nos mudamos y vendemos la casa entera.",
     subtitle:
-      "Muebles, libros, cosas de cocina, gadgets y m\u00e1s \u2014 todo a precios de oferta. \u00a1Ven a encontrar tu ganga!",
-    browse: "Ver art\u00edculos",
-    whatsNew: "Novedades",
+      "Si te interesa algo, resérvalo ahora. Hay muebles, libros, electrónica y menaje listos para recoger.",
+    browse: "Ver lo disponible",
+    whatsNew: "Últimos añadidos",
     categories: [
-      { emoji: "\ud83d\udecf\ufe0f", label: "Muebles", key: "furniture" },
-      { emoji: "\ud83d\udcda", label: "Libros", key: "books" },
-      { emoji: "\ud83d\udcbb", label: "Electr\u00f3nica", key: "electronics" },
-      { emoji: "\ud83c\udf73", label: "Cocina", key: "kitchen" },
-      { emoji: "\u2728", label: "Decoraci\u00f3n", key: "decor" },
-      { emoji: "\ud83d\udce6", label: "Y m\u00e1s", key: "" },
+      { emoji: "🛋️", label: "Muebles", key: "furniture" },
+      { emoji: "📚", label: "Libros", key: "books" },
+      { emoji: "💻", label: "Electrónica", key: "electronics" },
+      { emoji: "🍳", label: "Menaje", key: "kitchen" },
+      { emoji: "✨", label: "Decoración", key: "decor" },
+      { emoji: "📦", label: "Resto", key: "" },
     ],
   },
   items: {

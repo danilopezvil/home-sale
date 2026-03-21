@@ -10,18 +10,18 @@ const en = {
   },
   footer: "Everything must go. 📦",
   home: {
-    heading: "Big move. Must sell!",
+    heading: "We're moving and selling the house.",
     subtitle:
-      "Furniture, books, kitchen stuff, gadgets and more — all priced to go fast. Come grab a deal before it's gone.",
-    browse: "Browse items",
-    whatsNew: "What's new",
+      "If you want something, reserve it now. Furniture, books, electronics, and kitchenware are ready for pickup.",
+    browse: "See what's available",
+    whatsNew: "Just added",
     categories: [
       { emoji: "🛋️", label: "Furniture", key: "furniture" },
       { emoji: "📚", label: "Books", key: "books" },
       { emoji: "💻", label: "Electronics", key: "electronics" },
-      { emoji: "🍳", label: "Kitchen", key: "kitchen" },
+      { emoji: "🍳", label: "Kitchenware", key: "kitchen" },
       { emoji: "✨", label: "Decor", key: "decor" },
-      { emoji: "📦", label: "And more", key: "" },
+      { emoji: "📦", label: "Everything else", key: "" },
     ],
   },
   items: {
