@@ -13,8 +13,15 @@ type ItemListRow = {
   item_images?: { image_url: string; sort_order: number }[];
 };
 
-export default async function ItemsPage() {
+type ItemsPageProps = {
+  searchParams?: Promise<Record<string, string | string[] | undefined>>;
+};
+
+const SORT_OPTIONS = new Set(["newest", "price_asc", "price_desc"]);
+
+export default async function ItemsPage({ searchParams }: ItemsPageProps) {
   const t = await getTranslations();
+  const params = (await searchParams) ?? {};
 
   let items: ItemListRow[] = [];
   let loadError = false;
@@ -61,5 +68,9 @@ export default async function ItemsPage() {
         ?.image_url ?? null,
   }));
 
-  return <ItemsCatalog items={parsedItems} t={t} />;
+  const categoryParam = Array.isArray(params.category) ? params.category[0] : params.category;
+  const sortParam = Array.isArray(params.sort) ? params.sort[0] : params.sort;
+  const initialSort = sortParam && SORT_OPTIONS.has(sortParam) ? sortParam : "newest";
+
+  return <ItemsCatalog items={parsedItems} t={t} initialCategory={categoryParam ?? ""} initialSort={initialSort as "newest" | "price_asc" | "price_desc"} />;
 }

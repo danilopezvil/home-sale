@@ -154,13 +154,13 @@ export function ReserveForm({ itemId, t }: { itemId: string; t: Dictionary["rese
         <FieldError message={state.errors?.message?.[0]} />
       </div>
 
-      <p className="field-note">
+      <div className="rounded-2xl border border-stone-200 bg-[hsl(var(--surface-muted))] px-4 py-3 text-xs text-stone-600">
         {t.required.split("*")[0]}
         <span className="text-red-400">*</span>
         {t.required.split("*")[1]}
-      </p>
+      </div>
 
-      <button type="submit" disabled={isPending} className="btn-primary w-full">
+      <button type="submit" disabled={isPending} className="btn-primary w-full h-12">
         <Send size={15} />
         {isPending ? t.submitting : t.submit}
       </button>

@@ -17,20 +17,22 @@ const navItems = [
 
 export function SiteHeader({ locale, t }: SiteHeaderProps) {
   return (
-    <header className="surface section-pad sticky top-4 z-20 border-white/70 bg-white/90 backdrop-blur">
-      <nav className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
-        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between lg:justify-start lg:gap-6">
-          <div>
-            <p className="eyebrow">Moving sale</p>
-            <Link href="/" className="mt-1 inline-flex items-center gap-2 text-lg font-semibold tracking-[-0.03em] text-stone-950">
-              <span className="inline-flex h-9 w-9 items-center justify-center rounded-xl border border-stone-200 bg-stone-50 text-base">
-                🏠
-              </span>
-              {t.nav.home}
-            </Link>
+    <header className="surface sticky top-4 z-20 border-white/60 bg-[hsl(var(--surface))]/90 backdrop-blur">
+      <nav className="flex flex-col gap-4 px-4 py-4 sm:px-5 lg:flex-row lg:items-center lg:justify-between lg:px-6">
+        <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:gap-8">
+          <div className="flex items-center gap-3">
+            <span className="inline-flex h-11 w-11 items-center justify-center rounded-2xl border border-stone-200 bg-[hsl(var(--surface-muted))] text-lg">
+              🏠
+            </span>
+            <div>
+              <p className="eyebrow">Moving sale inventory</p>
+              <Link href="/" className="inline-flex items-center gap-2 text-lg font-semibold tracking-[-0.03em] text-stone-950">
+                {t.nav.home}
+              </Link>
+            </div>
           </div>
 
-          <div className="flex flex-wrap items-center gap-1.5 rounded-2xl border border-stone-200 bg-stone-50/80 p-1">
+          <div className="flex flex-wrap items-center gap-1.5 rounded-2xl border border-stone-200 bg-[hsl(var(--surface-muted))]/80 p-1">
             {navItems.map(({ href, key, icon: Icon }) => (
               <Link
                 key={href}
@@ -46,8 +48,8 @@ export function SiteHeader({ locale, t }: SiteHeaderProps) {
 
         <div className="flex items-center justify-between gap-3 lg:justify-end">
           <div className="hidden text-right sm:block">
-            <p className="text-sm font-medium text-stone-900">Fast scan inventory</p>
-            <p className="text-xs text-stone-500">Clear status, quick pickup, simple admin.</p>
+            <p className="text-sm font-medium text-stone-900">Actual household stock</p>
+            <p className="text-xs text-stone-500">Quick scan, clear status, direct pickup coordination.</p>
           </div>
           <LocaleSwitcher locale={locale} />
         </div>
