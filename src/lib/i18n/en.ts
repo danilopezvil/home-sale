@@ -8,22 +8,22 @@ const en = {
     title: "Home Sale 🏠",
     description: "Furniture, books, gadgets & more — all must go!",
   },
-  footer: "Everything must go. 📦",
+  footer: "Moving sale inventory, updated as items leave. 📦",
   home: {
     kicker: "Pickup-ready inventory",
     heading: "We're moving and selling the house.",
     subtitle:
-      "Check the inventory, filter by category, and reserve what you need right away. Everything is organised for quick pickup.",
+      "Browse the actual inventory, compare condition and reserve quickly before pickup slots fill up. This is a real moving sale, not a showroom catalogue.",
     primaryAction: "Reserve an item",
     secondaryAction: "See latest additions",
     inventoryLabel: "items available",
     categoriesLabel: "Browse by category",
     viewAllCategories: "View all",
     recentHeading: "Recent arrivals",
-    recentSubtitle: "Quick access to the latest published items.",
+    recentSubtitle: "Newest listings published to the sale.",
     viewLatest: "Newest",
     inventorySectionTitle: "Available now",
-    inventorySectionSubtitle: "A first pass through the inventory so visitors can start scanning items immediately.",
+    inventorySectionSubtitle: "A compact first pass through what is still available so buyers can scan fast and act quickly.",
     rowAction: "Open details",
     categories: [
       { emoji: "🛋️", label: "Furniture", key: "furniture" },
@@ -38,11 +38,11 @@ const en = {
     pageTitle: "Available items",
     empty: {
       heading: "Nothing here yet",
-      subtitle: "Check back soon — more items are on the way!",
+      subtitle: "There are no published items yet. Check again once more inventory is added.",
     },
     error: {
       heading: "Something went wrong",
-      subtitle: "Couldn't load items right now. Please try again later.",
+      subtitle: "The inventory could not be loaded right now. Please try again in a moment.",
     },
     condition: {
       new: "New",
@@ -81,8 +81,8 @@ const en = {
     noPhotos: "No photos yet",
     free: "Free! 🎉",
     reservedMessage:
-      "This item has already been reserved. Check back in case the reservation falls through!",
-    soldMessage: "This item has been sold. Browse other available items!",
+      "This item is currently on hold for another buyer. Check back later in case the pickup is cancelled.",
+    soldMessage: "This item has already left the sale. Browse the remaining available inventory.",
     error: {
       load: "Couldn't load this item",
       general: "Something went wrong",
@@ -98,7 +98,7 @@ const en = {
     email: {
       label: "Email",
       placeholder: "you@example.com",
-      hint: "We'll use this to confirm your reservation.",
+      hint: "Used only to confirm the reservation and coordinate pickup.",
     },
     phone: {
       label: "Phone",
@@ -106,11 +106,11 @@ const en = {
     },
     pickup: {
       label: "Preferred pickup",
-      hint: "Let us know when works best.",
+      hint: "Optional, but helpful for scheduling handoff quickly.",
     },
     message: {
       label: "Message",
-      placeholder: "Any questions, special requests, or details about your pickup\u2026",
+      placeholder: "Use this for timing, building access, or any question that affects pickup.",
       hint: "Up to 1,000 characters.",
     },
     optional: "(optional)",
@@ -123,10 +123,10 @@ const en = {
   },
   admin: {
     heading: "Admin \u2699\ufe0f",
-    subtitle: "Manage your sale from here.",
+    subtitle: "Run the moving sale: publish inventory, manage reservations and keep statuses accurate.",
     signIn: {
       heading: "Sign in to continue",
-      subtitle: "Enter your admin email to receive a magic link.",
+      subtitle: "Use the admin email to receive a sign-in link for the operations panel.",
     },
     notAdmin: "— but this email isn't in ADMIN_EMAILS.",
     signedInAs: "Signed in as",
@@ -152,18 +152,18 @@ const en = {
     placeholder: "admin@example.com",
     submit: "Send magic link",
     submitting: "Sending\u2026",
-    help: "If your email is registered, a sign-in link will arrive in your inbox.",
+    help: "If the address is allowed, a sign-in link will arrive in the inbox for this admin account.",
     success: {
       heading: "Check your inbox!",
     },
   },
   adminItems: {
     heading: "Items",
-    subtitle: "Create, edit, and manage listings.",
+    subtitle: "Create listings, update item details and keep visible stock accurate.",
     importJson: "Import JSON",
     filter: {
       status: "Status",
-      search: "Search title, description, category\u2026",
+      search: "Search by title, notes or category\u2026",
       apply: "Apply",
     },
     table: {
@@ -249,7 +249,7 @@ const en = {
   },
   adminReservations: {
     heading: "Reservations",
-    subtitle: "Confirm, cancel, or mark items sold.",
+    subtitle: "Review incoming requests, confirm pickups and close out sold items.",
     filter: {
       label: "Filter",
       apply: "Apply",
@@ -275,7 +275,7 @@ const en = {
   },
   importItems: {
     heading: "Import Items via JSON",
-    subtitle: "Paste a single item object or an array of items.",
+    subtitle: "Paste one item or a batch of items to publish inventory faster.",
     jsonLabel: "JSON",
     jsonPlaceholder:
       '{ "title": "...", "price": 0, "category": "furniture", "condition": "good", "pickup_area": "..." }',

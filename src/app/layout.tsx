@@ -16,11 +16,21 @@ export default async function RootLayout({
 
   return (
     <html lang={locale}>
-      <body className="min-h-screen" style={{ backgroundColor: "#faf8f5" }}>
-        <div className="mx-auto flex min-h-screen w-full max-w-7xl flex-col px-4 py-4 sm:px-5 sm:py-5">
+      <body className="min-h-screen">
+        <div className="app-shell gap-4 sm:gap-5">
           <SiteHeader locale={locale} t={t} />
-          <main className="flex-1">{children}</main>
-          <footer className="mt-10 text-center text-xs text-stone-400">{t.footer}</footer>
+          <main className="page-stack">{children}</main>
+          <footer className="surface section-pad mt-auto">
+            <div className="flex flex-col gap-2 text-sm sm:flex-row sm:items-center sm:justify-between">
+              <div>
+                <p className="font-semibold text-stone-900">{t.nav.home}</p>
+                <p className="text-stone-500">{t.footer}</p>
+              </div>
+              <p className="text-xs uppercase tracking-[0.18em] text-stone-400">
+                Inventory, pickup, admin
+              </p>
+            </div>
+          </footer>
         </div>
       </body>
     </html>

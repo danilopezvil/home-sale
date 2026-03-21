@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ArrowRight, Clock3 } from "lucide-react";
+import { ArrowRight, Clock3, MapPin, Package2, ScanSearch } from "lucide-react";
 
 import { getCategoryMeta } from "@/lib/category-meta";
 import { getTranslations } from "@/lib/i18n";
@@ -52,158 +52,181 @@ export default async function Home() {
   }
 
   return (
-    <div className="space-y-6 pb-6">
-      <section className="rounded-2xl border border-stone-200 bg-white p-5 sm:p-6">
-        <div className="grid gap-5 lg:grid-cols-[minmax(0,1.6fr)_minmax(320px,0.9fr)] lg:items-start">
-          <div className="space-y-4">
-            <div className="space-y-2">
-              <p className="text-xs font-semibold uppercase tracking-[0.18em] text-stone-500">
-                {t.home.kicker}
-              </p>
-              <div className="flex flex-wrap items-center gap-3">
-                <h1 className="text-3xl font-bold tracking-tight text-stone-900 sm:text-4xl">
+    <div className="grid gap-5 xl:grid-cols-[minmax(0,1.35fr)_360px]">
+      <div className="space-y-5">
+        <section className="surface section-pad overflow-hidden">
+          <div className="grid gap-5 xl:grid-cols-[minmax(0,1.2fr)_minmax(280px,0.8fr)]">
+            <div className="space-y-6">
+              <div className="space-y-3">
+                <p className="eyebrow">{t.home.kicker}</p>
+                <h1 className="text-balance text-4xl font-semibold tracking-[-0.05em] text-stone-950 sm:text-5xl">
                   {t.home.heading}
                 </h1>
-                <span className="inline-flex items-center rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1 text-xs font-semibold text-emerald-700">
-                  {availableCount} {t.home.inventoryLabel}
-                </span>
+                <p className="max-w-2xl text-base leading-7 text-stone-600">
+                  {t.home.subtitle}
+                </p>
               </div>
-              <p className="max-w-2xl text-sm leading-6 text-stone-600 sm:text-base">
-                {t.home.subtitle}
-              </p>
-            </div>
 
-            <div className="flex flex-wrap gap-3">
-              <Link
-                href="/items"
-                className="inline-flex items-center gap-2 rounded-xl bg-stone-900 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-stone-700"
-              >
-                {t.home.primaryAction}
-                <ArrowRight size={16} />
-              </Link>
-              <Link
-                href="/items?sort=newest"
-                className="inline-flex items-center gap-2 rounded-xl border border-stone-200 px-4 py-2.5 text-sm font-semibold text-stone-700 transition hover:border-stone-300 hover:bg-stone-50"
-              >
-                <Clock3 size={16} className="text-stone-500" />
-                {t.home.secondaryAction}
-              </Link>
-            </div>
+              <div className="grid gap-3 sm:grid-cols-3">
+                <div className="kpi-card">
+                  <p className="text-xs uppercase tracking-[0.18em] text-stone-400">Live stock</p>
+                  <p className="stat-value mt-2">{availableCount}</p>
+                  <p className="mt-1 text-sm text-stone-500">{t.home.inventoryLabel}</p>
+                </div>
+                <div className="kpi-card">
+                  <p className="text-xs uppercase tracking-[0.18em] text-stone-400">Pace</p>
+                  <p className="stat-value mt-2">Fast</p>
+                  <p className="mt-1 text-sm text-stone-500">Reserve first, then coordinate pickup.</p>
+                </div>
+                <div className="kpi-card">
+                  <p className="text-xs uppercase tracking-[0.18em] text-stone-400">Format</p>
+                  <p className="stat-value mt-2">Direct</p>
+                  <p className="mt-1 text-sm text-stone-500">Useful details instead of marketing filler.</p>
+                </div>
+              </div>
 
-            <div className="space-y-2 border-t border-stone-200 pt-4">
-              <div className="flex items-center justify-between gap-3">
-                <p className="text-sm font-medium text-stone-900">{t.home.categoriesLabel}</p>
-                <Link
-                  href="/items"
-                  className="text-xs font-medium text-stone-500 transition hover:text-stone-900"
-                >
-                  {t.home.viewAllCategories}
+              <div className="flex flex-wrap gap-3">
+                <Link href="/items" className="btn-primary">
+                  {t.home.primaryAction}
+                  <ArrowRight size={16} />
+                </Link>
+                <Link href="/items?sort=newest" className="btn-secondary">
+                  <Clock3 size={16} />
+                  {t.home.secondaryAction}
                 </Link>
               </div>
-              <div className="scrollbar-hide flex gap-2 overflow-x-auto pb-1">
-                {t.home.categories.map(({ emoji, label, key }) => (
-                  <Link
-                    key={label}
-                    href={key ? `/items?category=${key}` : "/items"}
-                    className="inline-flex shrink-0 items-center gap-2 rounded-full border border-stone-200 bg-stone-50 px-3 py-2 text-sm font-medium text-stone-700 transition hover:border-stone-300 hover:bg-white"
-                  >
-                    <span>{emoji}</span>
-                    <span>{label}</span>
-                  </Link>
-                ))}
+            </div>
+
+            <aside className="surface-muted p-4 sm:p-5">
+              <div className="flex items-center justify-between gap-3 border-b border-stone-200 pb-3">
+                <div>
+                  <p className="text-sm font-semibold text-stone-950">{t.home.recentHeading}</p>
+                  <p className="mt-1 text-xs text-stone-500">{t.home.recentSubtitle}</p>
+                </div>
+                <Link href="/items?sort=newest" className="btn-ghost px-0 py-0 text-xs font-medium">
+                  {t.home.viewLatest}
+                </Link>
               </div>
+
+              <div className="mt-4 space-y-2">
+                {latestItems.length > 0 ? (
+                  latestItems.slice(0, 4).map((item) => (
+                    <Link
+                      key={item.id}
+                      href={`/items/${item.id}`}
+                      className="flex items-center gap-3 rounded-2xl border border-transparent bg-white px-3 py-3 transition hover:border-stone-200 hover:bg-stone-50"
+                    >
+                      <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-stone-100 text-lg">
+                        {getCategoryMeta(item.category).emoji}
+                      </div>
+                      <div className="min-w-0 flex-1">
+                        <p className="truncate text-sm font-semibold text-stone-900">{item.title}</p>
+                        <p className="text-xs text-stone-500">
+                          {getCategoryLabel(t.categories as Record<string, string>, item.category)}
+                        </p>
+                      </div>
+                      <p className="text-sm font-semibold text-stone-950">
+                        {Number(item.price) === 0 ? t.items.free : currency.format(Number(item.price))}
+                      </p>
+                    </Link>
+                  ))
+                ) : (
+                  <div className="empty-state py-10">
+                    <Package2 size={24} className="text-stone-300" />
+                    <p className="mt-3 text-sm text-stone-500">{t.items.empty.subtitle}</p>
+                  </div>
+                )}
+              </div>
+            </aside>
+          </div>
+        </section>
+
+        <section className="surface section-pad">
+          <div className="flex flex-col gap-4 border-b border-stone-200 pb-4 lg:flex-row lg:items-end lg:justify-between">
+            <div>
+              <p className="eyebrow">Scan inventory</p>
+              <h2 className="section-title mt-2">{t.home.inventorySectionTitle}</h2>
+              <p className="section-copy mt-2 max-w-2xl">{t.home.inventorySectionSubtitle}</p>
+            </div>
+            <div className="surface-muted flex items-center gap-3 px-4 py-3 text-sm text-stone-600">
+              <ScanSearch size={16} className="text-stone-500" />
+              {availableCount} {t.home.inventoryLabel}
             </div>
           </div>
 
-          <aside className="rounded-2xl border border-stone-200 bg-stone-50 p-4">
-            <div className="flex items-baseline justify-between gap-3 border-b border-stone-200 pb-3">
-              <div>
-                <p className="text-sm font-semibold text-stone-900">{t.home.recentHeading}</p>
-                <p className="mt-1 text-xs text-stone-500">{t.home.recentSubtitle}</p>
-              </div>
-              <Link
-                href="/items?sort=newest"
-                className="text-xs font-medium text-stone-500 transition hover:text-stone-900"
-              >
-                {t.home.viewLatest}
-              </Link>
-            </div>
-
-            <div className="mt-3 space-y-2">
-              {latestItems.length > 0 ? (
-                latestItems.slice(0, 4).map((item) => (
-                  <Link
-                    key={item.id}
-                    href={`/items/${item.id}`}
-                    className="flex items-center gap-3 rounded-xl border border-transparent bg-white px-3 py-2.5 transition hover:border-stone-200"
-                  >
-                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-stone-100 text-lg">
-                      {getCategoryMeta(item.category).emoji}
-                    </div>
-                    <div className="min-w-0 flex-1">
-                      <p className="truncate text-sm font-semibold text-stone-900">{item.title}</p>
-                      <p className="text-xs text-stone-500">
-                        {getCategoryLabel(t.categories as Record<string, string>, item.category)}
-                      </p>
-                    </div>
-                    <p className="text-sm font-semibold text-stone-900">
+          {latestItems.length > 0 ? (
+            <div className="mt-5 grid gap-3 lg:grid-cols-2">
+              {latestItems.map((item) => (
+                <Link
+                  key={item.id}
+                  href={`/items/${item.id}`}
+                  className="grid grid-cols-[48px_minmax(0,1fr)_auto] items-center gap-3 rounded-2xl border border-stone-200 bg-stone-50 px-4 py-3 transition hover:border-stone-300 hover:bg-white"
+                >
+                  <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-white text-lg shadow-sm">
+                    {getCategoryMeta(item.category).emoji}
+                  </div>
+                  <div className="min-w-0">
+                    <p className="truncate text-sm font-semibold text-stone-950">{item.title}</p>
+                    <p className="mt-0.5 text-xs text-stone-500">
+                      {getCategoryLabel(t.categories as Record<string, string>, item.category)}
+                    </p>
+                  </div>
+                  <div className="text-right">
+                    <p className="text-sm font-semibold text-stone-950">
                       {Number(item.price) === 0 ? t.items.free : currency.format(Number(item.price))}
                     </p>
-                  </Link>
-                ))
-              ) : (
-                <div className="rounded-xl border border-dashed border-stone-300 bg-white px-3 py-6 text-center text-sm text-stone-500">
-                  {t.items.empty.subtitle}
-                </div>
-              )}
+                    <p className="mt-1 text-xs font-medium text-stone-500">{t.home.rowAction}</p>
+                  </div>
+                </Link>
+              ))}
             </div>
-          </aside>
-        </div>
-      </section>
+          ) : (
+            <div className="empty-state mt-5">
+              <Package2 size={28} className="text-stone-300" />
+              <p className="mt-3 text-sm text-stone-500">{t.items.empty.subtitle}</p>
+            </div>
+          )}
+        </section>
+      </div>
 
-      <section className="rounded-2xl border border-stone-200 bg-white p-5 sm:p-6">
-        <div className="flex flex-col gap-2 border-b border-stone-200 pb-4 sm:flex-row sm:items-end sm:justify-between">
-          <div>
-            <p className="text-sm font-semibold text-stone-900">{t.home.inventorySectionTitle}</p>
-            <p className="mt-1 text-sm text-stone-500">{t.home.inventorySectionSubtitle}</p>
-          </div>
-          <p className="text-sm font-medium text-stone-600">
-            {availableCount} {t.home.inventoryLabel}
-          </p>
-        </div>
-
-        {latestItems.length > 0 ? (
-          <div className="mt-4 grid gap-2 lg:grid-cols-2">
-            {latestItems.map((item) => (
+      <aside className="space-y-5">
+        <section className="surface section-pad">
+          <p className="eyebrow">Browse by category</p>
+          <div className="mt-4 space-y-2">
+            {t.home.categories.map(({ emoji, label, key }) => (
               <Link
-                key={item.id}
-                href={`/items/${item.id}`}
-                className="grid grid-cols-[44px_minmax(0,1fr)_auto] items-center gap-3 rounded-xl border border-stone-200 px-3 py-3 transition hover:border-stone-300 hover:bg-stone-50"
+                key={label}
+                href={key ? `/items?category=${key}` : "/items"}
+                className="flex items-center justify-between gap-3 rounded-2xl border border-stone-200 bg-stone-50 px-4 py-3 text-sm font-medium text-stone-700 transition hover:border-stone-300 hover:bg-white"
               >
-                <div className="flex h-11 w-11 items-center justify-center rounded-lg bg-stone-100 text-lg">
-                  {getCategoryMeta(item.category).emoji}
-                </div>
-                <div className="min-w-0">
-                  <p className="truncate text-sm font-semibold text-stone-900">{item.title}</p>
-                  <p className="mt-0.5 text-xs text-stone-500">
-                    {getCategoryLabel(t.categories as Record<string, string>, item.category)}
-                  </p>
-                </div>
-                <div className="text-right">
-                  <p className="text-sm font-semibold text-stone-900">
-                    {Number(item.price) === 0 ? t.items.free : currency.format(Number(item.price))}
-                  </p>
-                  <p className="mt-1 text-xs font-medium text-orange-600">{t.home.rowAction}</p>
-                </div>
+                <span className="flex items-center gap-3">
+                  <span className="text-lg">{emoji}</span>
+                  <span>{label}</span>
+                </span>
+                <ArrowRight size={15} className="text-stone-400" />
               </Link>
             ))}
           </div>
-        ) : (
-          <div className="mt-4 rounded-xl border border-dashed border-stone-300 bg-stone-50 px-4 py-10 text-center text-sm text-stone-500">
-            {t.items.empty.subtitle}
+        </section>
+
+        <section className="surface section-pad">
+          <p className="eyebrow">How pickup works</p>
+          <div className="mt-4 space-y-3 text-sm text-stone-600">
+            <div className="surface-muted p-4">
+              <p className="font-semibold text-stone-900">1. Review the listing</p>
+              <p className="mt-1">Check category, condition, price and photos before requesting it.</p>
+            </div>
+            <div className="surface-muted p-4">
+              <p className="font-semibold text-stone-900">2. Reserve with contact details</p>
+              <p className="mt-1">Use the reservation form so pickup can be coordinated directly.</p>
+            </div>
+            <div className="surface-muted p-4">
+              <p className="flex items-center gap-2 font-semibold text-stone-900"><MapPin size={15} /> 3. Pick up on schedule</p>
+              <p className="mt-1">This is a moving sale, so availability and timing can change quickly.</p>
+            </div>
           </div>
-        )}
-      </section>
+        </section>
+      </aside>
     </div>
   );
 }

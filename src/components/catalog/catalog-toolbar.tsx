@@ -44,50 +44,47 @@ export function CatalogToolbar({
   onToggleFilters,
 }: CatalogToolbarProps) {
   return (
-    <section className="mb-4 rounded-2xl border border-stone-200 bg-white p-4 shadow-sm">
-      <div className="mb-3 flex items-end justify-between gap-3">
+    <section className="surface section-pad">
+      <div className="flex flex-col gap-4 border-b border-stone-200 pb-4 lg:flex-row lg:items-end lg:justify-between">
         <div>
-          <h1 className="text-lg font-semibold text-stone-900 sm:text-xl">{title}</h1>
-          <p className="text-xs text-stone-500 sm:text-sm">{countLabel}</p>
+          <p className="eyebrow">Inventory</p>
+          <h1 className="section-title mt-2">{title}</h1>
+          <p className="section-copy mt-2">{countLabel}</p>
         </div>
         <button
           type="button"
           onClick={onToggleFilters}
-          className={`inline-flex items-center gap-1.5 rounded-lg border px-2.5 py-1.5 text-xs font-medium transition sm:hidden ${
-            filtersOpen
-              ? "border-orange-500 bg-orange-50 text-orange-700"
-              : "border-stone-200 text-stone-600"
-          }`}
+          className={`sm:hidden ${filtersOpen ? "btn-primary" : "btn-secondary"}`}
         >
-          <Filter size={14} />
+          <Filter size={15} />
           {filtersLabel}
         </button>
       </div>
 
-      <div className="grid gap-2 sm:grid-cols-[minmax(0,1fr)_150px_auto] sm:items-center">
+      <div className="mt-4 grid gap-3 xl:grid-cols-[minmax(0,1fr)_190px_auto] xl:items-center">
         <label className="relative block">
           <Search
-            size={15}
+            size={16}
             className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-stone-400"
           />
           <input
             value={searchValue}
             onChange={(event) => onSearchChange(event.target.value)}
             placeholder={searchPlaceholder}
-            className="h-10 w-full rounded-lg border border-stone-200 bg-stone-50 pl-9 pr-3 text-sm text-stone-800 outline-none transition placeholder:text-stone-400 focus:border-orange-300 focus:bg-white"
+            className="input-base pl-10"
           />
         </label>
 
         <label className="relative block">
           <ArrowUpDown
-            size={14}
+            size={15}
             className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-stone-400"
           />
           <select
             value={selectedSort}
             onChange={(event) => onSortChange(event.target.value as SortOption)}
             aria-label={sortLabel}
-            className="h-10 w-full appearance-none rounded-lg border border-stone-200 bg-white pl-9 pr-8 text-sm text-stone-700 outline-none transition focus:border-orange-300"
+            className="select-base appearance-none pl-10 pr-8"
           >
             <option value="newest">{sortNewestLabel}</option>
             <option value="price_asc">{sortPriceAscLabel}</option>
@@ -95,24 +92,24 @@ export function CatalogToolbar({
           </select>
         </label>
 
-        <div className="inline-flex h-10 items-center rounded-lg border border-stone-200 p-1">
+        <div className="inline-flex h-11 items-center rounded-2xl border border-stone-200 bg-stone-50 p-1">
           <button
             type="button"
             onClick={() => onViewChange("grid")}
-            className={`inline-flex h-full items-center gap-1 rounded-md px-2.5 text-xs font-medium transition ${
-              viewMode === "grid" ? "bg-orange-500 text-white" : "text-stone-600"
+            className={`inline-flex h-full items-center gap-2 rounded-xl px-3 text-sm font-medium transition ${
+              viewMode === "grid" ? "bg-white text-stone-950 shadow-sm" : "text-stone-500 hover:text-stone-900"
             }`}
           >
-            <LayoutGrid size={14} /> {gridLabel}
+            <LayoutGrid size={15} /> {gridLabel}
           </button>
           <button
             type="button"
             onClick={() => onViewChange("list")}
-            className={`inline-flex h-full items-center gap-1 rounded-md px-2.5 text-xs font-medium transition ${
-              viewMode === "list" ? "bg-orange-500 text-white" : "text-stone-600"
+            className={`inline-flex h-full items-center gap-2 rounded-xl px-3 text-sm font-medium transition ${
+              viewMode === "list" ? "bg-white text-stone-950 shadow-sm" : "text-stone-500 hover:text-stone-900"
             }`}
           >
-            <Rows3 size={14} /> {listLabel}
+            <Rows3 size={15} /> {listLabel}
           </button>
         </div>
       </div>
