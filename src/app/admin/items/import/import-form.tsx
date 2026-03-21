@@ -13,6 +13,11 @@ export function ImportForm({ t }: { t: Dictionary["importItems"] }) {
 
   return (
     <form action={action} className="space-y-5">
+      <div className="border-b border-stone-200 pb-4">
+        <p className="eyebrow">JSON input</p>
+        <p className="mt-2 text-sm text-stone-500">Paste one item or a compact batch. Keep the payload clean and operational.</p>
+      </div>
+
       <div className="field-shell">
         <label htmlFor="import-json" className="field-label">
           <FileJson size={14} className="text-stone-400" />
@@ -23,7 +28,7 @@ export function ImportForm({ t }: { t: Dictionary["importItems"] }) {
           name="json"
           rows={14}
           placeholder={t.jsonPlaceholder}
-          className="textarea-base min-h-[280px] font-mono text-xs leading-relaxed"
+          className="textarea-base min-h-[320px] font-mono text-xs leading-relaxed"
           required
         />
       </div>
@@ -35,7 +40,7 @@ export function ImportForm({ t }: { t: Dictionary["importItems"] }) {
       )}
 
       {state.results && state.results.length > 0 && (
-        <div className="surface-muted p-4">
+        <div className="rounded-2xl border border-stone-200 bg-[hsl(var(--surface-muted))] p-4">
           <h3 className="text-sm font-semibold text-stone-900">{t.results.title}</h3>
           <ul className="mt-3 space-y-2">
             {state.results.map((r, i) => (
@@ -53,7 +58,7 @@ export function ImportForm({ t }: { t: Dictionary["importItems"] }) {
         </div>
       )}
 
-      <button type="submit" disabled={isPending} className="btn-primary w-full sm:w-auto">
+      <button type="submit" disabled={isPending} className="btn-primary h-11 w-full sm:w-auto">
         <FileJson size={15} />
         {isPending ? t.importing : t.submit}
       </button>
