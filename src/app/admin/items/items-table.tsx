@@ -19,9 +19,9 @@ type Item = {
 };
 
 function statusBadgeClasses(status: Item["status"]) {
-  if (status === "available") return "border-emerald-200 bg-emerald-50 text-emerald-700";
-  if (status === "reserved") return "border-amber-200 bg-amber-50 text-amber-700";
-  return "border-stone-200 bg-stone-100 text-stone-600";
+  if (status === "available") return "badge badge-success";
+  if (status === "reserved") return "badge badge-warning";
+  return "badge badge-neutral";
 }
 
 function getStatusLabel(t: Dictionary["adminItems"]["status"], status: string): string {
@@ -77,107 +77,100 @@ export function ItemsTable({ items, selectedStatus, searchTerm, t, categories, c
   }
 
   return (
-    <div>
+    <div className="space-y-4">
       {selectedIds.size > 0 && (
-        <div className="mb-4 flex items-center gap-3 rounded-xl border border-red-200 bg-red-50 px-4 py-3">
-          <span className="text-sm font-medium text-red-700">{selectedIds.size} selected</span>
-          <button
-            onClick={handleDelete}
-            disabled={isPending}
-            className="flex items-center gap-1.5 rounded-lg bg-red-600 px-3 py-1.5 text-xs font-semibold text-white transition hover:bg-red-700 disabled:opacity-50"
-          >
+        <div className="notice-danger flex flex-wrap items-center gap-3">
+          <span className="text-sm font-medium">{selectedIds.size} selected</span>
+          <button onClick={handleDelete} disabled={isPending} className="btn-danger px-3 py-2 text-xs">
             <Trash2 size={12} />
             {t.actions.deleteSelected}
           </button>
-          <button
-            onClick={() => setSelectedIds(new Set())}
-            className="text-xs text-red-600 hover:underline"
-          >
+          <button onClick={() => setSelectedIds(new Set())} className="btn-ghost px-2 py-1 text-xs font-semibold">
             Clear
           </button>
         </div>
       )}
 
-      <div className="overflow-x-auto">
-        <table className="min-w-full divide-y divide-stone-100 text-sm">
-          <thead>
-            <tr className="text-left text-xs font-medium uppercase tracking-wide text-stone-400">
-              <th className="px-3 py-3">
-                <input
-                  type="checkbox"
-                  checked={allSelected}
-                  ref={(el) => {
-                    if (el) el.indeterminate = someSelected;
-                  }}
-                  onChange={toggleAll}
-                  className="rounded border-stone-300 accent-orange-500"
-                />
-              </th>
-              <th className="px-3 py-3">{t.table.item}</th>
-              <th className="px-3 py-3">{t.table.price}</th>
-              <th className="px-3 py-3">{t.table.category}</th>
-              <th className="px-3 py-3">{t.table.condition}</th>
-              <th className="px-3 py-3">{t.table.pickupArea}</th>
-              <th className="px-3 py-3">{t.table.status}</th>
-              <th className="px-3 py-3">{t.table.actions}</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-stone-100">
-            {items.map((item) => {
-              const cat = getCategoryMeta(item.category);
-              const condLabel = (conditionT as Record<string, string>)[item.condition] ?? item.condition;
-              const isSelected = selectedIds.has(item.id);
-              return (
-                <tr key={item.id} className={`hover:bg-stone-50 ${isSelected ? "bg-red-50" : ""}`}>
-                  <td className="px-3 py-3">
-                    <input
-                      type="checkbox"
-                      checked={isSelected}
-                      onChange={() => toggleOne(item.id)}
-                      className="rounded border-stone-300 accent-orange-500"
-                    />
-                  </td>
-                  <td className="px-3 py-3 font-medium text-stone-900">{item.title}</td>
-                  <td className="px-3 py-3 font-semibold text-stone-800">
-                    {currencyFormatter.format(Number(item.price))}
-                  </td>
-                  <td className="px-3 py-3 text-stone-600">
-                    {cat.emoji} {getCatLabel(categories, item.category)}
-                  </td>
-                  <td className="px-3 py-3 text-stone-600">{condLabel}</td>
-                  <td className="px-3 py-3 text-stone-600">{item.pickup_area || "—"}</td>
-                  <td className="px-3 py-3">
-                    <span
-                      className={`inline-flex rounded-full border px-2.5 py-0.5 text-xs font-medium ${statusBadgeClasses(item.status)}`}
-                    >
-                      {getStatusLabel(t.status, item.status)}
-                    </span>
-                  </td>
-                  <td className="px-3 py-3">
-                    <div className="flex flex-wrap gap-2">
-                      <Link
-                        href={`/admin/items?status=${selectedStatus}&search=${encodeURIComponent(searchTerm)}&edit=${item.id}`}
-                        className="flex items-center gap-1 rounded-lg border border-stone-200 px-3 py-1.5 text-xs font-medium text-stone-700 transition hover:border-orange-200 hover:text-orange-600"
-                      >
-                        <Pencil size={11} /> {t.actions.edit}
-                      </Link>
-                      <form action={toggleItemStatusAction}>
-                        <input type="hidden" name="itemId" value={item.id} />
-                        <input type="hidden" name="currentStatus" value={item.status} />
-                        <button
-                          type="submit"
-                          className="rounded-lg border border-stone-200 px-3 py-1.5 text-xs font-medium text-stone-700 transition hover:bg-stone-100"
+      <div className="table-shell">
+        <div className="table-wrap">
+          <table className="min-w-full text-sm">
+            <thead className="bg-stone-50 text-left text-xs font-semibold uppercase tracking-[0.18em] text-stone-400">
+              <tr>
+                <th className="px-4 py-3">
+                  <input
+                    type="checkbox"
+                    checked={allSelected}
+                    ref={(el) => {
+                      if (el) el.indeterminate = someSelected;
+                    }}
+                    onChange={toggleAll}
+                    className="rounded border-stone-300 accent-stone-900"
+                  />
+                </th>
+                <th className="px-4 py-3">{t.table.item}</th>
+                <th className="px-4 py-3">{t.table.price}</th>
+                <th className="px-4 py-3">{t.table.category}</th>
+                <th className="px-4 py-3">{t.table.condition}</th>
+                <th className="px-4 py-3">{t.table.pickupArea}</th>
+                <th className="px-4 py-3">{t.table.status}</th>
+                <th className="px-4 py-3">{t.table.actions}</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-stone-100">
+              {items.map((item) => {
+                const cat = getCategoryMeta(item.category);
+                const condLabel = (conditionT as Record<string, string>)[item.condition] ?? item.condition;
+                const isSelected = selectedIds.has(item.id);
+                return (
+                  <tr key={item.id} className={`${isSelected ? "bg-red-50/50" : "bg-white"} hover:bg-stone-50`}>
+                    <td className="px-4 py-4 align-top">
+                      <input
+                        type="checkbox"
+                        checked={isSelected}
+                        onChange={() => toggleOne(item.id)}
+                        className="rounded border-stone-300 accent-stone-900"
+                      />
+                    </td>
+                    <td className="px-4 py-4 align-top">
+                      <div>
+                        <p className="font-semibold text-stone-950">{item.title}</p>
+                        <p className="mt-1 text-xs text-stone-500">ID: {item.id}</p>
+                      </div>
+                    </td>
+                    <td className="px-4 py-4 font-semibold text-stone-900 align-top">
+                      {currencyFormatter.format(Number(item.price))}
+                    </td>
+                    <td className="px-4 py-4 text-stone-600 align-top">
+                      {cat.emoji} {getCatLabel(categories, item.category)}
+                    </td>
+                    <td className="px-4 py-4 text-stone-600 align-top">{condLabel}</td>
+                    <td className="px-4 py-4 text-stone-600 align-top">{item.pickup_area || "—"}</td>
+                    <td className="px-4 py-4 align-top">
+                      <span className={statusBadgeClasses(item.status)}>{getStatusLabel(t.status, item.status)}</span>
+                    </td>
+                    <td className="px-4 py-4 align-top">
+                      <div className="flex flex-wrap gap-2">
+                        <Link
+                          href={`/admin/items?status=${selectedStatus}&search=${encodeURIComponent(searchTerm)}&edit=${item.id}`}
+                          className="btn-secondary px-3 py-2 text-xs"
                         >
-                          {item.status === "sold" ? t.actions.makeAvailable : t.actions.markSold}
-                        </button>
-                      </form>
-                    </div>
-                  </td>
-                </tr>
-              );
-            })}
-          </tbody>
-        </table>
+                          <Pencil size={11} /> {t.actions.edit}
+                        </Link>
+                        <form action={toggleItemStatusAction}>
+                          <input type="hidden" name="itemId" value={item.id} />
+                          <input type="hidden" name="currentStatus" value={item.status} />
+                          <button type="submit" className="btn-secondary px-3 py-2 text-xs">
+                            {item.status === "sold" ? t.actions.makeAvailable : t.actions.markSold}
+                          </button>
+                        </form>
+                      </div>
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
   );

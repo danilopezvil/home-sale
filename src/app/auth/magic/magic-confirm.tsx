@@ -18,14 +18,12 @@ export function MagicConfirm({ signingIn }: { signingIn: string }) {
     const type = searchParams.get("type");
 
     async function confirm() {
-      // token_hash flow (e.g. email-change confirmation)
       if (tokenHash && type) {
         const ok = await verifyOtpAndSetSession(tokenHash, type);
         window.location.replace(ok ? next : "/admin?error=not-signed-in");
         return;
       }
 
-      // Implicit flow: Supabase puts tokens in the URL hash fragment
       const hashParams = new URLSearchParams(window.location.hash.slice(1));
       const accessToken = hashParams.get("access_token");
       const refreshToken = hashParams.get("refresh_token");
@@ -47,8 +45,10 @@ export function MagicConfirm({ signingIn }: { signingIn: string }) {
   }, [searchParams]);
 
   return (
-    <section className="rounded-lg border border-slate-200 bg-white p-8 shadow-sm">
-      <p className="text-slate-600">{signingIn}</p>
+    <section className="surface section-pad text-center">
+      <p className="eyebrow">Admin access</p>
+      <p className="mt-2 text-base font-semibold text-stone-950">{signingIn}</p>
+      <p className="mt-2 text-sm text-stone-500">We are validating the sign-in link and preparing the admin session.</p>
     </section>
   );
 }

@@ -39,10 +39,9 @@ export default async function ItemsPage() {
 
   if (loadError) {
     return (
-      <section className="rounded-2xl border border-red-200 bg-red-50 p-8 text-center">
-        <p className="text-2xl">😬</p>
-        <p className="mt-2 font-semibold text-red-800">{t.items.error.heading}</p>
-        <p className="mt-1 text-sm text-red-600">{t.items.error.subtitle}</p>
+      <section className="notice-danger text-center">
+        <p className="text-base font-semibold">{t.items.error.heading}</p>
+        <p className="mt-1 text-sm">{t.items.error.subtitle}</p>
       </section>
     );
   }

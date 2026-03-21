@@ -9,8 +9,8 @@ export default async function MagicPage() {
   return (
     <Suspense
       fallback={
-        <section className="rounded-lg border border-slate-200 bg-white p-8 shadow-sm">
-          <p className="text-slate-600">{t.magic.signingIn}</p>
+        <section className="surface section-pad text-center">
+          <p className="text-sm text-stone-600">{t.magic.signingIn}</p>
         </section>
       }
     >

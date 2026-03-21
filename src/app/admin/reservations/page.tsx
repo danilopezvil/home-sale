@@ -1,4 +1,5 @@
-import { CalendarCheck2, CheckCheck, Ban, ShoppingBag, Clock, CheckCircle2, XCircle, CalendarDays, User, Mail, Phone, MessageSquare } from "lucide-react";
+import { CalendarCheck2, CheckCheck, Ban, ShoppingBag, Clock, CheckCircle2, XCircle, CalendarDays, User, Mail, Phone, MessageSquare, ArrowLeft } from "lucide-react";
+import Link from "next/link";
 
 import { requireAdminUser } from "@/lib/admin-auth";
 import { supabaseServiceRoleClient } from "@/lib/supabase/server";
@@ -30,7 +31,7 @@ type StatusOption = (typeof STATUS_OPTIONS)[number];
 function StatusBadge({ status, t }: { status: string; t: Dictionary["adminReservations"]["status"] }) {
   if (status === "confirmed") {
     return (
-      <span className="flex items-center gap-1 rounded-full border border-emerald-200 bg-emerald-50 px-2.5 py-0.5 text-xs font-medium text-emerald-700">
+      <span className="badge badge-success">
         <CheckCircle2 size={11} />
         {t.confirmed}
       </span>
@@ -38,14 +39,14 @@ function StatusBadge({ status, t }: { status: string; t: Dictionary["adminReserv
   }
   if (status === "pending") {
     return (
-      <span className="flex items-center gap-1 rounded-full border border-amber-200 bg-amber-50 px-2.5 py-0.5 text-xs font-medium text-amber-700">
+      <span className="badge badge-warning">
         <Clock size={11} />
         {t.pending}
       </span>
     );
   }
   return (
-    <span className="flex items-center gap-1 rounded-full border border-stone-200 bg-stone-100 px-2.5 py-0.5 text-xs font-medium text-stone-500">
+    <span className="badge badge-neutral">
       <XCircle size={11} />
       {t.cancelled}
     </span>
@@ -64,7 +65,7 @@ function ConfirmButton({ reservationId, label }: { reservationId: string; label:
   return (
     <form action={confirmReservationAction}>
       <input type="hidden" name="reservationId" value={reservationId} />
-      <button type="submit" className="flex items-center gap-1.5 rounded-lg bg-emerald-500 px-3 py-1.5 text-xs font-semibold text-white transition hover:bg-emerald-600">
+      <button type="submit" className="btn-primary px-3 py-2 text-xs">
         <CheckCheck size={13} /> {label}
       </button>
     </form>
@@ -76,7 +77,7 @@ function CancelButton({ reservationId, itemId, label }: { reservationId: string;
     <form action={cancelReservationAction}>
       <input type="hidden" name="reservationId" value={reservationId} />
       <input type="hidden" name="itemId" value={itemId} />
-      <button type="submit" className="flex items-center gap-1.5 rounded-lg border border-red-200 px-3 py-1.5 text-xs font-semibold text-red-500 transition hover:bg-red-50">
+      <button type="submit" className="btn-secondary px-3 py-2 text-xs text-red-600 hover:border-red-200 hover:bg-red-50 hover:text-red-700">
         <Ban size={13} /> {label}
       </button>
     </form>
@@ -87,7 +88,7 @@ function MarkSoldButton({ itemId, label }: { itemId: string; label: string }) {
   return (
     <form action={markSoldAction}>
       <input type="hidden" name="itemId" value={itemId} />
-      <button type="submit" className="flex items-center gap-1.5 rounded-lg bg-stone-800 px-3 py-1.5 text-xs font-semibold text-white transition hover:bg-stone-900">
+      <button type="submit" className="btn-secondary px-3 py-2 text-xs">
         <ShoppingBag size={13} /> {label}
       </button>
     </form>
@@ -128,38 +129,41 @@ export default async function AdminReservationsPage({
   const reservations = (data ?? []) as unknown as ReservationRow[];
 
   return (
-    <section className="space-y-6">
-      <header className="rounded-2xl border border-stone-200 bg-white p-6 shadow-sm">
-        <div className="flex items-center gap-3">
-          <CalendarCheck2 size={22} className="text-orange-400" />
+    <section className="space-y-5">
+      <header className="surface section-pad">
+        <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
           <div>
-            <h1 className="text-2xl font-bold text-stone-900">{t.adminReservations.heading}</h1>
-            <p className="text-sm text-stone-500">{t.adminReservations.subtitle}</p>
+            <p className="eyebrow">Admin / reservations</p>
+            <h1 className="section-title mt-2 flex items-center gap-3">
+              <CalendarCheck2 size={24} className="text-stone-500" />
+              {t.adminReservations.heading}
+            </h1>
+            <p className="section-copy mt-2 max-w-2xl">{t.adminReservations.subtitle}</p>
           </div>
+          <Link href="/admin" className="btn-secondary">
+            <ArrowLeft size={15} />
+            Admin home
+          </Link>
         </div>
       </header>
 
-      {params.error && (
-        <p className="rounded-xl border border-red-200 bg-red-50 p-3 text-sm text-red-600">
-          {params.error}
-        </p>
-      )}
-      {error && (
-        <p className="rounded-xl border border-red-200 bg-red-50 p-3 text-sm text-red-600">
-          {t.adminReservations.error} {error.message}
-        </p>
-      )}
+      {params.error && <p className="notice-danger">{params.error}</p>}
+      {error && <p className="notice-danger">{t.adminReservations.error} {error.message}</p>}
 
-      <section className="rounded-2xl border border-stone-200 bg-white p-6 shadow-sm">
-        {/* Filter */}
-        <form className="flex flex-wrap items-end gap-3" action="/admin/reservations" method="get">
-          <label className="text-sm font-medium text-stone-700">
-            {t.adminReservations.filter.label}
-            <select
-              name="status"
-              defaultValue={selectedStatus}
-              className="ml-2 rounded-lg border border-stone-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-300"
-            >
+      <section className="surface section-pad">
+        <div className="flex flex-col gap-4 border-b border-stone-200 pb-4 lg:flex-row lg:items-end lg:justify-between">
+          <div>
+            <p className="eyebrow">Reservation queue</p>
+            <h2 className="mt-2 text-xl font-semibold tracking-[-0.03em] text-stone-950">Incoming requests</h2>
+            <p className="mt-2 text-sm text-stone-500">Keep pending, confirmed and cancelled reservations visible without opening each record.</p>
+          </div>
+          <div className="surface-muted px-4 py-3 text-sm text-stone-600">{reservations.length} matching reservations</div>
+        </div>
+
+        <form className="mt-4 grid gap-3 sm:grid-cols-[220px_auto]" action="/admin/reservations" method="get">
+          <label className="field-shell">
+            <span className="field-label">{t.adminReservations.filter.label}</span>
+            <select name="status" defaultValue={selectedStatus} className="select-base">
               {STATUS_OPTIONS.map((s) => (
                 <option key={s} value={s}>
                   {getStatusFilterLabel(t.adminReservations.status, s)}
@@ -167,56 +171,35 @@ export default async function AdminReservationsPage({
               ))}
             </select>
           </label>
-          <button
-            type="submit"
-            className="rounded-lg bg-stone-800 px-4 py-2 text-sm font-semibold text-white transition hover:bg-stone-900"
-          >
-            {t.adminReservations.filter.apply}
-          </button>
+          <div className="flex items-end">
+            <button type="submit" className="btn-primary w-full sm:w-auto">{t.adminReservations.filter.apply}</button>
+          </div>
         </form>
 
         {reservations.length === 0 ? (
-          <div className="mt-8 flex flex-col items-center justify-center py-8 text-center">
-            <CalendarCheck2 size={32} className="text-stone-200" />
+          <div className="empty-state mt-6 py-10">
+            <CalendarCheck2 size={30} className="text-stone-300" />
             <p className="mt-3 text-sm text-stone-500">{t.adminReservations.empty}</p>
           </div>
         ) : (
           <div className="mt-6 space-y-3">
             {reservations.map((r) => (
-              <div
-                key={r.id}
-                className="rounded-xl border border-stone-200 bg-stone-50 p-4 transition hover:border-stone-300"
-              >
-                <div className="flex flex-wrap items-start justify-between gap-3">
-                  {/* Item + buyer */}
-                  <div className="space-y-1">
-                    <p className="font-semibold text-stone-900">
+              <div key={r.id} className="surface-muted p-4 sm:p-5">
+                <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+                  <div className="space-y-2">
+                    <p className="text-lg font-semibold tracking-[-0.03em] text-stone-950">
                       {r.items?.title ?? (
                         <span className="italic text-stone-400">{t.adminReservations.labels.deletedItem}</span>
                       )}
                     </p>
-                    <div className="flex flex-wrap gap-x-3 gap-y-0.5 text-xs text-stone-500">
-                      <span className="flex items-center gap-1">
-                        <User size={11} /> {r.customer_name}
-                      </span>
-                      <span className="flex items-center gap-1">
-                        <Mail size={11} /> {r.customer_email}
-                      </span>
-                      {r.customer_phone && (
-                        <span className="flex items-center gap-1">
-                          <Phone size={11} /> {r.customer_phone}
-                        </span>
-                      )}
+                    <div className="flex flex-wrap gap-x-4 gap-y-1 text-sm text-stone-600">
+                      <span className="flex items-center gap-1.5"><User size={13} /> {r.customer_name}</span>
+                      <span className="flex items-center gap-1.5"><Mail size={13} /> {r.customer_email}</span>
+                      {r.customer_phone && <span className="flex items-center gap-1.5"><Phone size={13} /> {r.customer_phone}</span>}
                     </div>
-                    <div className="flex flex-wrap gap-x-3 gap-y-0.5 text-xs text-stone-400">
-                      <span className="flex items-center gap-1">
-                        <CalendarDays size={11} /> {t.adminReservations.labels.submitted} {formatDate(r.created_at)}
-                      </span>
-                      {r.reserved_at && (
-                        <span className="flex items-center gap-1">
-                          <Clock size={11} /> {t.adminReservations.labels.pickup} {formatDate(r.reserved_at)}
-                        </span>
-                      )}
+                    <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-stone-500">
+                      <span className="flex items-center gap-1.5"><CalendarDays size={12} /> {t.adminReservations.labels.submitted} {formatDate(r.created_at)}</span>
+                      {r.reserved_at && <span className="flex items-center gap-1.5"><Clock size={12} /> {t.adminReservations.labels.pickup} {formatDate(r.reserved_at)}</span>}
                     </div>
                   </div>
 
@@ -224,23 +207,19 @@ export default async function AdminReservationsPage({
                 </div>
 
                 {r.message && (
-                  <p className="mt-2 flex items-start gap-1.5 rounded-lg bg-white px-3 py-2 text-xs italic text-stone-500">
-                    <MessageSquare size={11} className="mt-0.5 shrink-0" />
+                  <p className="mt-4 rounded-2xl border border-stone-200 bg-white px-4 py-3 text-sm italic text-stone-600">
+                    <span className="mr-2 inline-flex align-middle"><MessageSquare size={14} /></span>
                     &ldquo;{r.message}&rdquo;
                   </p>
                 )}
 
                 {r.status !== "cancelled" && (
-                  <div className="mt-3 flex flex-wrap gap-2">
-                    {r.status === "pending" && (
-                      <ConfirmButton reservationId={r.id} label={t.adminReservations.actions.confirm} />
-                    )}
+                  <div className="mt-4 flex flex-wrap gap-2">
+                    {r.status === "pending" && <ConfirmButton reservationId={r.id} label={t.adminReservations.actions.confirm} />}
                     {(r.status === "pending" || r.status === "confirmed") && (
                       <CancelButton reservationId={r.id} itemId={r.item_id} label={t.adminReservations.actions.cancel} />
                     )}
-                    {r.status === "confirmed" && (
-                      <MarkSoldButton itemId={r.item_id} label={t.adminReservations.actions.markSold} />
-                    )}
+                    {r.status === "confirmed" && <MarkSoldButton itemId={r.item_id} label={t.adminReservations.actions.markSold} />}
                   </div>
                 )}
               </div>

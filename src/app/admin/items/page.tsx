@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Package, ChevronUp, ChevronDown, FileJson } from "lucide-react";
+import { Package2, ChevronUp, ChevronDown, FileJson, ArrowLeft } from "lucide-react";
 
 import { moveItemImageAction } from "@/app/admin/items/actions";
 import { ItemForm, UploadImagesForm } from "@/app/admin/items/item-form";
@@ -92,158 +92,171 @@ export default async function AdminItemsPage({
   const editItem = editId ? items.find((item) => item.id === editId) : null;
 
   return (
-    <section className="space-y-6">
-      <header className="rounded-2xl border border-stone-200 bg-white p-6 shadow-sm">
-        <div className="flex items-center justify-between gap-3">
-          <div className="flex items-center gap-3">
-            <Package size={22} className="text-orange-400" />
-            <div>
-              <h1 className="text-2xl font-bold text-stone-900">{t.adminItems.heading}</h1>
-              <p className="text-sm text-stone-500">{t.adminItems.subtitle}</p>
-            </div>
+    <section className="space-y-5">
+      <header className="surface section-pad">
+        <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
+          <div>
+            <p className="eyebrow">Admin / inventory</p>
+            <h1 className="section-title mt-2">{t.adminItems.heading}</h1>
+            <p className="section-copy mt-2 max-w-2xl">{t.adminItems.subtitle}</p>
           </div>
-          <Link
-            href="/admin/items/import"
-            className="flex items-center gap-2 rounded-xl border border-stone-200 px-4 py-2 text-sm font-medium text-stone-600 transition hover:border-orange-200 hover:text-orange-600"
-          >
-            <FileJson size={15} />
-            {t.adminItems.importJson}
-          </Link>
+          <div className="flex flex-wrap gap-3">
+            <Link href="/admin" className="btn-secondary">
+              <ArrowLeft size={15} />
+              Admin home
+            </Link>
+            <Link href="/admin/items/import" className="btn-primary">
+              <FileJson size={15} />
+              {t.adminItems.importJson}
+            </Link>
+          </div>
         </div>
       </header>
 
-      {params.success ? (
-        <p className="rounded-xl border border-emerald-200 bg-emerald-50 p-3 text-sm text-emerald-700">{params.success}</p>
-      ) : null}
-      {params.error ? (
-        <p className="rounded-xl border border-red-200 bg-red-50 p-3 text-sm text-red-600">{params.error}</p>
-      ) : null}
-      {itemsError ? (
-        <p className="rounded-xl border border-red-200 bg-red-50 p-3 text-sm text-red-600">
-          Failed to load items: {itemsError.message}
-        </p>
-      ) : null}
-      {imagesError ? (
-        <p className="rounded-xl border border-red-200 bg-red-50 p-3 text-sm text-red-600">
-          Failed to load images: {imagesError.message}
-        </p>
-      ) : null}
+      {params.success ? <p className="notice-success">{params.success}</p> : null}
+      {params.error ? <p className="notice-danger">{params.error}</p> : null}
+      {itemsError ? <p className="notice-danger">Failed to load items: {itemsError.message}</p> : null}
+      {imagesError ? <p className="notice-danger">Failed to load images: {imagesError.message}</p> : null}
 
-      <ItemForm
-        mode="create"
-        initialValues={{
-          title: "",
-          description: "",
-          price: "",
-          category: "",
-          condition: "good",
-          pickup_area: "",
-        }}
-        t={t.itemForm}
-        categories={t.categories}
-      />
-
-      <section className="rounded-2xl border border-stone-200 bg-white p-6 shadow-sm">
-        <form className="flex flex-wrap items-end gap-3" action="/admin/items" method="get">
-          <label className="text-sm font-medium text-stone-700">
-            {t.adminItems.filter.status}
-            <select name="status" defaultValue={selectedStatus} className="ml-2 rounded-lg border border-stone-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-300">
-              {statusOptions.map((status) => (
-                <option key={status} value={status}>
-                  {getStatusLabel(t.adminItems.status as Record<string, string>, status)}
-                </option>
-              ))}
-            </select>
-          </label>
-          <input
-            name="search"
-            defaultValue={searchTerm}
-            placeholder={t.adminItems.filter.search}
-            className="rounded-lg border border-stone-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-300"
-          />
-          <button type="submit" className="rounded-lg bg-stone-800 px-4 py-2 text-sm font-semibold text-white transition hover:bg-stone-900">
-            {t.adminItems.filter.apply}
-          </button>
-        </form>
-
-        {items.length === 0 ? (
-          <p className="mt-6 text-sm text-stone-500">{t.adminItems.empty}</p>
-        ) : (
-          <div className="mt-6">
-            <ItemsTable
-              items={items}
-              selectedStatus={selectedStatus}
-              searchTerm={searchTerm}
-              t={t.adminItems}
-              categories={t.categories}
-              conditionT={t.items.condition}
-            />
-          </div>
-        )}
-      </section>
-
-      {editItem ? (
-        <section className="space-y-4">
+      <div className="admin-grid">
+        <div className="space-y-5">
           <ItemForm
-            mode="edit"
+            mode="create"
             initialValues={{
-              id: editItem.id,
-              title: editItem.title,
-              description: editItem.description ?? "",
-              price: String(editItem.price),
-              category: editItem.category ?? "",
-              condition: editItem.condition,
-              pickup_area: editItem.pickup_area ?? "",
-            } as Parameters<typeof ItemForm>[0]["initialValues"]}
+              title: "",
+              description: "",
+              price: "",
+              category: "",
+              condition: "good",
+              pickup_area: "",
+            }}
             t={t.itemForm}
             categories={t.categories}
           />
 
-          <UploadImagesForm itemId={editItem.id} t={t.uploadForm} />
+          {editItem ? (
+            <section className="space-y-5">
+              <ItemForm
+                mode="edit"
+                initialValues={{
+                  id: editItem.id,
+                  title: editItem.title,
+                  description: editItem.description ?? "",
+                  price: String(editItem.price),
+                  category: editItem.category ?? "",
+                  condition: editItem.condition,
+                  pickup_area: editItem.pickup_area ?? "",
+                } as Parameters<typeof ItemForm>[0]["initialValues"]}
+                t={t.itemForm}
+                categories={t.categories}
+              />
 
-          <section className="rounded-2xl border border-stone-200 bg-white p-6 shadow-sm">
-            <div className="flex items-center justify-between gap-3">
-              <h3 className="text-lg font-bold text-stone-900">{t.adminItems.imageOrder}</h3>
-              <Link href="/admin/items" className="rounded-lg border border-stone-200 px-3 py-1.5 text-xs font-medium text-stone-600 transition hover:bg-stone-50">
-                {t.adminItems.actions.doneEditing}
-              </Link>
+              <UploadImagesForm itemId={editItem.id} t={t.uploadForm} />
+
+              <section className="surface section-pad">
+                <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                  <div>
+                    <p className="eyebrow">Image sequence</p>
+                    <h3 className="mt-2 text-lg font-semibold tracking-[-0.03em] text-stone-950">{t.adminItems.imageOrder}</h3>
+                  </div>
+                  <Link href="/admin/items" className="btn-secondary">
+                    {t.adminItems.actions.doneEditing}
+                  </Link>
+                </div>
+
+                {(imagesByItem.get(editItem.id) ?? []).length === 0 ? (
+                  <div className="empty-state mt-5 py-10">
+                    <p className="text-sm text-stone-500">{t.adminItems.noImages}</p>
+                  </div>
+                ) : (
+                  <ul className="mt-5 space-y-2">
+                    {(imagesByItem.get(editItem.id) ?? []).map((image, index, array) => (
+                      <li key={image.id} className="surface-muted flex items-center justify-between gap-3 px-4 py-3">
+                        <span className="truncate text-xs text-stone-600">
+                          <span className="mr-2 font-semibold text-stone-400">#{image.sort_order}</span>
+                          {image.image_url}
+                        </span>
+                        <div className="flex gap-2">
+                          <form action={moveItemImageAction}>
+                            <input type="hidden" name="itemId" value={editItem.id} />
+                            <input type="hidden" name="imageId" value={image.id} />
+                            <input type="hidden" name="direction" value="up" />
+                            <button type="submit" disabled={index === 0} title="Move up" className="btn-secondary px-3 py-2 disabled:opacity-30">
+                              <ChevronUp size={14} />
+                            </button>
+                          </form>
+                          <form action={moveItemImageAction}>
+                            <input type="hidden" name="itemId" value={editItem.id} />
+                            <input type="hidden" name="imageId" value={image.id} />
+                            <input type="hidden" name="direction" value="down" />
+                            <button type="submit" disabled={index === array.length - 1} title="Move down" className="btn-secondary px-3 py-2 disabled:opacity-30">
+                              <ChevronDown size={14} />
+                            </button>
+                          </form>
+                        </div>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </section>
+            </section>
+          ) : null}
+        </div>
+
+        <section className="surface section-pad">
+          <div className="flex flex-col gap-4 border-b border-stone-200 pb-4 lg:flex-row lg:items-end lg:justify-between">
+            <div>
+              <p className="eyebrow">Current listings</p>
+              <h2 className="mt-2 text-xl font-semibold tracking-[-0.03em] text-stone-950">Published inventory</h2>
+              <p className="mt-2 text-sm text-stone-500">Filter by status, search quickly and jump into editing.</p>
             </div>
+            <div className="surface-muted px-4 py-3 text-sm text-stone-600">{items.length} matching items</div>
+          </div>
 
-            {(imagesByItem.get(editItem.id) ?? []).length === 0 ? (
-              <p className="mt-4 text-sm text-stone-500">{t.adminItems.noImages}</p>
-            ) : (
-              <ul className="mt-4 space-y-2">
-                {(imagesByItem.get(editItem.id) ?? []).map((image, index, array) => (
-                  <li key={image.id} className="flex items-center justify-between gap-3 rounded-xl border border-stone-200 bg-stone-50 p-3">
-                    <span className="truncate text-xs text-stone-600">
-                      <span className="mr-2 font-semibold text-stone-400">#{image.sort_order}</span>
-                      {image.image_url}
-                    </span>
-                    <div className="flex gap-1.5">
-                      <form action={moveItemImageAction}>
-                        <input type="hidden" name="itemId" value={editItem.id} />
-                        <input type="hidden" name="imageId" value={image.id} />
-                        <input type="hidden" name="direction" value="up" />
-                        <button type="submit" disabled={index === 0} title="Move up" className="rounded-lg border border-stone-200 p-1.5 text-stone-600 transition hover:bg-stone-200 disabled:opacity-30">
-                          <ChevronUp size={13} />
-                        </button>
-                      </form>
-                      <form action={moveItemImageAction}>
-                        <input type="hidden" name="itemId" value={editItem.id} />
-                        <input type="hidden" name="imageId" value={image.id} />
-                        <input type="hidden" name="direction" value="down" />
-                        <button type="submit" disabled={index === array.length - 1} title="Move down" className="rounded-lg border border-stone-200 p-1.5 text-stone-600 transition hover:bg-stone-200 disabled:opacity-30">
-                          <ChevronDown size={13} />
-                        </button>
-                      </form>
-                    </div>
-                  </li>
+          <form className="mt-4 grid gap-3 md:grid-cols-[200px_minmax(0,1fr)_auto]" action="/admin/items" method="get">
+            <label className="field-shell">
+              <span className="field-label">{t.adminItems.filter.status}</span>
+              <select name="status" defaultValue={selectedStatus} className="select-base">
+                {statusOptions.map((status) => (
+                  <option key={status} value={status}>
+                    {getStatusLabel(t.adminItems.status as Record<string, string>, status)}
+                  </option>
                 ))}
-              </ul>
-            )}
-          </section>
+              </select>
+            </label>
+            <label className="field-shell">
+              <span className="field-label">Search</span>
+              <input
+                name="search"
+                defaultValue={searchTerm}
+                placeholder={t.adminItems.filter.search}
+                className="input-base"
+              />
+            </label>
+            <div className="flex items-end">
+              <button type="submit" className="btn-primary w-full md:w-auto">{t.adminItems.filter.apply}</button>
+            </div>
+          </form>
+
+          {items.length === 0 ? (
+            <div className="empty-state mt-5 py-10">
+              <Package2 size={28} className="text-stone-300" />
+              <p className="mt-3 text-sm text-stone-500">{t.adminItems.empty}</p>
+            </div>
+          ) : (
+            <div className="mt-5">
+              <ItemsTable
+                items={items}
+                selectedStatus={selectedStatus}
+                searchTerm={searchTerm}
+                t={t.adminItems}
+                categories={t.categories}
+                conditionT={t.items.condition}
+              />
+            </div>
+          )}
         </section>
-      ) : null}
+      </div>
     </section>
   );
 }

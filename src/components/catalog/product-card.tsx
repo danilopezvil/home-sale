@@ -1,5 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
+import { ArrowUpRight } from "lucide-react";
 
 import { getCategoryMeta } from "@/lib/category-meta";
 import type { Dictionary } from "@/lib/i18n";
@@ -7,11 +8,11 @@ import type { Dictionary } from "@/lib/i18n";
 import type { CatalogItem, ViewMode } from "./types";
 
 const CONDITION_COLOR: Record<string, string> = {
-  new: "bg-emerald-100 text-emerald-700",
-  like_new: "bg-teal-100 text-teal-700",
-  good: "bg-sky-100 text-sky-700",
-  fair: "bg-amber-100 text-amber-700",
-  parts: "bg-stone-100 text-stone-600",
+  new: "badge-success",
+  like_new: "badge-success",
+  good: "badge-neutral",
+  fair: "badge-warning",
+  parts: "badge-danger",
 };
 
 const currency = new Intl.NumberFormat("en-US", {
@@ -45,52 +46,66 @@ export function ProductCard({
   viewMode,
 }: ProductCardProps) {
   const condLabel = (conditionText as Record<string, string>)[item.condition] ?? item.condition;
-  const condColor = CONDITION_COLOR[item.condition] ?? "bg-stone-100 text-stone-600";
+  const condColor = CONDITION_COLOR[item.condition] ?? "badge-neutral";
   const isNew = Date.now() - new Date(item.createdAt).getTime() < NEW_ITEM_MS;
   const categoryLabel = getCatLabel(categories, item.category);
 
   return (
     <Link
       href={`/items/${item.id}`}
-      className={`group overflow-hidden rounded-2xl border border-stone-200 bg-white shadow-sm transition duration-200 hover:-translate-y-0.5 hover:border-orange-200 hover:shadow-md ${
-        viewMode === "list" ? "flex gap-3 p-3" : "flex flex-col"
+      className={`group surface overflow-hidden transition duration-200 hover:-translate-y-0.5 hover:border-stone-300 hover:shadow-[var(--shadow-md)] ${
+        viewMode === "list" ? "flex gap-4 p-3" : "flex flex-col"
       }`}
     >
       <div
-        className={`relative overflow-hidden rounded-xl bg-stone-100 ${
-          viewMode === "list" ? "h-24 w-28 shrink-0" : "aspect-[4/3] w-full"
+        className={`relative overflow-hidden rounded-2xl bg-stone-100 ${
+          viewMode === "list" ? "h-28 w-32 shrink-0" : "aspect-[4/3] w-full"
         }`}
       >
         {item.imageUrl ? (
-          <Image src={item.imageUrl} alt={item.title} fill className="object-cover transition duration-300 group-hover:scale-[1.02]" />
+          <Image
+            src={item.imageUrl}
+            alt={item.title}
+            fill
+            className="object-cover transition duration-300 group-hover:scale-[1.02]"
+          />
         ) : (
-          <div className="flex h-full w-full items-center justify-center text-3xl">{getCategoryMeta(item.category).emoji}</div>
+          <div className="flex h-full w-full items-center justify-center text-4xl text-stone-500">
+            {getCategoryMeta(item.category).emoji}
+          </div>
         )}
       </div>
 
-      <div className={`${viewMode === "list" ? "flex-1" : "p-3.5"}`}>
-        <div className="mb-2 flex flex-wrap items-center gap-1.5">
-          {isNew && (
-            <span className="rounded-full bg-orange-100 px-2 py-0.5 text-[11px] font-semibold text-orange-700">
-              {newBadgeLabel}
-            </span>
+      <div className={`${viewMode === "list" ? "flex flex-1 flex-col justify-between py-1 pr-1" : "flex flex-1 flex-col p-4"}`}>
+        <div>
+          <div className="mb-3 flex flex-wrap items-center gap-2">
+            {isNew && <span className="badge badge-warning">{newBadgeLabel}</span>}
+            <span className={`badge ${condColor}`}>{condLabel}</span>
+          </div>
+
+          <div className="flex items-start justify-between gap-3">
+            <div>
+              <h2 className="text-base font-semibold tracking-[-0.03em] text-stone-950 transition group-hover:text-stone-700 [display:-webkit-box] overflow-hidden [-webkit-box-orient:vertical] [-webkit-line-clamp:2]">
+                {item.title}
+              </h2>
+              <p className="mt-1 text-sm text-stone-500">{categoryLabel}</p>
+            </div>
+            <ArrowUpRight size={16} className="mt-1 shrink-0 text-stone-300 transition group-hover:text-stone-600" />
+          </div>
+
+          {item.description && (
+            <p className="mt-3 text-sm leading-6 text-stone-600 [display:-webkit-box] overflow-hidden [-webkit-box-orient:vertical] [-webkit-line-clamp:2]">
+              {item.description}
+            </p>
           )}
-          <span className={`rounded-full px-2 py-0.5 text-[11px] font-medium ${condColor}`}>{condLabel}</span>
         </div>
 
-        <h2 className="text-sm font-semibold text-stone-900 transition group-hover:text-orange-600 [display:-webkit-box] [-webkit-box-orient:vertical] [-webkit-line-clamp:2] overflow-hidden">
-          {item.title}
-        </h2>
-        <p className="mt-0.5 text-xs text-stone-500">{categoryLabel}</p>
-        {item.description && (
-          <p className="mt-2 text-xs text-stone-600 [display:-webkit-box] [-webkit-box-orient:vertical] [-webkit-line-clamp:2] overflow-hidden">
-            {item.description}
+        <div className="mt-4 flex items-end justify-between gap-3 border-t border-stone-200 pt-3">
+          <p className="text-xl font-semibold tracking-[-0.04em] text-stone-950">
+            {item.price === 0 ? <span className="text-emerald-700">{freeLabel}</span> : currency.format(item.price)}
           </p>
-        )}
-
-        <p className="mt-3 text-lg font-bold leading-none text-stone-900">
-          {item.price === 0 ? <span className="text-emerald-600">{freeLabel}</span> : currency.format(item.price)}
-        </p>
+          <p className="text-xs font-medium uppercase tracking-[0.18em] text-stone-400">View item</p>
+        </div>
       </div>
     </Link>
   );

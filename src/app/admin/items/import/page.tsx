@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { FileJson } from "lucide-react";
+import { FileJson, ArrowLeft } from "lucide-react";
 
 import { requireAdminUser } from "@/lib/admin-auth";
 import { getTranslations } from "@/lib/i18n";
@@ -10,29 +10,27 @@ export default async function ImportItemsPage() {
   const t = await getTranslations();
 
   return (
-    <section className="space-y-6">
-      <header className="rounded-2xl border border-stone-200 bg-white p-6 shadow-sm">
-        <div className="flex items-center gap-3">
-          <FileJson size={22} className="text-orange-400" />
+    <section className="space-y-5">
+      <header className="surface section-pad">
+        <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
           <div>
-            <h1 className="text-2xl font-bold text-stone-900">
+            <p className="eyebrow">Admin / import</p>
+            <h1 className="section-title mt-2 flex items-center gap-3">
+              <FileJson size={24} className="text-stone-500" />
               {t.importItems.heading}
             </h1>
-            <p className="text-sm text-stone-500">{t.importItems.subtitle}</p>
+            <p className="section-copy mt-2">{t.importItems.subtitle}</p>
           </div>
+          <Link href="/admin/items" className="btn-secondary">
+            <ArrowLeft size={15} />
+            {t.importItems.back}
+          </Link>
         </div>
       </header>
 
-      <div className="rounded-2xl border border-stone-200 bg-white p-6 shadow-sm">
+      <div className="surface section-pad">
         <ImportForm t={t.importItems} />
       </div>
-
-      <Link
-        href="/admin/items"
-        className="inline-block text-sm text-stone-500 transition hover:text-stone-800"
-      >
-        {t.importItems.back}
-      </Link>
     </section>
   );
 }

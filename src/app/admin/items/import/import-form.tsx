@@ -9,64 +9,43 @@ import { importItemsAction, type ImportState } from "./actions";
 const initialState: ImportState = { status: "idle", message: "" };
 
 export function ImportForm({ t }: { t: Dictionary["importItems"] }) {
-  const [state, action, isPending] = useActionState(
-    importItemsAction,
-    initialState,
-  );
+  const [state, action, isPending] = useActionState(importItemsAction, initialState);
 
   return (
     <form action={action} className="space-y-5">
-      <div>
-        <label
-          htmlFor="import-json"
-          className="block text-sm font-medium text-stone-700"
-        >
+      <div className="field-shell">
+        <label htmlFor="import-json" className="field-label">
+          <FileJson size={14} className="text-stone-400" />
           {t.jsonLabel}
         </label>
         <textarea
           id="import-json"
           name="json"
-          rows={12}
+          rows={14}
           placeholder={t.jsonPlaceholder}
-          className="mt-1 w-full rounded-xl border border-stone-200 bg-white px-3 py-2.5 font-mono text-xs leading-relaxed focus:outline-none focus:ring-2 focus:ring-orange-300"
+          className="textarea-base min-h-[280px] font-mono text-xs leading-relaxed"
           required
         />
       </div>
 
       {state.status !== "idle" && (
-        <div
-          className={`rounded-xl border p-3 text-sm ${
-            state.status === "success"
-              ? "border-emerald-200 bg-emerald-50 text-emerald-700"
-              : state.status === "partial"
-                ? "border-amber-200 bg-amber-50 text-amber-700"
-                : "border-red-200 bg-red-50 text-red-600"
-          }`}
-        >
+        <div className={state.status === "success" ? "notice-success" : state.status === "partial" ? "notice-warning" : "notice-danger"}>
           {state.message}
         </div>
       )}
 
       {state.results && state.results.length > 0 && (
-        <div>
-          <h3 className="text-sm font-semibold text-stone-700">
-            {t.results.title}
-          </h3>
-          <ul className="mt-2 space-y-1.5">
+        <div className="surface-muted p-4">
+          <h3 className="text-sm font-semibold text-stone-900">{t.results.title}</h3>
+          <ul className="mt-3 space-y-2">
             {state.results.map((r, i) => (
               <li key={i} className="flex items-start gap-2 text-sm">
-                <span
-                  className={`shrink-0 font-bold ${r.success ? "text-emerald-600" : "text-red-500"}`}
-                >
+                <span className={`mt-0.5 shrink-0 font-bold ${r.success ? "text-emerald-600" : "text-red-500"}`}>
                   {r.success ? t.results.success : t.results.error}
                 </span>
                 <span className={r.success ? "text-stone-700" : "text-stone-500"}>
                   {r.title}
-                  {r.error && (
-                    <span className="ml-2 text-xs text-red-400">
-                      ({r.error})
-                    </span>
-                  )}
+                  {r.error && <span className="ml-2 text-xs text-red-400">({r.error})</span>}
                 </span>
               </li>
             ))}
@@ -74,11 +53,7 @@ export function ImportForm({ t }: { t: Dictionary["importItems"] }) {
         </div>
       )}
 
-      <button
-        type="submit"
-        disabled={isPending}
-        className="flex items-center gap-2 rounded-xl bg-orange-500 px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-orange-600 active:scale-95 disabled:opacity-60"
-      >
+      <button type="submit" disabled={isPending} className="btn-primary w-full sm:w-auto">
         <FileJson size={15} />
         {isPending ? t.importing : t.submit}
       </button>

@@ -24,11 +24,7 @@ export function CategoryChips({
       <button
         type="button"
         onClick={() => onSelectCategory("")}
-        className={`shrink-0 whitespace-nowrap rounded-full border px-3 py-1.5 text-xs font-medium transition ${
-          !selectedCategory
-            ? "border-orange-500 bg-orange-500 text-white"
-            : "border-stone-200 bg-white text-stone-600 hover:border-orange-200 hover:text-orange-600"
-        }`}
+        className={`chip shrink-0 whitespace-nowrap ${!selectedCategory ? "chip-active" : "hover:border-stone-300 hover:text-stone-900"}`}
       >
         {allLabel}
       </button>
@@ -40,13 +36,10 @@ export function CategoryChips({
             key={key}
             type="button"
             onClick={() => onSelectCategory(key)}
-            className={`shrink-0 whitespace-nowrap rounded-full border px-3 py-1.5 text-xs font-medium transition ${
-              active
-                ? "border-orange-500 bg-orange-500 text-white"
-                : "border-stone-200 bg-white text-stone-600 hover:border-orange-200 hover:text-orange-600"
-            }`}
+            className={`chip shrink-0 whitespace-nowrap ${active ? "chip-active" : "hover:border-stone-300 hover:text-stone-900"}`}
           >
-            {meta.emoji} {getCatLabel(categories, key)}
+            <span>{meta.emoji}</span>
+            {getCatLabel(categories, key)}
           </button>
         );
       })}

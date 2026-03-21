@@ -10,22 +10,22 @@ const es = {
     title: "Venta de Casa \ud83c\udfe0",
     description: "Muebles, libros, gadgets y m\u00e1s \u2014 \u00a1todo debe irse!",
   },
-  footer: "Todo debe irse. \ud83d\udce6",
+  footer: "Inventario de mudanza, actualizado según salen artículos. 📦",
   home: {
     kicker: "Inventario listo para recoger",
     heading: "Nos mudamos y vendemos la casa entera.",
     subtitle:
-      "Consulta el inventario, filtra por categoría y reserva de inmediato lo que te interese. Todo está organizado para recoger sin complicaciones.",
+      "Consulta el inventario real, compara estado y reserva rápido antes de que se ocupen los huecos de recogida. Es una venta por mudanza, no un catálogo decorativo.",
     primaryAction: "Reservar un artículo",
     secondaryAction: "Ver últimos añadidos",
     inventoryLabel: "artículos disponibles",
     categoriesLabel: "Ir por categoría",
     viewAllCategories: "Ver todo",
     recentHeading: "Entrada reciente",
-    recentSubtitle: "Accesos rápidos a lo último publicado.",
+    recentSubtitle: "Últimos artículos publicados en la venta.",
     viewLatest: "Más recientes",
     inventorySectionTitle: "Disponible ahora",
-    inventorySectionSubtitle: "Selección inicial para empezar a revisar el inventario sin rodeos.",
+    inventorySectionSubtitle: "Un vistazo compacto a lo que sigue disponible para revisar rápido y decidir sin rodeos.",
     rowAction: "Abrir ficha",
     categories: [
       { emoji: "🛋️", label: "Muebles", key: "furniture" },
@@ -40,12 +40,12 @@ const es = {
     pageTitle: "Art\u00edculos disponibles",
     empty: {
       heading: "Nada aqu\u00ed todav\u00eda",
-      subtitle: "\u00a1Vuelve pronto \u2014 m\u00e1s art\u00edculos en camino!",
+      subtitle: "Todavía no hay artículos publicados. Vuelve cuando se cargue más inventario.",
     },
     error: {
       heading: "Algo sali\u00f3 mal",
       subtitle:
-        "No se pudieron cargar los art\u00edculos. Por favor, int\u00e9ntalo de nuevo.",
+        "No se pudo cargar el inventario ahora mismo. Inténtalo de nuevo en un momento.",
     },
     condition: {
       new: "Nuevo",
@@ -84,9 +84,9 @@ const es = {
     noPhotos: "Sin fotos a\u00fan",
     free: "\u00a1Gratis! \ud83c\udf89",
     reservedMessage:
-      "Este art\u00edculo ya fue reservado. \u00a1Vuelve a revisar por si la reserva se cancela!",
+      "Este artículo está apartado para otra persona. Vuelve a revisar más tarde por si la recogida se cancela.",
     soldMessage:
-      "Este art\u00edculo fue vendido. \u00a1Explora otros art\u00edculos disponibles!",
+      "Este artículo ya salió de la venta. Revisa el inventario que sigue disponible.",
     error: {
       load: "No se pudo cargar este art\u00edculo",
       general: "Algo sali\u00f3 mal",
@@ -102,7 +102,7 @@ const es = {
     email: {
       label: "Correo electr\u00f3nico",
       placeholder: "tu@ejemplo.com",
-      hint: "Lo usaremos para confirmar tu reserva.",
+      hint: "Se usa solo para confirmar la reserva y coordinar la recogida.",
     },
     phone: {
       label: "Tel\u00e9fono",
@@ -110,12 +110,12 @@ const es = {
     },
     pickup: {
       label: "Recogida preferida",
-      hint: "D\u00ednos cu\u00e1ndo te viene mejor.",
+      hint: "Opcional, pero ayuda a cerrar la recogida más rápido.",
     },
     message: {
       label: "Mensaje",
       placeholder:
-        "Preguntas, solicitudes especiales o detalles sobre la recogida\u2026",
+        "Úsalo para comentar horario, acceso al edificio o cualquier detalle que afecte la recogida.",
       hint: "Hasta 1.000 caracteres.",
     },
     optional: "(opcional)",
@@ -128,11 +128,11 @@ const es = {
   },
   admin: {
     heading: "Admin \u2699\ufe0f",
-    subtitle: "Administra tu venta desde aqu\u00ed.",
+    subtitle: "Gestiona la venta por mudanza: publica inventario, revisa reservas y mantén estados al día.",
     signIn: {
       heading: "Inicia sesi\u00f3n para continuar",
       subtitle:
-        "Ingresa tu correo de administrador para recibir un enlace m\u00e1gico.",
+        "Usa el correo de administrador para recibir el enlace de acceso al panel operativo.",
     },
     notAdmin: "\u2014 pero este correo no est\u00e1 en ADMIN_EMAILS.",
     signedInAs: "Sesi\u00f3n iniciada como",
@@ -158,18 +158,18 @@ const es = {
     placeholder: "admin@ejemplo.com",
     submit: "Enviar enlace m\u00e1gico",
     submitting: "Enviando\u2026",
-    help: "Si tu correo est\u00e1 registrado, recibir\u00e1s un enlace de acceso en tu bandeja de entrada.",
+    help: "Si la dirección está autorizada, recibirás un enlace de acceso en la bandeja de entrada de esa cuenta.",
     success: {
       heading: "\u00a1Revisa tu bandeja de entrada!",
     },
   },
   adminItems: {
     heading: "Art\u00edculos",
-    subtitle: "Crear, editar y gestionar publicaciones.",
+    subtitle: "Crear publicaciones, actualizar detalles y mantener preciso el stock visible.",
     importJson: "Importar JSON",
     filter: {
       status: "Estado",
-      search: "Buscar t\u00edtulo, descripci\u00f3n, categor\u00eda\u2026",
+      search: "Buscar por título, notas o categoría\u2026",
       apply: "Aplicar",
     },
     table: {
@@ -255,7 +255,7 @@ const es = {
   },
   adminReservations: {
     heading: "Reservas",
-    subtitle: "Confirmar, cancelar o marcar art\u00edculos como vendidos.",
+    subtitle: "Revisar solicitudes entrantes, confirmar recogidas y cerrar artículos vendidos.",
     filter: {
       label: "Filtrar",
       apply: "Aplicar",
@@ -281,7 +281,7 @@ const es = {
   },
   importItems: {
     heading: "Importar art\u00edculos via JSON",
-    subtitle: "Pega un objeto o un array de art\u00edculos.",
+    subtitle: "Pega un artículo o un lote de artículos para publicar inventario más rápido.",
     jsonLabel: "JSON",
     jsonPlaceholder:
       '{ "title": "...", "price": 0, "category": "furniture", "condition": "good", "pickup_area": "..." }',
