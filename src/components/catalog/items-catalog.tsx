@@ -172,7 +172,7 @@ export function ItemsCatalog({ items, t, initialCategory = "", initialSort = "ne
             <div
               className={
                 viewMode === "grid"
-                  ? "grid grid-cols-1 gap-4 min-[620px]:grid-cols-2 2xl:grid-cols-3"
+                  ? "grid grid-cols-1 gap-4 min-[620px]:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4"
                   : "grid grid-cols-1 gap-3"
               }
             >

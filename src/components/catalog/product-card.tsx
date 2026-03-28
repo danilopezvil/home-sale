@@ -62,12 +62,12 @@ export function ProductCard({
   return (
     <Link
       href={`/items/${item.id}`}
-      className={`group catalog-card overflow-hidden transition duration-200 hover:-translate-y-0.5 hover:border-stone-300 hover:shadow-[var(--shadow-md)] ${
+      className={`group catalog-card overflow-hidden transition duration-200 hover:-translate-y-0.5 hover:shadow-[var(--shadow-md)] ${
         viewMode === "list" ? "grid gap-4 p-4 sm:grid-cols-[180px_minmax(0,1fr)] sm:items-start" : "flex flex-col"
       }`}
     >
       <div
-        className={`relative overflow-hidden rounded-2xl bg-[hsl(var(--surface-muted))] ${
+        className={`relative overflow-hidden rounded-lg bg-[hsl(var(--surface-muted))] ${
           viewMode === "list" ? "aspect-[4/3] w-full sm:min-h-[130px]" : "aspect-[4/3] w-full"
         }`}
       >
@@ -79,7 +79,7 @@ export function ProductCard({
             className="object-cover transition duration-300 group-hover:scale-[1.02]"
           />
         ) : (
-          <div className="flex h-full w-full items-center justify-center text-5xl text-stone-500">
+          <div className="flex h-full w-full items-center justify-center text-5xl text-slate-500">
             {getCategoryMeta(item.category).emoji}
           </div>
         )}
@@ -92,36 +92,40 @@ export function ProductCard({
               <div className="flex flex-wrap items-center gap-2">
                 <span className="badge">{categoryLabel}</span>
                 <span className={`badge ${condColor}`}>{condLabel}</span>
+                <span className="badge badge-success">Disponible</span>
                 {isNew ? <span className="badge badge-warning">{newBadgeLabel}</span> : null}
               </div>
-              <h2 className={`font-semibold tracking-[-0.035em] text-stone-950 transition group-hover:text-stone-700 [display:-webkit-box] overflow-hidden [-webkit-box-orient:vertical] ${viewMode === "list" ? "text-xl [-webkit-line-clamp:1]" : "text-lg [-webkit-line-clamp:2]"}`}>
+              <h2 className={`font-bold tracking-tight text-slate-900 [display:-webkit-box] overflow-hidden [-webkit-box-orient:vertical] ${viewMode === "list" ? "text-xl [-webkit-line-clamp:1]" : "text-lg [-webkit-line-clamp:2]"}`}>
                 {item.title}
               </h2>
             </div>
-            <ArrowUpRight size={16} className="mt-1 shrink-0 text-stone-300 transition group-hover:text-stone-600" />
+            <ArrowUpRight size={16} className="mt-1 shrink-0 text-slate-300 transition group-hover:text-slate-600" />
           </div>
 
           {item.description ? (
-            <p className="text-sm leading-6 text-stone-600 [display:-webkit-box] overflow-hidden [-webkit-box-orient:vertical] [-webkit-line-clamp:2]">
+            <p className="text-sm leading-6 text-slate-600 [display:-webkit-box] overflow-hidden [-webkit-box-orient:vertical] [-webkit-line-clamp:2]">
               {item.description}
             </p>
           ) : null}
         </div>
 
-        <div className={`grid gap-3 border-t border-stone-200 pt-3 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-end ${viewMode === "list" ? "mt-3" : "mt-5"}`}>
+        <div className={`grid gap-3 border-t border-slate-200 pt-3 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-end ${viewMode === "list" ? "mt-3" : "mt-5"}`}>
           <div className="space-y-1">
-            <p className="data-label">Price</p>
-            <p className="text-2xl font-semibold tracking-[-0.045em] text-stone-950">
-              {item.price === 0 ? <span className="text-[hsl(var(--success))]">{priceLabel}</span> : priceLabel}
-            </p>
+            <p className="data-label">Precio</p>
+            <p className="text-2xl font-bold tracking-tight text-slate-900">{priceLabel}</p>
           </div>
           <div className="space-y-1 text-left sm:text-right">
             <p className="data-label flex items-center gap-1 sm:justify-end">
               <Clock3 size={12} /> Listed
             </p>
-            <p className="text-sm font-medium text-stone-600">{getAgeLabel(item.createdAt)}</p>
+            <p className="text-sm font-medium text-slate-600">{getAgeLabel(item.createdAt)}</p>
           </div>
         </div>
+
+        <span className="mt-3 inline-flex w-fit items-center gap-1 rounded-lg bg-sky-500 px-3 py-2 text-xs font-medium text-white opacity-0 transition group-hover:opacity-100">
+          Ver detalles
+          <ArrowUpRight size={13} />
+        </span>
       </div>
     </Link>
   );
