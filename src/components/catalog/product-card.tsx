@@ -63,12 +63,12 @@ export function ProductCard({
     <Link
       href={`/items/${item.id}`}
       className={`group catalog-card overflow-hidden transition duration-200 hover:-translate-y-0.5 hover:border-stone-300 hover:shadow-[var(--shadow-md)] ${
-        viewMode === "list" ? "grid gap-3 p-3 sm:grid-cols-[220px_minmax(0,1fr)]" : "flex flex-col"
+        viewMode === "list" ? "grid gap-4 p-4 sm:grid-cols-[180px_minmax(0,1fr)] sm:items-start" : "flex flex-col"
       }`}
     >
       <div
         className={`relative overflow-hidden rounded-2xl bg-[hsl(var(--surface-muted))] ${
-          viewMode === "list" ? "aspect-[4/3] h-full min-h-[180px]" : "aspect-[4/3] w-full"
+          viewMode === "list" ? "aspect-[4/3] w-full sm:min-h-[130px]" : "aspect-[4/3] w-full"
         }`}
       >
         {item.imageUrl ? (
@@ -85,8 +85,8 @@ export function ProductCard({
         )}
       </div>
 
-      <div className={`${viewMode === "list" ? "flex min-w-0 flex-col justify-between py-1 pr-1" : "flex flex-1 flex-col p-4"}`}>
-        <div className="space-y-4">
+      <div className={`${viewMode === "list" ? "flex min-w-0 flex-col justify-between" : "flex flex-1 flex-col p-4"}`}>
+        <div className={viewMode === "list" ? "space-y-2" : "space-y-4"}>
           <div className="flex items-start justify-between gap-3">
             <div className="space-y-2">
               <div className="flex flex-wrap items-center gap-2">
@@ -94,7 +94,7 @@ export function ProductCard({
                 <span className={`badge ${condColor}`}>{condLabel}</span>
                 {isNew ? <span className="badge badge-warning">{newBadgeLabel}</span> : null}
               </div>
-              <h2 className="text-lg font-semibold tracking-[-0.035em] text-stone-950 transition group-hover:text-stone-700 [display:-webkit-box] overflow-hidden [-webkit-box-orient:vertical] [-webkit-line-clamp:2]">
+              <h2 className={`font-semibold tracking-[-0.035em] text-stone-950 transition group-hover:text-stone-700 [display:-webkit-box] overflow-hidden [-webkit-box-orient:vertical] ${viewMode === "list" ? "text-xl [-webkit-line-clamp:1]" : "text-lg [-webkit-line-clamp:2]"}`}>
                 {item.title}
               </h2>
             </div>
@@ -108,7 +108,7 @@ export function ProductCard({
           ) : null}
         </div>
 
-        <div className="mt-5 grid gap-3 border-t border-stone-200 pt-3 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-end">
+        <div className={`grid gap-3 border-t border-stone-200 pt-3 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-end ${viewMode === "list" ? "mt-3" : "mt-5"}`}>
           <div className="space-y-1">
             <p className="data-label">Price</p>
             <p className="text-2xl font-semibold tracking-[-0.045em] text-stone-950">
