@@ -83,8 +83,6 @@ export function ItemsCatalog({ items, t, initialCategory = "", initialSort = "ne
   }, [items, selectedCategory, searchTerm, selectedSort, t.categories]);
 
   const hasFilters = Boolean(selectedCategory || searchTerm || selectedSort !== "newest");
-  const freeCount = items.filter((item) => item.price === 0).length;
-  const newestCount = items.filter((item) => Date.now() - new Date(item.createdAt).getTime() < 72 * 60 * 60 * 1000).length;
 
   function clearFilters() {
     setSelectedCategory("");
@@ -98,7 +96,7 @@ export function ItemsCatalog({ items, t, initialCategory = "", initialSort = "ne
       <CatalogToolbar
         title={t.items.pageTitle}
         countLabel={`${processedItems.length} ${t.nav.items.toLowerCase()}`}
-        summaryLabel="Scan household items quickly, compare price and condition, and move straight into pickup planning."
+        summaryLabel="Explora los artículos por categoría, filtra por precio y cambia entre cuadrícula o lista."
         searchPlaceholder={t.items.searchPlaceholder}
         sortLabel={t.items.sortLabel}
         sortNewestLabel={t.items.sort.newest}
@@ -123,41 +121,21 @@ export function ItemsCatalog({ items, t, initialCategory = "", initialSort = "ne
             <div className="flex items-center justify-between gap-3 border-b border-stone-200 pb-4">
               <div>
                 <p className="eyebrow">Filters</p>
-                <p className="mt-1 text-sm text-stone-500">Keep the scan tight and remove anything irrelevant fast.</p>
+                <p className="mt-1 text-sm text-stone-500">Ajusta la vista con menos ruido visual.</p>
               </div>
               <SlidersHorizontal size={16} className="text-stone-400" />
             </div>
 
-            <div className="mt-4 space-y-4">
-              <div className="grid gap-3 sm:grid-cols-3 xl:grid-cols-1">
-                <div className="inventory-metric">
-                  <p className="data-label">Available now</p>
-                  <p className="data-value">{items.length}</p>
-                  <p className="text-sm text-stone-500">Live items in the sale.</p>
-                </div>
-                <div className="inventory-metric">
-                  <p className="data-label">Fresh listings</p>
-                  <p className="data-value">{newestCount}</p>
-                  <p className="text-sm text-stone-500">Added in the last 72 hours.</p>
-                </div>
-                <div className="inventory-metric">
-                  <p className="data-label">Free to claim</p>
-                  <p className="data-value">{freeCount}</p>
-                  <p className="text-sm text-stone-500">Zero-price items still available.</p>
-                </div>
-              </div>
-
-              <div className="rounded-2xl border border-stone-200 bg-[hsl(var(--surface-muted))] p-4">
-                <p className="data-label">Categories</p>
-                <div className="mt-3">
-                  <CategoryChips
-                    selectedCategory={selectedCategory}
-                    categories={t.categories}
-                    allLabel={t.items.filterAll}
-                    counts={categoryCounts}
-                    onSelectCategory={setSelectedCategory}
-                  />
-                </div>
+            <div className="mt-4 rounded-2xl border border-stone-200 bg-[hsl(var(--surface-muted))] p-4">
+              <p className="data-label">Categories</p>
+              <div className="mt-3">
+                <CategoryChips
+                  selectedCategory={selectedCategory}
+                  categories={t.categories}
+                  allLabel={t.items.filterAll}
+                  counts={categoryCounts}
+                  onSelectCategory={setSelectedCategory}
+                />
               </div>
             </div>
           </section>

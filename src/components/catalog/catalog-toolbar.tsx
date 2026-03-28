@@ -48,17 +48,13 @@ export function CatalogToolbar({
   return (
     <section className="surface section-pad">
       <div className="grid gap-4 border-b border-stone-200 pb-5 xl:grid-cols-[minmax(0,1fr)_220px] xl:items-end">
-        <div className="space-y-3">
-          <div className="space-y-2">
+        <div className="space-y-2">
+          <div className="space-y-1">
             <p className="eyebrow">Actual sale inventory</p>
             <h1 className="inventory-title">{title}</h1>
-            <p className="display-subtitle max-w-2xl">{summaryLabel}</p>
+            <p className="display-subtitle max-w-2xl text-sm">{summaryLabel}</p>
           </div>
-          <div className="flex flex-wrap items-center gap-2">
-            <span className="badge badge-neutral">{countLabel}</span>
-            <span className="badge">Single-copy household items</span>
-            <span className="badge">Pickup-first flow</span>
-          </div>
+          <span className="badge badge-neutral">{countLabel}</span>
         </div>
 
         <button
