@@ -2,7 +2,7 @@
 
 import { useTransition, useState } from "react";
 import Link from "next/link";
-import { Pencil, Trash2, CircleCheckBig, RotateCcw } from "lucide-react";
+import { Pencil, Trash2, CircleCheckBig, RotateCcw, Image as ImageIcon } from "lucide-react";
 
 import { toggleItemStatusAction, deleteItemsAction } from "@/app/admin/items/actions";
 import { getCategoryMeta } from "@/lib/category-meta";
@@ -21,7 +21,7 @@ type Item = {
 function statusBadgeClasses(status: Item["status"]) {
   if (status === "available") return "badge badge-success";
   if (status === "reserved") return "badge badge-warning";
-  return "badge badge-neutral";
+  return "badge badge-danger";
 }
 
 function getStatusLabel(t: Dictionary["adminItems"]["status"], status: string): string {
@@ -99,7 +99,7 @@ export function ItemsTable({ items, selectedStatus, searchTerm, t, categories, c
       <div className="table-shell">
         <div className="table-wrap">
           <table className="min-w-full text-sm">
-            <thead className="bg-[hsl(var(--surface-muted))] text-left text-[11px] font-semibold uppercase tracking-[0.18em] text-stone-500">
+            <thead className="bg-[hsl(var(--surface-muted))] text-left text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-500">
               <tr>
                 <th className="px-4 py-3">
                   <input
@@ -109,57 +109,56 @@ export function ItemsTable({ items, selectedStatus, searchTerm, t, categories, c
                       if (el) el.indeterminate = someSelected;
                     }}
                     onChange={toggleAll}
-                    className="rounded border-stone-300 accent-stone-900"
+                    className="rounded border-slate-300 accent-sky-500"
                   />
                 </th>
+                <th className="px-4 py-3">Imagen</th>
+                <th className="px-4 py-3">SKU</th>
                 <th className="px-4 py-3">{t.table.item}</th>
                 <th className="px-4 py-3">{t.table.price}</th>
                 <th className="px-4 py-3">{t.table.category}</th>
-                <th className="px-4 py-3">{t.table.condition}</th>
-                <th className="px-4 py-3">{t.table.pickupArea}</th>
                 <th className="px-4 py-3">{t.table.status}</th>
                 <th className="px-4 py-3">{t.table.actions}</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-stone-200">
+            <tbody className="divide-y divide-slate-200">
               {items.map((item) => {
                 const cat = getCategoryMeta(item.category);
                 const condLabel = (conditionT as Record<string, string>)[item.condition] ?? item.condition;
                 const isSelected = selectedIds.has(item.id);
                 return (
-                  <tr key={item.id} className={`${isSelected ? "bg-[hsl(var(--danger-soft))]/70" : "bg-white/80"} hover:bg-[hsl(var(--surface-muted))]`}>
-                    <td className="px-4 py-4 align-top">
+                  <tr key={item.id} className={`${isSelected ? "bg-sky-50" : "bg-white"} transition hover:bg-slate-50`}>
+                    <td className="px-4 py-5 align-top">
                       <input
                         type="checkbox"
                         checked={isSelected}
                         onChange={() => toggleOne(item.id)}
-                        className="rounded border-stone-300 accent-stone-900"
+                        className="rounded border-slate-300 accent-sky-500"
                       />
                     </td>
-                    <td className="px-4 py-4 align-top">
+                    <td className="px-4 py-5 align-top">
+                      <span className="inline-flex h-11 w-11 items-center justify-center rounded-md border border-slate-200 bg-slate-50 text-slate-500">
+                        <ImageIcon size={14} />
+                      </span>
+                    </td>
+                    <td className="px-4 py-5 align-top font-mono text-xs text-slate-500">SKU-{item.id.slice(0, 8).toUpperCase()}</td>
+                    <td className="px-4 py-5 align-top">
                       <div className="space-y-1">
-                        <p className="font-semibold text-stone-950">{item.title}</p>
-                        <p className="text-xs text-stone-500">ID: {item.id}</p>
+                        <p className="font-semibold text-slate-900">{item.title}</p>
+                        <p className="text-xs text-slate-500">{condLabel}</p>
                       </div>
                     </td>
-                    <td className="px-4 py-4 align-top">
-                      <div className="space-y-1">
-                        <p className="font-semibold text-stone-950">{currencyFormatter.format(Number(item.price))}</p>
-                        {Number(item.price) === 0 ? <p className="text-xs text-[hsl(var(--success))]">Free item</p> : null}
-                      </div>
-                    </td>
-                    <td className="px-4 py-4 text-stone-600 align-top">
+                    <td className="px-4 py-5 align-top font-semibold text-slate-900">{currencyFormatter.format(Number(item.price))}</td>
+                    <td className="px-4 py-5 text-slate-600 align-top">
                       <span className="inline-flex items-center gap-2">
                         <span>{cat.emoji}</span>
                         <span>{getCatLabel(categories, item.category)}</span>
                       </span>
                     </td>
-                    <td className="px-4 py-4 text-stone-600 align-top">{condLabel}</td>
-                    <td className="px-4 py-4 text-stone-600 align-top">{item.pickup_area || "—"}</td>
-                    <td className="px-4 py-4 align-top">
+                    <td className="px-4 py-5 align-top">
                       <span className={statusBadgeClasses(item.status)}>{getStatusLabel(t.status, item.status)}</span>
                     </td>
-                    <td className="px-4 py-4 align-top">
+                    <td className="px-4 py-5 align-top">
                       <div className="flex min-w-[180px] flex-col gap-2">
                         <Link
                           href={`/admin/items?status=${selectedStatus}&search=${encodeURIComponent(searchTerm)}&edit=${item.id}`}
