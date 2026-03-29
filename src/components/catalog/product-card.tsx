@@ -1,19 +1,10 @@
 import Image from "next/image";
 import Link from "next/link";
-import { ArrowUpRight, Clock3 } from "lucide-react";
 
 import { getCategoryMeta } from "@/lib/category-meta";
 import type { Dictionary } from "@/lib/i18n";
 
-import type { CatalogItem, ViewMode } from "./types";
-
-const CONDITION_COLOR: Record<string, string> = {
-  new: "badge-success",
-  like_new: "badge-success",
-  good: "badge-neutral",
-  fair: "badge-warning",
-  parts: "badge-danger",
-};
+import type { CatalogItem } from "./types";
 
 const currency = new Intl.NumberFormat("en-US", {
   style: "currency",
@@ -21,112 +12,80 @@ const currency = new Intl.NumberFormat("en-US", {
   maximumFractionDigits: 0,
 });
 
-const NEW_ITEM_MS = 72 * 60 * 60 * 1000;
-
-function getCatLabel(categories: Dictionary["categories"], key: string | null | undefined): string {
+function getCategoryLabel(categories: Dictionary["categories"], key: string | null | undefined): string {
   if (!key) return categories.other;
   return (categories as Record<string, string>)[key] ?? key;
 }
 
-function getAgeLabel(createdAt: string) {
-  const created = new Date(createdAt).getTime();
-  const diffHours = Math.max(1, Math.round((Date.now() - created) / (1000 * 60 * 60)));
-  if (diffHours < 24) return `${diffHours}h ago`;
-  const days = Math.round(diffHours / 24);
-  return `${days}d ago`;
+function getStatus(condition: string): "available" | "reserved" | "sold" {
+  if (condition === "parts") return "sold";
+  if (condition === "fair") return "reserved";
+  return "available";
 }
+
+const STATUS_STYLES = {
+  available: "bg-emerald-500 text-white",
+  reserved: "bg-amber-500 text-white",
+  sold: "bg-slate-500 text-white",
+} as const;
+
+const STATUS_LABELS = {
+  available: "Disponible",
+  reserved: "Reservado",
+  sold: "Vendido",
+} as const;
 
 type ProductCardProps = {
   item: CatalogItem;
   categories: Dictionary["categories"];
   conditionText: Dictionary["items"]["condition"];
-  newBadgeLabel: string;
   freeLabel: string;
-  viewMode: ViewMode;
 };
 
-export function ProductCard({
-  item,
-  categories,
-  conditionText,
-  newBadgeLabel,
-  freeLabel,
-  viewMode,
-}: ProductCardProps) {
-  const condLabel = (conditionText as Record<string, string>)[item.condition] ?? item.condition;
-  const condColor = CONDITION_COLOR[item.condition] ?? "badge-neutral";
-  const isNew = Date.now() - new Date(item.createdAt).getTime() < NEW_ITEM_MS;
-  const categoryLabel = getCatLabel(categories, item.category);
+export function ProductCard({ item, categories, conditionText, freeLabel }: ProductCardProps) {
+  const status = getStatus(item.condition);
+  const categoryLabel = getCategoryLabel(categories, item.category);
+  const conditionLabel = (conditionText as Record<string, string>)[item.condition] ?? item.condition;
   const priceLabel = item.price === 0 ? freeLabel : currency.format(item.price);
 
   return (
-    <Link
-      href={`/items/${item.id}`}
-      className={`group catalog-card overflow-hidden transition duration-200 hover:-translate-y-0.5 hover:shadow-[var(--shadow-md)] ${
-        viewMode === "list" ? "grid gap-4 p-4 sm:grid-cols-[180px_minmax(0,1fr)] sm:items-start" : "flex flex-col"
-      }`}
-    >
-      <div
-        className={`relative overflow-hidden rounded-lg bg-[hsl(var(--surface-muted))] ${
-          viewMode === "list" ? "aspect-[4/3] w-full sm:min-h-[130px]" : "aspect-[4/3] w-full"
-        }`}
-      >
+    <article className={`group overflow-hidden rounded-xl border border-slate-200 bg-white transition-all duration-300 hover:shadow-xl hover:shadow-slate-200/50 ${status === "sold" ? "opacity-75" : ""}`}>
+      <div className="relative aspect-square overflow-hidden">
         {item.imageUrl ? (
           <Image
             src={item.imageUrl}
             alt={item.title}
             fill
-            className="object-cover transition duration-300 group-hover:scale-[1.02]"
+            className={`object-cover transition-transform duration-500 group-hover:scale-110 ${status === "sold" ? "grayscale" : ""}`}
           />
         ) : (
-          <div className="flex h-full w-full items-center justify-center text-5xl text-slate-500">
+          <div className="flex h-full w-full items-center justify-center bg-slate-100 text-5xl">
             {getCategoryMeta(item.category).emoji}
           </div>
         )}
+        <div className="absolute left-3 top-3">
+          <span className={`rounded px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider ${STATUS_STYLES[status]}`}>
+            {STATUS_LABELS[status]}
+          </span>
+        </div>
       </div>
 
-      <div className={`${viewMode === "list" ? "flex min-w-0 flex-col justify-between" : "flex flex-1 flex-col p-4"}`}>
-        <div className={viewMode === "list" ? "space-y-2" : "space-y-4"}>
-          <div className="flex items-start justify-between gap-3">
-            <div className="space-y-2">
-              <div className="flex flex-wrap items-center gap-2">
-                <span className="badge">{categoryLabel}</span>
-                <span className={`badge ${condColor}`}>{condLabel}</span>
-                <span className="badge badge-success">Disponible</span>
-                {isNew ? <span className="badge badge-warning">{newBadgeLabel}</span> : null}
-              </div>
-              <h2 className={`font-bold tracking-tight text-slate-900 [display:-webkit-box] overflow-hidden [-webkit-box-orient:vertical] ${viewMode === "list" ? "text-xl [-webkit-line-clamp:1]" : "text-lg [-webkit-line-clamp:2]"}`}>
-                {item.title}
-              </h2>
-            </div>
-            <ArrowUpRight size={16} className="mt-1 shrink-0 text-slate-300 transition group-hover:text-slate-600" />
-          </div>
+      <div className="p-5">
+        <p className="mb-1 text-xs font-semibold uppercase tracking-[0.14em] text-slate-400">{categoryLabel} · {conditionLabel}</p>
+        <h3 className="mb-1 line-clamp-1 font-bold text-slate-900">{item.title}</h3>
+        <p className={`mb-4 text-2xl font-black ${status === "sold" ? "text-slate-400" : "text-sky-600"}`}>{priceLabel}</p>
 
-          {item.description ? (
-            <p className="text-sm leading-6 text-slate-600 [display:-webkit-box] overflow-hidden [-webkit-box-orient:vertical] [-webkit-line-clamp:2]">
-              {item.description}
-            </p>
-          ) : null}
-        </div>
-
-        <div className={`grid gap-3 border-t border-slate-200 pt-3 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-end ${viewMode === "list" ? "mt-3" : "mt-5"}`}>
-          <div className="space-y-1">
-            <p className="data-label">Precio</p>
-            <p className="text-2xl font-bold tracking-tight text-slate-900">{priceLabel}</p>
-          </div>
-          <div className="space-y-1 text-left sm:text-right">
-            <p className="data-label flex items-center gap-1 sm:justify-end">
-              <Clock3 size={12} /> Listed
-            </p>
-            <p className="text-sm font-medium text-slate-600">{getAgeLabel(item.createdAt)}</p>
-          </div>
-        </div>
-
-        <span className="mt-3 inline-flex w-fit items-center gap-1 rounded-lg bg-sky-500 px-3 py-2 text-xs font-medium text-white opacity-0 transition group-hover:opacity-100">
-          Ver detalles
-          <ArrowUpRight size={13} />
-        </span>
+        <Link
+          href={`/items/${item.id}`}
+          className={`block w-full rounded-lg border py-2.5 text-center text-sm font-bold transition-all ${
+            status === "sold"
+              ? "cursor-not-allowed border-slate-100 text-slate-400 pointer-events-none"
+              : "border-slate-200 text-slate-700 hover:bg-slate-50"
+          }`}
+        >
+          {status === "sold" ? "Out of Stock" : "View Details"}
+        </Link>
       </div>
-    </Link>
+    </article>
   );
 }

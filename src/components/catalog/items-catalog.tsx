@@ -1,14 +1,12 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
-import { Package2, SearchX, SlidersHorizontal } from "lucide-react";
+import { useMemo, useState } from "react";
+import { Search } from "lucide-react";
 
 import type { Dictionary } from "@/lib/i18n";
 
-import { CatalogToolbar } from "./catalog-toolbar";
-import { CategoryChips } from "./category-chips";
 import { ProductCard } from "./product-card";
-import type { CatalogItem, SortOption, ViewMode } from "./types";
+import type { CatalogItem, SortOption } from "./types";
 
 type ItemsCatalogProps = {
   items: CatalogItem[];
@@ -17,180 +15,228 @@ type ItemsCatalogProps = {
   initialSort?: SortOption;
 };
 
-const VIEW_STORAGE_KEY = "catalog-view-mode";
+const PAGE_SIZE = 6;
 
-function getCategoryLabel(categories: Dictionary["categories"], key: string): string {
+function getCategoryLabel(categories: Dictionary["categories"], key: string) {
   return (categories as Record<string, string>)[key] ?? key;
 }
 
 export function ItemsCatalog({ items, t, initialCategory = "", initialSort = "newest" }: ItemsCatalogProps) {
-  const [selectedCategory, setSelectedCategory] = useState(initialCategory);
-  const [selectedSort, setSelectedSort] = useState<SortOption>(initialSort);
-  const [searchInput, setSearchInput] = useState("");
   const [searchTerm, setSearchTerm] = useState("");
-  const [viewMode, setViewMode] = useState<ViewMode>("grid");
-  const [filtersOpen, setFiltersOpen] = useState(false);
+  const [minPrice, setMinPrice] = useState("");
+  const [maxPrice, setMaxPrice] = useState("");
+  const [selectedCategories, setSelectedCategories] = useState<string[]>(initialCategory ? [initialCategory] : []);
+  const [selectedSort, setSelectedSort] = useState<SortOption>(initialSort);
+  const [currentPage, setCurrentPage] = useState(1);
 
-  useEffect(() => {
-    const saved = window.localStorage.getItem(VIEW_STORAGE_KEY);
-    if (saved === "grid" || saved === "list") {
-      setViewMode(saved);
-    }
-  }, []);
-
-  useEffect(() => {
-    window.localStorage.setItem(VIEW_STORAGE_KEY, viewMode);
-  }, [viewMode]);
-
-  useEffect(() => {
-    const timer = window.setTimeout(() => {
-      setSearchTerm(searchInput.trim().toLowerCase());
-    }, 250);
-    return () => window.clearTimeout(timer);
-  }, [searchInput]);
-
-  const categoryCounts = useMemo(() => {
-    return items.reduce<Record<string, number>>((acc, item) => {
-      const key = item.category ?? "other";
-      acc[key] = (acc[key] ?? 0) + 1;
-      return acc;
-    }, {});
+  const categories = useMemo(() => {
+    const keys = new Set<string>();
+    items.forEach((item) => {
+      if (item.category) {
+        keys.add(item.category);
+      }
+    });
+    return [...keys];
   }, [items]);
 
-  const processedItems = useMemo(() => {
-    let next = [...items];
+  const filteredItems = useMemo(() => {
+    const search = searchTerm.trim().toLowerCase();
+    const min = minPrice === "" ? null : Number(minPrice);
+    const max = maxPrice === "" ? null : Number(maxPrice);
 
-    if (selectedCategory) {
-      next = next.filter((item) => item.category === selectedCategory);
-    }
+    const next = items
+      .filter((item) => {
+        if (selectedCategories.length > 0 && !selectedCategories.includes(item.category ?? "")) {
+          return false;
+        }
 
-    if (searchTerm) {
-      next = next.filter((item) => {
-        const haystack = `${item.title} ${item.description ?? ""} ${item.category ?? ""} ${item.category ? getCategoryLabel(t.categories, item.category) : ""}`.toLowerCase();
-        return haystack.includes(searchTerm);
+        if (search) {
+          const haystack = `${item.title} ${item.description ?? ""} ${item.category ?? ""}`.toLowerCase();
+          if (!haystack.includes(search)) {
+            return false;
+          }
+        }
+
+        if (min !== null && item.price < min) {
+          return false;
+        }
+
+        if (max !== null && item.price > max) {
+          return false;
+        }
+
+        return true;
+      })
+      .sort((a, b) => {
+        if (selectedSort === "price_asc") return a.price - b.price;
+        if (selectedSort === "price_desc") return b.price - a.price;
+        return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
       });
-    }
-
-    if (selectedSort === "price_asc") {
-      next.sort((a, b) => a.price - b.price);
-    } else if (selectedSort === "price_desc") {
-      next.sort((a, b) => b.price - a.price);
-    } else {
-      next.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
-    }
 
     return next;
-  }, [items, selectedCategory, searchTerm, selectedSort, t.categories]);
+  }, [items, maxPrice, minPrice, searchTerm, selectedCategories, selectedSort]);
 
-  const hasFilters = Boolean(selectedCategory || searchTerm || selectedSort !== "newest");
+  const totalPages = Math.max(1, Math.ceil(filteredItems.length / PAGE_SIZE));
+  const page = Math.min(currentPage, totalPages);
 
-  function clearFilters() {
-    setSelectedCategory("");
-    setSearchInput("");
-    setSearchTerm("");
-    setSelectedSort("newest");
+  const paginatedItems = useMemo(() => {
+    const start = (page - 1) * PAGE_SIZE;
+    return filteredItems.slice(start, start + PAGE_SIZE);
+  }, [filteredItems, page]);
+
+  function onToggleCategory(category: string) {
+    setCurrentPage(1);
+    setSelectedCategories((prev) =>
+      prev.includes(category) ? prev.filter((item) => item !== category) : [...prev, category],
+    );
+  }
+
+  function onApplyFilters() {
+    setCurrentPage(1);
   }
 
   return (
-    <section className="space-y-5">
-      <CatalogToolbar
-        title={t.items.pageTitle}
-        countLabel={`${processedItems.length} ${t.nav.items.toLowerCase()}`}
-        summaryLabel="Explora los artículos por categoría, filtra por precio y cambia entre cuadrícula o lista."
-        searchPlaceholder={t.items.searchPlaceholder}
-        sortLabel={t.items.sortLabel}
-        sortNewestLabel={t.items.sort.newest}
-        sortPriceAscLabel={t.items.sort.priceAsc}
-        sortPriceDescLabel={t.items.sort.priceDesc}
-        filtersLabel={t.items.filtersLabel}
-        gridLabel={t.items.gridLabel}
-        listLabel={t.items.listLabel}
-        searchValue={searchInput}
-        selectedSort={selectedSort}
-        viewMode={viewMode}
-        filtersOpen={filtersOpen}
-        onSearchChange={setSearchInput}
-        onSortChange={setSelectedSort}
-        onViewChange={setViewMode}
-        onToggleFilters={() => setFiltersOpen((prev) => !prev)}
-      />
+    <div className="mx-auto w-full max-w-[1440px] px-2 sm:px-4">
+      <section className="grid gap-8 md:grid-cols-[280px_minmax(0,1fr)] md:items-start">
+        <aside className="space-y-6 rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
+          <section>
+            <h3 className="mb-3 text-xs font-bold uppercase tracking-[0.18em] text-slate-400">Search</h3>
+            <label className="relative block">
+              <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+              <input
+                value={searchTerm}
+                onChange={(event) => setSearchTerm(event.target.value)}
+                className="w-full rounded-lg border border-slate-200 py-2.5 pl-9 pr-3 text-sm outline-none ring-sky-200 focus:ring"
+                placeholder={t.items.searchPlaceholder}
+              />
+            </label>
+          </section>
 
-      <div className="grid gap-5 xl:grid-cols-[320px_minmax(0,1fr)] xl:items-start">
-        <aside className={`${filtersOpen ? "block" : "hidden"} space-y-4 xl:sticky xl:top-28 xl:block`}>
-          <section className="surface section-pad">
-            <div className="flex items-center justify-between gap-3 border-b border-stone-200 pb-4">
-              <div>
-                <p className="eyebrow">Filters</p>
-                <p className="mt-1 text-sm text-stone-500">Ajusta la vista con menos ruido visual.</p>
-              </div>
-              <SlidersHorizontal size={16} className="text-stone-400" />
-            </div>
-
-            <div className="mt-4 rounded-2xl border border-stone-200 bg-[hsl(var(--surface-muted))] p-4">
-              <p className="data-label">Categories</p>
-              <div className="mt-3">
-                <CategoryChips
-                  selectedCategory={selectedCategory}
-                  categories={t.categories}
-                  allLabel={t.items.filterAll}
-                  counts={categoryCounts}
-                  onSelectCategory={setSelectedCategory}
-                />
-              </div>
+          <section>
+            <h3 className="mb-3 text-xs font-bold uppercase tracking-[0.18em] text-slate-400">Price Range</h3>
+            <div className="flex items-center gap-2">
+              <input
+                type="number"
+                value={minPrice}
+                onChange={(event) => setMinPrice(event.target.value)}
+                className="w-full rounded border border-slate-200 p-2 text-sm outline-none ring-sky-200 focus:ring"
+                placeholder="Min"
+              />
+              <span className="text-slate-300">—</span>
+              <input
+                type="number"
+                value={maxPrice}
+                onChange={(event) => setMaxPrice(event.target.value)}
+                className="w-full rounded border border-slate-200 p-2 text-sm outline-none ring-sky-200 focus:ring"
+                placeholder="Max"
+              />
             </div>
           </section>
-        </aside>
 
-        <div className="space-y-4">
-          {hasFilters && (
-            <div className="surface-muted flex flex-wrap items-center gap-2 px-4 py-3 text-xs">
-              <span className="font-medium text-stone-500">{t.items.activeFilters}</span>
-              {selectedCategory ? (
-                <span className="badge">{getCategoryLabel(t.categories, selectedCategory)}</span>
-              ) : null}
-              {searchTerm ? <span className="badge">“{searchTerm}”</span> : null}
-              {selectedSort !== "newest" ? (
-                <span className="badge">{selectedSort === "price_asc" ? t.items.sort.priceAsc : t.items.sort.priceDesc}</span>
-              ) : null}
-              <button type="button" onClick={clearFilters} className="btn-ghost px-2 py-1 text-xs font-semibold">
-                {t.items.clearFilters}
-              </button>
-            </div>
-          )}
-
-          {processedItems.length === 0 ? (
-            <div className="empty-state">
-              {hasFilters ? <SearchX size={30} className="text-stone-300" /> : <Package2 size={30} className="text-stone-300" />}
-              <p className="mt-4 text-base font-semibold text-stone-800">
-                {hasFilters ? t.items.emptyFiltered.heading : t.items.empty.heading}
-              </p>
-              <p className="mt-1 max-w-md text-sm text-stone-500">
-                {hasFilters ? t.items.emptyFiltered.subtitle : t.items.empty.subtitle}
-              </p>
-            </div>
-          ) : (
-            <div
-              className={
-                viewMode === "grid"
-                  ? "grid grid-cols-1 gap-4 min-[620px]:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4"
-                  : "grid grid-cols-1 gap-3"
-              }
-            >
-              {processedItems.map((item) => (
-                <ProductCard
-                  key={item.id}
-                  item={item}
-                  categories={t.categories}
-                  conditionText={t.items.condition}
-                  newBadgeLabel={t.items.newBadge}
-                  freeLabel={t.items.free}
-                  viewMode={viewMode}
-                />
+          <section>
+            <h3 className="mb-3 text-xs font-bold uppercase tracking-[0.18em] text-slate-400">Categories</h3>
+            <div className="space-y-2">
+              {categories.map((category) => (
+                <label key={category} className="flex cursor-pointer items-center gap-2 text-sm text-slate-600">
+                  <input
+                    type="checkbox"
+                    checked={selectedCategories.includes(category)}
+                    onChange={() => onToggleCategory(category)}
+                    className="h-4 w-4 rounded border-slate-300 text-sky-600 focus:ring-sky-600"
+                  />
+                  {getCategoryLabel(t.categories, category)}
+                </label>
               ))}
             </div>
+          </section>
+
+          <button
+            type="button"
+            onClick={onApplyFilters}
+            className="w-full rounded-lg bg-slate-900 py-3 text-sm font-semibold text-white transition hover:bg-slate-800"
+          >
+            Apply Filters
+          </button>
+        </aside>
+
+        <section>
+          <div className="mb-8 flex flex-wrap items-end justify-between gap-4">
+            <div>
+              <h1 className="text-3xl font-bold tracking-tight text-slate-900">Article Catalog</h1>
+              <p className="mt-1 text-slate-500">Showing {filteredItems.length} high-quality items for your home.</p>
+            </div>
+            <label className="flex items-center gap-2 text-sm font-medium text-slate-600">
+              <span>Sort by:</span>
+              <select
+                value={selectedSort}
+                onChange={(event) => {
+                  setSelectedSort(event.target.value as SortOption);
+                  setCurrentPage(1);
+                }}
+                className="rounded border border-slate-200 bg-white px-2 py-1.5 text-sm font-semibold text-slate-900"
+              >
+                <option value="newest">Newest First</option>
+                <option value="price_asc">Price: Low to High</option>
+                <option value="price_desc">Price: High to Low</option>
+              </select>
+            </label>
+          </div>
+
+          {paginatedItems.length === 0 ? (
+            <div className="empty-state">
+              <p className="text-base font-semibold text-slate-800">{t.items.emptyFiltered.heading}</p>
+              <p className="mt-1 text-sm text-slate-500">{t.items.emptyFiltered.subtitle}</p>
+            </div>
+          ) : (
+            <>
+              <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 xl:grid-cols-3">
+                {paginatedItems.map((item) => (
+                  <ProductCard
+                    key={item.id}
+                    item={item}
+                    categories={t.categories}
+                    conditionText={t.items.condition}
+                    freeLabel={t.items.free}
+                  />
+                ))}
+              </div>
+
+              <div className="mt-10 flex justify-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => setCurrentPage((prev) => Math.max(1, prev - 1))}
+                  className="h-9 w-9 rounded-lg border border-slate-200 text-sm text-slate-500 disabled:opacity-40"
+                  disabled={page === 1}
+                >
+                  ‹
+                </button>
+                {Array.from({ length: totalPages }, (_, idx) => idx + 1).slice(0, 6).map((pageNumber) => (
+                  <button
+                    key={pageNumber}
+                    type="button"
+                    onClick={() => setCurrentPage(pageNumber)}
+                    className={`h-9 w-9 rounded-lg border text-sm font-semibold ${
+                      pageNumber === page
+                        ? "border-sky-600 bg-sky-600 text-white"
+                        : "border-slate-200 text-slate-600 hover:bg-slate-50"
+                    }`}
+                  >
+                    {pageNumber}
+                  </button>
+                ))}
+                <button
+                  type="button"
+                  onClick={() => setCurrentPage((prev) => Math.min(totalPages, prev + 1))}
+                  className="h-9 w-9 rounded-lg border border-slate-200 text-sm text-slate-500 disabled:opacity-40"
+                  disabled={page === totalPages}
+                >
+                  ›
+                </button>
+              </div>
+            </>
           )}
-        </div>
-      </div>
-    </section>
+        </section>
+      </section>
+    </div>
   );
 }
