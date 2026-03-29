@@ -2,6 +2,7 @@ const en = {
   nav: {
     home: "Garage Sale",
     items: "Items",
+    cart: "Cart",
     admin: "Admin",
   },
   meta: {
@@ -89,6 +90,11 @@ const en = {
     },
     reserveHeading: "Reserve this item",
     reservationHeading: "Reservation",
+    cart: {
+      add: "Add to cart and continue",
+      added: "Added to cart",
+      goToCart: "Review cart and reserve",
+    },
   },
   reserveForm: {
     name: {

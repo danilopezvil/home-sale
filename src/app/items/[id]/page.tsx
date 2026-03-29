@@ -17,6 +17,7 @@ import { supabaseServerAnonClient } from "@/lib/supabase/server";
 import { getCategoryMeta } from "@/lib/category-meta";
 import { getTranslations, type Dictionary } from "@/lib/i18n";
 import { ReserveForm } from "./reserve-form";
+import { AddToCartButton } from "@/components/cart/add-to-cart-button";
 
 type ItemDetailPageProps = { params: Promise<{ id: string }> };
 
@@ -252,8 +253,14 @@ export default async function ItemDetailPage({ params }: ItemDetailPageProps) {
                 </div>
 
                 {item.status === "available" ? (
-                  <div className="mt-6">
+                  <div className="mt-6 space-y-4">
                     <ReserveForm itemId={item.id} t={t.reserveForm} />
+                    <AddToCartButton
+                      itemId={item.id}
+                      cta={t.itemDetail.cart.add}
+                      added={t.itemDetail.cart.added}
+                      goToCart={t.itemDetail.cart.goToCart}
+                    />
                   </div>
                 ) : item.status === "reserved" ? (
                   <div className="notice-warning mt-6 flex items-start gap-3">
