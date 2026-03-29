@@ -297,22 +297,6 @@ export default async function ItemDetailPage({ params }: ItemDetailPageProps) {
           </aside>
         </div>
 
-        <div className="fixed bottom-5 left-1/2 z-50 flex -translate-x-1/2 items-center gap-5 rounded-full border border-slate-200/80 bg-white/85 px-5 py-2.5 shadow-lg backdrop-blur">
-          <button className="flex flex-col items-center gap-0.5 text-slate-500 transition hover:text-sky-700" aria-label="Share item">
-            <Share2 size={15} />
-            <span className="text-[10px] font-bold uppercase tracking-wider">Share</span>
-          </button>
-          <div className="h-7 w-px bg-slate-200" />
-          <button className="flex flex-col items-center gap-0.5 text-slate-500 transition hover:text-sky-700" aria-label="Start inquiry">
-            <MessageCircle size={15} />
-            <span className="text-[10px] font-bold uppercase tracking-wider">Inquiry</span>
-          </button>
-          <div className="h-7 w-px bg-slate-200" />
-          <button className="flex flex-col items-center gap-0.5 text-slate-500 transition hover:text-sky-700" aria-label="Report item">
-            <Flag size={15} />
-            <span className="text-[10px] font-bold uppercase tracking-wider">Report</span>
-          </button>
-        </div>
       </article>
     );
   } catch (err) {
