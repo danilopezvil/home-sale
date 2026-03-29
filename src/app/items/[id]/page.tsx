@@ -128,7 +128,7 @@ export default async function ItemDetailPage({ params }: ItemDetailPageProps) {
     return (
       <article className="relative -mx-4 sm:-mx-6 lg:-mx-8">
         <div className="flex min-h-screen flex-col bg-[#f9f9ff] lg:flex-row">
-          <section className="w-full bg-white px-4 pb-28 pt-5 sm:px-6 lg:w-3/5 lg:px-12 lg:py-10 xl:px-20">
+          <section className="w-full bg-white px-4 pb-14 pt-5 sm:px-6 lg:w-3/5 lg:px-12 lg:pb-16 lg:pt-10 xl:px-20">
             <Link href="/items" className="mb-6 inline-flex items-center gap-2 text-sm font-medium text-slate-500 hover:text-slate-900">
               <ArrowLeft size={14} />
               {t.itemDetail.back}
@@ -217,7 +217,7 @@ export default async function ItemDetailPage({ params }: ItemDetailPageProps) {
             </div>
           </section>
 
-          <aside className="w-full border-t border-slate-200 bg-[#f9f9ff] px-4 pb-28 pt-8 sm:px-6 lg:sticky lg:top-16 lg:w-2/5 lg:min-h-screen lg:border-l lg:border-t-0 lg:px-10 lg:pt-12 xl:px-14">
+          <aside className="w-full border-t border-slate-200 bg-[#f9f9ff] px-4 pb-14 pt-8 sm:px-6 lg:sticky lg:top-16 lg:w-2/5 lg:self-start lg:border-l lg:border-t-0 lg:px-10 lg:pb-16 lg:pt-12 xl:px-14">
             <div className="space-y-6">
               <div className="flex items-start justify-between gap-4">
                 <div className="space-y-2">
