@@ -1,7 +1,8 @@
 import Link from "next/link";
-import { Package2, ChevronUp, ChevronDown, FileJson, ArrowLeft, Boxes, CheckCircle2, Clock3, Archive } from "lucide-react";
+import { Package2, ChevronUp, ChevronDown, FileJson, ArrowLeft, Boxes, CheckCircle2, Clock3, Archive, Search } from "lucide-react";
 
 import { moveItemImageAction } from "@/app/admin/items/actions";
+import { CreateItemModal } from "@/app/admin/items/create-item-modal";
 import { ItemForm, UploadImagesForm } from "@/app/admin/items/item-form";
 import { ItemsTable } from "@/app/admin/items/items-table";
 import { requireAdminUser } from "@/lib/admin-auth";
@@ -97,13 +98,14 @@ export default async function AdminItemsPage({
   return (
     <section className="space-y-6">
       <header className="rounded-2xl border border-slate-200 bg-white/95 p-6 shadow-sm">
-        <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
+        <div className="flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
           <div>
             <p className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">Admin / inventory</p>
             <h1 className="mt-2 text-3xl font-black tracking-tight text-slate-900">{t.adminItems.heading}</h1>
             <p className="mt-2 max-w-3xl text-sm text-slate-500">{t.adminItems.subtitle}</p>
           </div>
           <div className="flex flex-wrap gap-3">
+            <CreateItemModal t={t.itemForm} categories={t.categories} />
             <Link href="/admin" className="inline-flex h-11 items-center gap-2 rounded-lg border border-slate-200 bg-white px-4 text-sm font-semibold text-slate-700 transition hover:bg-slate-50">
               <ArrowLeft size={15} />
               Admin home
@@ -154,7 +156,7 @@ export default async function AdminItemsPage({
         </div>
       </div>
 
-      <div className="admin-grid xl:items-start">
+      <div className={editItem ? "admin-grid xl:items-start" : "space-y-5"}>
         <section className="space-y-5 rounded-2xl border border-slate-100 bg-white p-6 shadow-sm">
           <div className="flex flex-col gap-4 border-b border-slate-100 pb-4 lg:flex-row lg:items-end lg:justify-between">
             <div>
@@ -181,12 +183,15 @@ export default async function AdminItemsPage({
             </label>
             <label className="space-y-1">
               <span className="text-xs font-semibold uppercase tracking-wider text-slate-500">Search</span>
-              <input
-                name="search"
-                defaultValue={searchTerm}
-                placeholder={t.adminItems.filter.search}
-                className="h-11 w-full rounded-lg border border-slate-200 bg-slate-50 px-3 text-sm text-slate-800 outline-none ring-sky-500 transition placeholder:text-slate-400 focus:ring-2"
-              />
+              <div className="relative">
+                <Search size={16} className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+                <input
+                  name="search"
+                  defaultValue={searchTerm}
+                  placeholder={t.adminItems.filter.search}
+                  className="h-11 w-full rounded-lg border border-slate-200 bg-slate-50 pl-9 pr-3 text-sm text-slate-800 outline-none ring-sky-500 transition placeholder:text-slate-400 focus:ring-2"
+                />
+              </div>
             </label>
             <div className="flex items-end gap-2">
               <button type="submit" className="h-11 w-full rounded-lg bg-sky-600 px-5 text-sm font-semibold text-white shadow-sm shadow-sky-200 transition hover:bg-sky-700 xl:w-auto">{t.adminItems.filter.apply}</button>
@@ -210,22 +215,8 @@ export default async function AdminItemsPage({
           )}
         </section>
 
-        <aside className="space-y-5 xl:sticky xl:top-28">
-          <ItemForm
-            mode="create"
-            initialValues={{
-              title: "",
-              description: "",
-              price: "",
-              category: "",
-              condition: "good",
-              pickup_area: "",
-            }}
-            t={t.itemForm}
-            categories={t.categories}
-          />
-
-          {editItem ? (
+        {editItem ? (
+          <aside className="space-y-5 xl:sticky xl:top-28">
             <section className="space-y-5">
               <ItemForm
                 mode="edit"
@@ -293,8 +284,8 @@ export default async function AdminItemsPage({
                 )}
               </section>
             </section>
-          ) : null}
-        </aside>
+          </aside>
+        ) : null}
       </div>
     </section>
   );
