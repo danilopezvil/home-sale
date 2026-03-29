@@ -19,12 +19,12 @@ const currency = new Intl.NumberFormat("en-US", {
   maximumFractionDigits: 0,
 });
 
-const heroStats = [
+/*const heroStats = [
   { label: "Ítems Únicos", value: "12k+" },
   { label: "Satisfacción", value: "98%" },
   { label: "Ventas Exitosas", value: "45k" },
   { label: "Soporte Concierge", value: "24h" },
-] as const;
+] as const;*/
 
 function getCategoryLabel(
   categories: Record<string, string>,

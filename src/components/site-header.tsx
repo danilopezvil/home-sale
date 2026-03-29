@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { LayoutGrid, Package2, Settings } from "lucide-react";
+import { LayoutGrid, Package2 } from "lucide-react";
 
 import { LocaleSwitcher } from "@/components/locale-switcher";
 import type { Dictionary, Locale } from "@/lib/i18n";
