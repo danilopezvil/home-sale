@@ -1,7 +1,20 @@
 import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ArrowLeft, CheckCircle2, Clock, XCircle, Tag, Sparkles, MapPin, ArrowUpRight, Package2 } from "lucide-react";
+import {
+  ArrowLeft,
+  CheckCircle2,
+  Clock,
+  XCircle,
+  Tag,
+  Sparkles,
+  MapPin,
+  Package2,
+  Heart,
+  Share2,
+  MessageCircle,
+  Flag,
+} from "lucide-react";
 
 import { supabaseServerAnonClient } from "@/lib/supabase/server";
 import { getCategoryMeta } from "@/lib/category-meta";
@@ -34,33 +47,33 @@ const currency = new Intl.NumberFormat("en-US", {
 });
 
 const CONDITION_COLOR: Record<string, string> = {
-  new: "badge-success",
-  like_new: "badge-success",
-  good: "badge-neutral",
-  fair: "badge-warning",
-  parts: "badge-danger",
+  new: "text-emerald-700 bg-emerald-100 border-emerald-200",
+  like_new: "text-emerald-700 bg-emerald-100 border-emerald-200",
+  good: "text-slate-700 bg-slate-100 border-slate-200",
+  fair: "text-amber-700 bg-amber-100 border-amber-200",
+  parts: "text-red-700 bg-red-100 border-red-200",
 };
 
 function StatusBadge({ status, t }: { status: string; t: Dictionary["itemDetail"]["status"] }) {
   if (status === "available") {
     return (
-      <span className="badge badge-success">
-        <CheckCircle2 size={14} />
+      <span className="inline-flex items-center gap-1.5 rounded-full bg-sky-100 px-2.5 py-1 text-xs font-bold uppercase tracking-wide text-sky-800">
+        <CheckCircle2 size={13} />
         {t.available}
       </span>
     );
   }
   if (status === "reserved") {
     return (
-      <span className="badge badge-warning">
-        <Clock size={14} />
+      <span className="inline-flex items-center gap-1.5 rounded-full bg-amber-100 px-2.5 py-1 text-xs font-bold uppercase tracking-wide text-amber-800">
+        <Clock size={13} />
         {t.reserved}
       </span>
     );
   }
   return (
-    <span className="badge badge-neutral">
-      <XCircle size={14} />
+    <span className="inline-flex items-center gap-1.5 rounded-full bg-slate-200 px-2.5 py-1 text-xs font-bold uppercase tracking-wide text-slate-700">
+      <XCircle size={13} />
       {t.sold}
     </span>
   );
@@ -111,188 +124,194 @@ export default async function ItemDetailPage({ params }: ItemDetailPageProps) {
     const cat = getCategoryMeta(item.category);
     const price = Number(item.price);
     const condLabel = (t.items.condition as Record<string, string>)[item.condition] ?? item.condition;
-    const condColor = CONDITION_COLOR[item.condition] ?? "badge-neutral";
+    const condStyle = CONDITION_COLOR[item.condition] ?? "text-slate-700 bg-slate-100 border-slate-200";
     const catLabel = getCatLabel(t.categories, item.category);
+    const mainImage = images[0]?.image_url;
 
     return (
-      <article className="space-y-5">
-        <Link href="/items" className="btn-ghost w-fit px-0 py-0 text-sm">
-          <ArrowLeft size={14} />
-          {t.itemDetail.back}
-        </Link>
+      <article className="relative -mx-4 sm:-mx-6 lg:-mx-8">
+        <div className="flex min-h-screen flex-col bg-[#f9f9ff] lg:flex-row">
+          <section className="w-full bg-white px-4 pb-28 pt-5 sm:px-6 lg:w-3/5 lg:px-12 lg:py-10 xl:px-20">
+            <Link href="/items" className="mb-6 inline-flex items-center gap-2 text-sm font-medium text-slate-500 hover:text-slate-900">
+              <ArrowLeft size={14} />
+              {t.itemDetail.back}
+            </Link>
 
-        <div className="grid gap-5 xl:grid-cols-[minmax(0,1.1fr)_380px] xl:items-start">
-          <section className="space-y-5">
-            <div className="surface section-pad space-y-5">
-              <div className="flex flex-wrap items-start justify-between gap-4 border-b border-stone-200 pb-5">
-                <div className="flex min-w-0 items-start gap-4">
-                  <span className="flex h-14 w-14 items-center justify-center rounded-2xl border border-stone-200 bg-[hsl(var(--surface-muted))] text-3xl">
-                    {cat.emoji}
-                  </span>
-                  <div className="min-w-0 space-y-3">
-                    <p className="eyebrow">{catLabel}</p>
-                    <h1 className="inventory-title text-[2.1rem] sm:text-[2.7rem]">{item.title}</h1>
-                    <div className="flex flex-wrap gap-2">
-                      <StatusBadge status={item.status} t={t.itemDetail.status} />
-                      <span className="badge">
-                        <Tag size={13} />
-                        {catLabel}
-                      </span>
-                      <span className={`badge ${condColor}`}>
-                        <Sparkles size={13} />
-                        {condLabel}
-                      </span>
-                      {item.pickup_area ? (
-                        <span className="badge">
-                          <MapPin size={13} />
-                          {item.pickup_area}
-                        </span>
-                      ) : null}
-                    </div>
+            {imageError ? (
+              <p className="notice-warning">{t.itemDetail.error.load}</p>
+            ) : mainImage ? (
+              <>
+                <div className="group relative aspect-[4/3] w-full overflow-hidden rounded-2xl">
+                  <Image
+                    src={mainImage}
+                    alt={`${item.title} — photo 1`}
+                    fill
+                    sizes="(min-width: 1280px) 55vw, 100vw"
+                    className="object-cover transition-transform duration-700 group-hover:scale-105"
+                    priority
+                  />
+                  <div className="absolute left-4 top-4 rounded-full bg-white/80 px-3 py-1 text-[11px] font-bold uppercase tracking-[0.18em] text-slate-700 backdrop-blur">
+                    ITEM ID: {item.id.slice(0, 8).toUpperCase()}
                   </div>
                 </div>
 
-                <div className="detail-panel min-w-[190px] px-4 py-4 text-left sm:text-right">
-                  <p className="data-label">Price</p>
-                  <p className="mt-2 text-4xl font-semibold tracking-[-0.06em] text-stone-950">
-                    {price === 0 ? <span className="text-[hsl(var(--success))]">{t.itemDetail.free}</span> : currency.format(price)}
-                  </p>
-                  <p className="mt-2 text-sm text-stone-500">Direct handoff, no cart flow.</p>
-                </div>
-              </div>
-
-              <div className="grid gap-4 sm:grid-cols-3">
-                <div className="inventory-metric">
-                  <p className="data-label">Status</p>
-                  <p className="text-base font-semibold text-stone-950">{t.itemDetail.status[item.status as keyof Dictionary["itemDetail"]["status"]] ?? item.status}</p>
-                  <p className="text-sm text-stone-500">Updated from the live sale.</p>
-                </div>
-                <div className="inventory-metric">
-                  <p className="data-label">Condition</p>
-                  <p className="text-base font-semibold text-stone-950">{condLabel}</p>
-                  <p className="text-sm text-stone-500">Review photos before requesting it.</p>
-                </div>
-                <div className="inventory-metric">
-                  <p className="data-label">Pickup</p>
-                  <p className="text-base font-semibold text-stone-950">{item.pickup_area ?? "Shared after confirmation"}</p>
-                  <p className="text-sm text-stone-500">Used to coordinate timing.</p>
-                </div>
-              </div>
-
-              {item.description ? (
-                <section className="rounded-2xl border border-stone-200 bg-[hsl(var(--surface-muted))] p-5">
-                  <p className="eyebrow">Listing notes</p>
-                  <p className="mt-3 max-w-3xl text-sm leading-7 text-stone-600">{item.description}</p>
-                </section>
-              ) : null}
-            </div>
-
-            <section className="surface section-pad space-y-4">
-              <div className="flex items-center justify-between gap-3">
-                <div>
-                  <p className="eyebrow">Photos</p>
-                  <p className="mt-1 text-sm text-stone-500">The gallery is the quickest way to judge wear, finish and fit.</p>
-                </div>
-                {images.length > 0 ? (
-                  <span className="badge badge-neutral">
-                    <Package2 size={13} />
-                    {images.length} image{images.length === 1 ? "" : "s"}
-                  </span>
-                ) : null}
-              </div>
-
-              {imageError ? (
-                <p className="notice-warning">{t.itemDetail.error.load}</p>
-              ) : images.length === 0 ? (
-                <div className="empty-state py-12">
-                  <p className="text-sm text-stone-500">{t.itemDetail.noPhotos}</p>
-                </div>
-              ) : (
-                <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-[minmax(0,1.25fr)_minmax(0,0.75fr)]">
-                  <div className="relative overflow-hidden rounded-3xl border border-stone-200 bg-[hsl(var(--surface-muted))] aspect-[4/3] xl:aspect-[5/4]">
-                    <Image
-                      src={images[0].image_url}
-                      alt={`${item.title} — photo 1`}
-                      fill
-                      sizes="(min-width: 1280px) 50vw, 100vw"
-                      className="object-cover"
-                    />
-                  </div>
-                  <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-1">
-                    {images.slice(1).map((img, i) => (
+                <div className="mt-4 grid grid-cols-4 gap-3">
+                  {images.slice(0, 4).map((img, index) => {
+                    const isLastPreview = index === 3 && images.length > 4;
+                    return (
                       <div
                         key={img.id}
-                        className="relative overflow-hidden rounded-2xl border border-stone-200 bg-[hsl(var(--surface-muted))] aspect-[4/3]"
+                        className={`relative aspect-square overflow-hidden rounded-xl border ${
+                          index === 0 ? "border-sky-400" : "border-slate-200"
+                        }`}
                       >
                         <Image
                           src={img.image_url}
-                          alt={`${item.title} — photo ${i + 2}`}
+                          alt={`${item.title} — photo ${index + 1}`}
                           fill
-                          sizes="(min-width: 1280px) 25vw, (min-width: 640px) 50vw, 100vw"
-                          className="object-cover"
+                          sizes="(min-width: 1024px) 14vw, 25vw"
+                          className={`object-cover ${index > 0 ? "opacity-80" : ""}`}
                         />
+                        {isLastPreview ? (
+                          <div className="absolute inset-0 flex items-center justify-center bg-slate-900/45 text-sm font-bold text-white">
+                            +{images.length - 4}
+                          </div>
+                        ) : null}
                       </div>
-                    ))}
-                    {images.length === 1 ? (
-                      <div className="flex min-h-[140px] items-center justify-center rounded-2xl border border-dashed border-stone-300 bg-[hsl(var(--surface-muted))] px-5 text-center text-sm text-stone-500">
-                        More photos may be added later if needed.
-                      </div>
-                    ) : null}
+                    );
+                  })}
+                </div>
+              </>
+            ) : (
+              <div className="empty-state py-16">
+                <p className="text-sm text-slate-500">{t.itemDetail.noPhotos}</p>
+              </div>
+            )}
+
+            <div className="mt-10 max-w-3xl space-y-9">
+              <section className="space-y-3">
+                <p className="text-[11px] font-bold uppercase tracking-[0.22em] text-slate-500">Description</p>
+                <p className="text-sm leading-7 text-slate-600">{item.description ?? "No additional listing notes were provided by the seller."}</p>
+              </section>
+
+              <section className="space-y-4">
+                <p className="text-[11px] font-bold uppercase tracking-[0.22em] text-slate-500">Specifications</p>
+                <div className="grid grid-cols-1 gap-y-4 sm:grid-cols-2 sm:gap-x-10">
+                  <div className="space-y-1">
+                    <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-500">Category</p>
+                    <p className="text-sm font-medium text-slate-900">{cat.emoji} {catLabel}</p>
+                  </div>
+                  <div className="space-y-1">
+                    <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-500">Condition</p>
+                    <p className="text-sm font-medium text-slate-900">{condLabel}</p>
+                  </div>
+                  <div className="space-y-1">
+                    <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-500">Availability</p>
+                    <p className="text-sm font-medium text-slate-900">
+                      {t.itemDetail.status[item.status as keyof Dictionary["itemDetail"]["status"]] ?? item.status}
+                    </p>
+                  </div>
+                  <div className="space-y-1">
+                    <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-500">Pickup area</p>
+                    <p className="text-sm font-medium text-slate-900">{item.pickup_area ?? "Shared after confirmation"}</p>
                   </div>
                 </div>
-              )}
-            </section>
+              </section>
+            </div>
           </section>
 
-          <aside className="space-y-5 xl:sticky xl:top-28">
-            <section className="surface section-pad">
-              <p className="eyebrow">Reserve or check status</p>
-              <h2 className="section-title mt-2">
-                {item.status === "available" ? t.itemDetail.reserveHeading : t.itemDetail.reservationHeading}
-              </h2>
-              <p className="section-copy mt-2">
-                This is part of a live moving sale. If you want it, send the request before the pickup plan locks in.
-              </p>
-
-              <div className="mt-4 rounded-2xl border border-stone-200 bg-[hsl(var(--surface-muted))] px-4 py-3 text-sm text-stone-700">
-                <span className="font-semibold text-stone-950">Before sending:</span> review photos, check condition and include a realistic pickup window.
+          <aside className="w-full border-t border-slate-200 bg-[#f9f9ff] px-4 pb-28 pt-8 sm:px-6 lg:sticky lg:top-16 lg:w-2/5 lg:min-h-screen lg:border-l lg:border-t-0 lg:px-10 lg:pt-12 xl:px-14">
+            <div className="space-y-6">
+              <div className="flex items-start justify-between gap-4">
+                <div className="space-y-2">
+                  <StatusBadge status={item.status} t={t.itemDetail.status} />
+                  <h1 className="text-4xl font-extrabold tracking-tight text-slate-900 sm:text-5xl">{item.title}</h1>
+                </div>
+                <button className="rounded-full p-2.5 text-slate-500 transition hover:bg-slate-200/60 hover:text-slate-900" aria-label="Favorite item">
+                  <Heart size={18} />
+                </button>
               </div>
 
-              {item.status === "available" ? (
-                <div className="mt-5">
-                  <ReserveForm itemId={item.id} t={t.reserveForm} />
-                </div>
-              ) : item.status === "reserved" ? (
-                <div className="notice-warning mt-5 flex items-start gap-3">
-                  <Clock size={18} className="mt-0.5 shrink-0" />
-                  <p>{t.itemDetail.reservedMessage}</p>
-                </div>
-              ) : (
-                <div className="notice mt-5 flex items-start gap-3">
-                  <XCircle size={18} className="mt-0.5 shrink-0 text-stone-400" />
-                  <p>{t.itemDetail.soldMessage}</p>
-                </div>
-              )}
-            </section>
-
-            <section className="surface section-pad">
-              <p className="eyebrow">Quick checklist</p>
-              <div className="mt-4 space-y-3 text-sm text-stone-600">
-                <div className="surface-muted p-4">
-                  <p className="font-semibold text-stone-900">Review condition and photos</p>
-                  <p className="mt-1">Make sure the listing matches what you need before reserving it.</p>
-                </div>
-                <div className="surface-muted p-4">
-                  <p className="font-semibold text-stone-900">Share your pickup window</p>
-                  <p className="mt-1">A preferred date helps the seller organise departures and handoff timing.</p>
-                </div>
-                <Link href="/items" className="surface-muted flex items-center justify-between p-4 font-semibold text-stone-900 transition hover:bg-white">
-                  Back to all items
-                  <ArrowUpRight size={15} className="text-stone-400" />
-                </Link>
+              <div className="flex items-baseline gap-2">
+                <p className="text-3xl font-bold text-slate-950">
+                  {price === 0 ? <span className="text-emerald-600">{t.itemDetail.free}</span> : currency.format(price)}
+                </p>
+                <p className="text-sm font-medium text-slate-500">Local pickup only</p>
               </div>
-            </section>
+
+              <div className="rounded-2xl border border-slate-200 bg-[#f0f3ff] p-6 shadow-[0_20px_40px_rgba(17,28,45,0.06)]">
+                <p className="text-lg font-bold text-slate-900">Reserve this item</p>
+                <p className="mt-1 text-sm text-slate-600">Complete these quick steps to request your reservation.</p>
+
+                <div className="mt-5 space-y-3 text-sm">
+                  <div className="flex items-center gap-2 text-slate-600">
+                    <span className="inline-flex h-6 w-6 items-center justify-center rounded-full bg-sky-600 text-xs font-bold text-white">1</span>
+                    <span>Add your contact details.</span>
+                  </div>
+                  <div className="flex items-center gap-2 text-slate-600">
+                    <span className="inline-flex h-6 w-6 items-center justify-center rounded-full bg-sky-100 text-xs font-bold text-sky-700">2</span>
+                    <span>Share a preferred pickup window.</span>
+                  </div>
+                </div>
+
+                {item.status === "available" ? (
+                  <div className="mt-6">
+                    <ReserveForm itemId={item.id} t={t.reserveForm} />
+                  </div>
+                ) : item.status === "reserved" ? (
+                  <div className="notice-warning mt-6 flex items-start gap-3">
+                    <Clock size={18} className="mt-0.5 shrink-0" />
+                    <p>{t.itemDetail.reservedMessage}</p>
+                  </div>
+                ) : (
+                  <div className="notice mt-6 flex items-start gap-3">
+                    <XCircle size={18} className="mt-0.5 shrink-0 text-slate-400" />
+                    <p>{t.itemDetail.soldMessage}</p>
+                  </div>
+                )}
+              </div>
+
+              <div className="rounded-2xl border border-slate-200 bg-white p-5">
+                <div className="flex flex-wrap items-center gap-2">
+                  <span className="inline-flex items-center gap-1 rounded-full border border-slate-200 bg-slate-50 px-2.5 py-1 text-xs font-medium text-slate-600">
+                    <Tag size={12} />
+                    {catLabel}
+                  </span>
+                  <span className={`inline-flex items-center gap-1 rounded-full border px-2.5 py-1 text-xs font-medium ${condStyle}`}>
+                    <Sparkles size={12} />
+                    {condLabel}
+                  </span>
+                  {item.pickup_area ? (
+                    <span className="inline-flex items-center gap-1 rounded-full border border-slate-200 bg-slate-50 px-2.5 py-1 text-xs font-medium text-slate-600">
+                      <MapPin size={12} />
+                      {item.pickup_area}
+                    </span>
+                  ) : null}
+                  <span className="inline-flex items-center gap-1 rounded-full border border-slate-200 bg-slate-50 px-2.5 py-1 text-xs font-medium text-slate-600">
+                    <Package2 size={12} />
+                    {images.length} image{images.length === 1 ? "" : "s"}
+                  </span>
+                </div>
+              </div>
+            </div>
           </aside>
+        </div>
+
+        <div className="fixed bottom-5 left-1/2 z-50 flex -translate-x-1/2 items-center gap-5 rounded-full border border-slate-200/80 bg-white/85 px-5 py-2.5 shadow-lg backdrop-blur">
+          <button className="flex flex-col items-center gap-0.5 text-slate-500 transition hover:text-sky-700" aria-label="Share item">
+            <Share2 size={15} />
+            <span className="text-[10px] font-bold uppercase tracking-wider">Share</span>
+          </button>
+          <div className="h-7 w-px bg-slate-200" />
+          <button className="flex flex-col items-center gap-0.5 text-slate-500 transition hover:text-sky-700" aria-label="Start inquiry">
+            <MessageCircle size={15} />
+            <span className="text-[10px] font-bold uppercase tracking-wider">Inquiry</span>
+          </button>
+          <div className="h-7 w-px bg-slate-200" />
+          <button className="flex flex-col items-center gap-0.5 text-slate-500 transition hover:text-sky-700" aria-label="Report item">
+            <Flag size={15} />
+            <span className="text-[10px] font-bold uppercase tracking-wider">Report</span>
+          </button>
         </div>
       </article>
     );
