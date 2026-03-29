@@ -79,27 +79,27 @@ export function ItemsTable({ items, selectedStatus, searchTerm, t, categories, c
   return (
     <div className="space-y-4">
       {selectedIds.size > 0 && (
-        <div className="notice-danger flex flex-wrap items-center justify-between gap-3">
+        <div className="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-rose-200 bg-rose-50 px-4 py-3">
           <div className="flex items-center gap-2">
-            <Trash2 size={14} />
-            <span className="text-sm font-medium">{selectedIds.size} selected</span>
+            <Trash2 size={14} className="text-rose-600" />
+            <span className="text-sm font-medium text-rose-700">{selectedIds.size} selected</span>
           </div>
           <div className="flex flex-wrap gap-2">
-            <button onClick={handleDelete} disabled={isPending} className="btn-danger px-3 py-2 text-xs">
+            <button onClick={handleDelete} disabled={isPending} className="inline-flex items-center gap-1 rounded-md bg-rose-600 px-3 py-2 text-xs font-semibold text-white transition hover:bg-rose-700 disabled:opacity-60">
               <Trash2 size={12} />
               {t.actions.deleteSelected}
             </button>
-            <button onClick={() => setSelectedIds(new Set())} className="btn-secondary px-3 py-2 text-xs">
+            <button onClick={() => setSelectedIds(new Set())} className="rounded-md border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-slate-700 transition hover:bg-slate-50">
               Clear
             </button>
           </div>
         </div>
       )}
 
-      <div className="table-shell">
-        <div className="table-wrap">
+      <div className="overflow-hidden rounded-xl border border-slate-100">
+        <div className="overflow-x-auto">
           <table className="min-w-full text-sm">
-            <thead className="bg-[hsl(var(--surface-muted))] text-left text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-500">
+            <thead className="border-b border-slate-100 bg-slate-50/60 text-left text-[11px] font-bold uppercase tracking-[0.16em] text-slate-400">
               <tr>
                 <th className="px-4 py-3">
                   <input
@@ -121,13 +121,13 @@ export function ItemsTable({ items, selectedStatus, searchTerm, t, categories, c
                 <th className="px-4 py-3">{t.table.actions}</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-200">
+            <tbody className="divide-y divide-slate-100 bg-white">
               {items.map((item) => {
                 const cat = getCategoryMeta(item.category);
                 const condLabel = (conditionT as Record<string, string>)[item.condition] ?? item.condition;
                 const isSelected = selectedIds.has(item.id);
                 return (
-                  <tr key={item.id} className={`${isSelected ? "bg-sky-50" : "bg-white"} transition hover:bg-slate-50`}>
+                  <tr key={item.id} className={`group transition ${isSelected ? "bg-sky-50" : "bg-white hover:bg-slate-50"}`}>
                     <td className="px-4 py-5 align-top">
                       <input
                         type="checkbox"
@@ -137,7 +137,7 @@ export function ItemsTable({ items, selectedStatus, searchTerm, t, categories, c
                       />
                     </td>
                     <td className="px-4 py-5 align-top">
-                      <span className="inline-flex h-11 w-11 items-center justify-center rounded-md border border-slate-200 bg-slate-50 text-slate-500">
+                      <span className="inline-flex h-10 w-10 items-center justify-center rounded-md border border-slate-200 bg-slate-50 text-slate-500">
                         <ImageIcon size={14} />
                       </span>
                     </td>
@@ -159,17 +159,17 @@ export function ItemsTable({ items, selectedStatus, searchTerm, t, categories, c
                       <span className={statusBadgeClasses(item.status)}>{getStatusLabel(t.status, item.status)}</span>
                     </td>
                     <td className="px-4 py-5 align-top">
-                      <div className="flex min-w-[180px] flex-col gap-2">
+                      <div className="flex min-w-[180px] flex-col gap-2 opacity-100 transition-opacity md:opacity-0 md:group-hover:opacity-100">
                         <Link
                           href={`/admin/items?status=${selectedStatus}&search=${encodeURIComponent(searchTerm)}&edit=${item.id}`}
-                          className="btn-secondary h-9 justify-start px-3 text-xs"
+                          className="inline-flex h-9 items-center gap-1 rounded-md border border-slate-200 bg-white px-3 text-xs font-semibold text-slate-700 transition hover:border-sky-200 hover:bg-sky-50 hover:text-sky-700"
                         >
                           <Pencil size={11} /> {t.actions.edit}
                         </Link>
                         <form action={toggleItemStatusAction}>
                           <input type="hidden" name="itemId" value={item.id} />
                           <input type="hidden" name="currentStatus" value={item.status} />
-                          <button type="submit" className="btn-secondary h-9 w-full justify-start px-3 text-xs">
+                          <button type="submit" className="inline-flex h-9 w-full items-center gap-1 rounded-md border border-slate-200 bg-white px-3 text-xs font-semibold text-slate-700 transition hover:border-sky-200 hover:bg-sky-50 hover:text-sky-700">
                             {item.status === "sold" ? <RotateCcw size={11} /> : <CircleCheckBig size={11} />}
                             {item.status === "sold" ? t.actions.makeAvailable : t.actions.markSold}
                           </button>
