@@ -4,6 +4,7 @@ const es = {
   nav: {
     home: "Venta de Garage",
     items: "Art\u00edculos",
+    cart: "Carrito",
     admin: "Admin",
   },
   meta: {
@@ -93,6 +94,11 @@ const es = {
     },
     reserveHeading: "Reservar este art\u00edculo",
     reservationHeading: "Reserva",
+    cart: {
+      add: "Agregar al carrito y continuar",
+      added: "Añadido al carrito",
+      goToCart: "Revisar carrito y reservar",
+    },
   },
   reserveForm: {
     name: {
