@@ -59,6 +59,8 @@ export function CartClient() {
     if (reserved.size === 0) return;
 
     const nextIds = itemIds.filter((id) => !reserved.has(id));
+    if (nextIds.length === itemIds.length) return;
+
     setItemIds(nextIds);
     setItems((prev) => prev.filter((item) => !reserved.has(item.id)));
 
