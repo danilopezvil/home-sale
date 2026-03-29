@@ -11,9 +11,6 @@ import {
   MapPin,
   Package2,
   Heart,
-  Share2,
-  MessageCircle,
-  Flag,
 } from "lucide-react";
 
 import { supabaseServerAnonClient } from "@/lib/supabase/server";
