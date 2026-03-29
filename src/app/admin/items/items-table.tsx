@@ -1,16 +1,17 @@
 "use client";
 
 import { useTransition, useState } from "react";
-import Link from "next/link";
-import { Pencil, Trash2, CircleCheckBig, RotateCcw, Image as ImageIcon } from "lucide-react";
+import { Trash2, CircleCheckBig, RotateCcw, Image as ImageIcon } from "lucide-react";
 
 import { toggleItemStatusAction, deleteItemsAction } from "@/app/admin/items/actions";
+import { EditItemModal } from "@/app/admin/items/edit-item-modal";
 import { getCategoryMeta } from "@/lib/category-meta";
 import type { Dictionary } from "@/lib/i18n";
 
 type Item = {
   id: string;
   title: string;
+  description: string;
   price: number | string;
   category: string;
   condition: string;
@@ -40,14 +41,13 @@ const currencyFormatter = new Intl.NumberFormat("en-US", {
 
 type Props = {
   items: Item[];
-  selectedStatus: string;
-  searchTerm: string;
   t: Dictionary["adminItems"];
+  itemFormT: Dictionary["itemForm"];
   categories: Dictionary["categories"];
   conditionT: Dictionary["items"]["condition"];
 };
 
-export function ItemsTable({ items, selectedStatus, searchTerm, t, categories, conditionT }: Props) {
+export function ItemsTable({ items, t, itemFormT, categories, conditionT }: Props) {
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [isPending, startTransition] = useTransition();
 
@@ -160,12 +160,19 @@ export function ItemsTable({ items, selectedStatus, searchTerm, t, categories, c
                     </td>
                     <td className="px-4 py-5 align-top">
                       <div className="flex min-w-[180px] flex-col gap-2 opacity-100 transition-opacity md:opacity-0 md:group-hover:opacity-100">
-                        <Link
-                          href={`/admin/items?status=${selectedStatus}&search=${encodeURIComponent(searchTerm)}&edit=${item.id}`}
-                          className="inline-flex h-9 items-center gap-1 rounded-md border border-slate-200 bg-white px-3 text-xs font-semibold text-slate-700 transition hover:border-sky-200 hover:bg-sky-50 hover:text-sky-700"
-                        >
-                          <Pencil size={11} /> {t.actions.edit}
-                        </Link>
+                        <EditItemModal
+                          initialValues={{
+                            id: item.id,
+                            title: item.title,
+                            description: item.description,
+                            price: String(item.price),
+                            category: item.category,
+                            condition: item.condition,
+                            pickup_area: item.pickup_area,
+                          }}
+                          t={itemFormT}
+                          categories={categories}
+                        />
                         <form action={toggleItemStatusAction}>
                           <input type="hidden" name="itemId" value={item.id} />
                           <input type="hidden" name="currentStatus" value={item.status} />

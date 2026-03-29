@@ -17,7 +17,7 @@ type ItemValues = {
   title: string;
   description: string;
   price: string;
-  category: (typeof categoryValues)[number] | "";
+  category: string;
   condition: string;
   pickup_area: string;
 };
