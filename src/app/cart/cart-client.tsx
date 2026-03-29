@@ -72,18 +72,26 @@ export function CartClient() {
 
       if (error) {
         console.error("Could not load cart items", error);
+        clearCart();
+        setItemIds([]);
         setItems([]);
       } else {
-        setItems(
-          (data ?? []).map((item) => ({
-            id: item.id,
-            title: item.title,
-            price: item.price,
-            status: item.status,
-            imageUrl: item.image_url,
-            category: item.category,
-          })),
-        );
+        const mappedItems = (data ?? []).map((item) => ({
+          id: item.id,
+          title: item.title,
+          price: item.price,
+          status: item.status,
+          imageUrl: item.image_url,
+          category: item.category,
+        }));
+
+        setItems(mappedItems);
+
+        const persistedIds = mappedItems.map((item) => item.id);
+        if (persistedIds.length !== ids.length) {
+          setItemIds(persistedIds);
+          writeCartItemIds(persistedIds);
+        }
       }
       setIsLoading(false);
     };
