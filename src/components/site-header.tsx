@@ -1,6 +1,8 @@
 import Link from "next/link";
 import { LayoutGrid, Package2 } from "lucide-react";
 
+import { CartLink } from "@/components/cart/cart-link";
+
 import { LocaleSwitcher } from "@/components/locale-switcher";
 import type { Dictionary, Locale } from "@/lib/i18n";
 
@@ -12,7 +14,6 @@ type SiteHeaderProps = {
 const navItems = [
   { href: "/", key: "home", icon: LayoutGrid },
   { href: "/items", key: "items", icon: Package2 },
-  //{ href: "/admin", key: "admin", icon: Settings },
 ] as const;
 
 export function SiteHeader({ locale, t }: SiteHeaderProps) {
@@ -40,6 +41,7 @@ export function SiteHeader({ locale, t }: SiteHeaderProps) {
               {t.nav[key]}
             </Link>
           ))}
+          <CartLink label={t.nav.cart} />
         </div>
 
         <div className="flex items-center justify-end gap-2">
