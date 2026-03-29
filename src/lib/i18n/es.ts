@@ -2,12 +2,12 @@ import type { Dictionary } from "./en";
 
 const es = {
   nav: {
-    home: "Venta de Casa",
+    home: "Venta de Garage",
     items: "Art\u00edculos",
     admin: "Admin",
   },
   meta: {
-    title: "Venta de Casa \ud83c\udfe0",
+    title: "Venta de Garageg\ud83c\udfe0",
     description: "Muebles, libros, gadgets y m\u00e1s \u2014 \u00a1todo debe irse!",
   },
   footer: "Inventario de mudanza, actualizado según salen artículos. 📦",

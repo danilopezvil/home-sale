@@ -5,7 +5,7 @@ import { getLocale, getTranslations } from "@/lib/i18n";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Home Sale 🏠",
+  title: "Garage Sale 🏠",
   description: "Furniture, books, gadgets & more — all must go!",
 };
 

@@ -1,11 +1,11 @@
 const en = {
   nav: {
-    home: "Home Sale",
+    home: "Garage Sale",
     items: "Items",
     admin: "Admin",
   },
   meta: {
-    title: "Home Sale 🏠",
+    title: "Garage Sale 🏠",
     description: "Furniture, books, gadgets & more — all must go!",
   },
   footer: "Moving sale inventory, updated as items leave. 📦",

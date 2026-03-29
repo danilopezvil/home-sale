@@ -139,16 +139,7 @@ export default async function Home() {
           </div>
         </div>
       </section>
-
-      <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-        {heroStats.map((stat) => (
-          <article key={stat.label} className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
-            <p className="text-3xl font-black tracking-tight text-slate-900">{stat.value}</p>
-            <p className="mt-2 text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">{stat.label}</p>
-          </article>
-        ))}
-      </section>
-
+      
       <section className="surface section-pad">
         <div className="flex flex-wrap items-end justify-between gap-4 border-b border-slate-200 pb-4">
           <div>
@@ -214,27 +205,6 @@ export default async function Home() {
             <p className="text-sm text-slate-500">Aún no hay artículos publicados en este momento.</p>
           </div>
         )}
-      </section>
-
-      <section className="relative overflow-hidden rounded-3xl border border-slate-200 bg-white px-6 py-12 text-center shadow-sm sm:px-10">
-        <div className="absolute -left-20 top-1/2 h-52 w-52 -translate-y-1/2 rounded-full bg-sky-100 blur-3xl" />
-        <div className="absolute -right-20 top-1/2 h-52 w-52 -translate-y-1/2 rounded-full bg-cyan-100 blur-3xl" />
-        <div className="relative mx-auto max-w-2xl">
-          <h2 className="text-3xl font-black tracking-tight text-slate-900 sm:text-4xl">Acceso Anticipado</h2>
-          <p className="mt-4 text-sm leading-7 text-slate-600 sm:text-base">
-            Sé el primero en saber cuándo llegan piezas destacadas. Sin spam, solo novedades reales.
-          </p>
-          <form className="mx-auto mt-8 flex max-w-xl flex-col gap-3 sm:flex-row" action="#">
-            <input
-              type="email"
-              placeholder="tu@email.com"
-              className="input-base h-12 rounded-xl border-slate-200"
-            />
-            <button type="submit" className="h-12 rounded-xl bg-slate-900 px-6 text-sm font-semibold text-white transition hover:bg-slate-800">
-              Unirse
-            </button>
-          </form>
-        </div>
       </section>
     </div>
   );

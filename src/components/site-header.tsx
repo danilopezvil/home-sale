@@ -12,7 +12,7 @@ type SiteHeaderProps = {
 const navItems = [
   { href: "/", key: "home", icon: LayoutGrid },
   { href: "/items", key: "items", icon: Package2 },
-  { href: "/admin", key: "admin", icon: Settings },
+  //{ href: "/admin", key: "admin", icon: Settings },
 ] as const;
 
 export function SiteHeader({ locale, t }: SiteHeaderProps) {
