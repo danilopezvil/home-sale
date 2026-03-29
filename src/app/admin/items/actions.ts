@@ -59,6 +59,9 @@ function cleanOptional(value: string | undefined) {
 
 export async function createItemAction(_: ItemFormState, formData: FormData): Promise<ItemFormState> {
   await requireAdminUser();
+  const imageFiles = getImageFiles(formData);
+  const imageErrors = validateImageFiles(imageFiles);
+  if (imageErrors) return imageErrors;
 
   const parsed = createItemSchema.safeParse({
     title: formData.get("title"),
@@ -77,15 +80,19 @@ export async function createItemAction(_: ItemFormState, formData: FormData): Pr
     };
   }
 
-  const { error } = await supabaseServiceRoleClient.from("items").insert({
-    title: parsed.data.title,
-    description: cleanOptional(parsed.data.description),
-    price: parsed.data.price,
-    category: parsed.data.category,
-    condition: parsed.data.condition,
-    pickup_area: parsed.data.pickup_area,
-    status: "available",
-  });
+  const { data: createdItem, error } = await supabaseServiceRoleClient
+    .from("items")
+    .insert({
+      title: parsed.data.title,
+      description: cleanOptional(parsed.data.description),
+      price: parsed.data.price,
+      category: parsed.data.category,
+      condition: parsed.data.condition,
+      pickup_area: parsed.data.pickup_area,
+      status: "available",
+    })
+    .select("id")
+    .single();
 
   if (error) {
     console.error("Failed to create item.", error);
@@ -95,6 +102,9 @@ export async function createItemAction(_: ItemFormState, formData: FormData): Pr
       message: "We couldn't create the item. Please try again.",
     };
   }
+
+  const uploadError = await appendImagesToItem(createdItem.id, imageFiles);
+  if (uploadError) return uploadError;
 
   revalidatePath("/admin/items");
   revalidatePath("/items");
@@ -107,6 +117,9 @@ export async function createItemAction(_: ItemFormState, formData: FormData): Pr
 
 export async function updateItemAction(_: ItemFormState, formData: FormData): Promise<ItemFormState> {
   await requireAdminUser();
+  const imageFiles = getImageFiles(formData);
+  const imageErrors = validateImageFiles(imageFiles);
+  if (imageErrors) return imageErrors;
 
   const parsed = updateItemSchema.safeParse({
     id: formData.get("id"),
@@ -144,6 +157,9 @@ export async function updateItemAction(_: ItemFormState, formData: FormData): Pr
       message: "We couldn't update the item. Please try again.",
     };
   }
+
+  const uploadError = await appendImagesToItem(id, imageFiles);
+  if (uploadError) return uploadError;
 
   revalidatePath("/admin/items");
   revalidatePath(`/items/${id}`);
@@ -188,45 +204,33 @@ function normalizeFilename(name: string) {
   return name.replace(/[^a-zA-Z0-9._-]/g, "-");
 }
 
-export async function uploadItemImagesAction(_: ItemFormState, formData: FormData): Promise<ItemFormState> {
-  await requireAdminUser();
+function getImageFiles(formData: FormData): File[] {
+  return formData
+    .getAll("images")
+    .filter((file): file is File => file instanceof File && file.size > 0);
+}
 
-  const parsed = uploadImagesSchema.safeParse({
-    itemId: formData.get("itemId"),
-  });
+function validateImageFiles(files: File[]): ItemFormState | null {
+  const invalidFile = files.find(
+    (file) => !file.type.startsWith("image/") || file.size > 10 * 1024 * 1024,
+  );
 
-  if (!parsed.success) {
-    return {
-      success: false,
-      message: "Invalid item.",
-      errors: fromZodErrors(parsed.error),
-    };
-  }
+  if (!invalidFile) return null;
 
-  const files = formData.getAll("images").filter((file): file is File => file instanceof File && file.size > 0);
+  return {
+    success: false,
+    message: "Every file must be an image under 10MB.",
+    errors: {
+      images: ["Every file must be an image under 10MB."],
+    },
+  };
+}
 
+async function appendImagesToItem(itemId: string, files: File[]): Promise<ItemFormState | null> {
   if (files.length === 0) {
-    return {
-      success: false,
-      message: "Please select at least one image.",
-      errors: {
-        images: ["Please select at least one image."],
-      },
-    };
+    return null;
   }
 
-  const invalidFile = files.find((file) => !file.type.startsWith("image/") || file.size > 10 * 1024 * 1024);
-  if (invalidFile) {
-    return {
-      success: false,
-      message: "Every file must be an image under 10MB.",
-      errors: {
-        images: ["Every file must be an image under 10MB."],
-      },
-    };
-  }
-
-  const itemId = parsed.data.itemId;
   const currentOrderQuery = await supabaseServiceRoleClient
     .from("item_images")
     .select("sort_order")
@@ -279,6 +283,43 @@ export async function uploadItemImagesAction(_: ItemFormState, formData: FormDat
       };
     }
   }
+
+  return null;
+}
+
+export async function uploadItemImagesAction(_: ItemFormState, formData: FormData): Promise<ItemFormState> {
+  await requireAdminUser();
+
+  const parsed = uploadImagesSchema.safeParse({
+    itemId: formData.get("itemId"),
+  });
+
+  if (!parsed.success) {
+    return {
+      success: false,
+      message: "Invalid item.",
+      errors: fromZodErrors(parsed.error),
+    };
+  }
+
+  const files = getImageFiles(formData);
+
+  if (files.length === 0) {
+    return {
+      success: false,
+      message: "Please select at least one image.",
+      errors: {
+        images: ["Please select at least one image."],
+      },
+    };
+  }
+
+  const imageErrors = validateImageFiles(files);
+  if (imageErrors) return imageErrors;
+
+  const itemId = parsed.data.itemId;
+  const uploadError = await appendImagesToItem(itemId, files);
+  if (uploadError) return uploadError;
 
   revalidatePath("/admin/items");
   revalidatePath(`/items/${itemId}`);

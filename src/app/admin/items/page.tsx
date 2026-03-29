@@ -63,8 +63,8 @@ export default async function AdminItemsPage({
   }
 
   if (searchTerm) {
-    itemsQuery = itemsQuery.or(`title.ilike.%${searchTerm}%,description.ilike.%${searchTerm}%,category.ilike.%${searchTerm}%`);
-    countQuery = countQuery.or(`title.ilike.%${searchTerm}%,description.ilike.%${searchTerm}%,category.ilike.%${searchTerm}%`);
+    itemsQuery = itemsQuery.or(`title.ilike.%${searchTerm}%,description.ilike.%${searchTerm}%`);
+    countQuery = countQuery.or(`title.ilike.%${searchTerm}%,description.ilike.%${searchTerm}%`);
   }
 
   const [{ data: itemsData, error: itemsError }, { count: totalItemsCount, error: countError }] = await Promise.all([
