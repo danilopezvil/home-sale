@@ -201,6 +201,23 @@ export function ItemForm({ mode, initialValues, t, categories }: ItemFormProps) 
         <FieldError errors={state.errors} name="description" />
       </div>
 
+      <div className="field-shell rounded-lg border border-dashed border-slate-200 bg-slate-50 p-4">
+        <label className="field-label" htmlFor={isEdit ? "item-images-edit" : "item-images-create"}>
+          <ImagePlus size={14} className="text-stone-400" />
+          Imágenes {isEdit ? "(agregar nuevas)" : "(opcionales al crear)"}
+        </label>
+        <input
+          id={isEdit ? "item-images-edit" : "item-images-create"}
+          type="file"
+          name="images"
+          accept="image/*"
+          multiple
+          className={`input-base mt-2 file:mr-3 file:rounded-xl file:border-0 file:bg-stone-950 file:px-3 file:py-2 file:text-xs file:font-semibold file:text-white hover:file:bg-stone-800 ${state.errors?.images ? "border-red-300 bg-red-50" : ""}`}
+        />
+        <Hint>Puedes subir varias imágenes (máx 10MB por archivo).</Hint>
+        <FieldError errors={state.errors} name="images" />
+      </div>
+
       <div className="flex flex-col gap-3 border-t border-stone-200 pt-4 sm:flex-row sm:items-center sm:justify-between">
         <div className="text-xs text-stone-500">Keep descriptions specific: dimensions, wear, missing parts, building access or pickup constraints.</div>
         <button type="submit" disabled={pending} className="btn-primary h-11 w-full sm:w-auto">

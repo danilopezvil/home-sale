@@ -1,5 +1,22 @@
 import Link from "next/link";
-import { Package2, CalendarCheck2, LogOut, LogIn, ArrowUpRight, ShieldCheck, Boxes, Clock3 } from "lucide-react";
+import {
+  Package2,
+  CalendarCheck2,
+  LogOut,
+  LogIn,
+  ShieldCheck,
+  Boxes,
+  Clock3,
+  Settings,
+  Search,
+  Bell,
+  CircleHelp,
+  ArrowRight,
+  Gavel,
+  PlusSquare,
+  Upload,
+  FileBarChart,
+} from "lucide-react";
 
 import { env } from "@/lib/env";
 import { getSessionUser, supabaseServiceRoleClient } from "@/lib/supabase/server";
@@ -54,20 +71,6 @@ export default async function AdminPage({
 
   return (
     <section className="space-y-5">
-      <header className="surface section-pad">
-        <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
-          <div>
-            <p className="eyebrow">Admin console</p>
-            <h1 className="section-title mt-2">{t.admin.heading}</h1>
-            <p className="section-copy mt-2 max-w-3xl">{t.admin.subtitle}</p>
-          </div>
-          <div className="admin-panel flex items-center gap-3 px-4 py-3 text-sm text-stone-600">
-            <ShieldCheck size={16} className="text-stone-500" />
-            Operational inventory, reservations and publishing in one place.
-          </div>
-        </div>
-      </header>
-
       {accessError && <p className="notice-warning">{accessError}</p>}
 
       {!user && (
@@ -120,119 +123,127 @@ export default async function AdminPage({
       )}
 
       {user && isAdmin && (
-        <section className="space-y-5">
-          <div className="admin-panel section-pad">
-            <div className="flex flex-col gap-4 border-b border-stone-200 pb-4 lg:flex-row lg:items-center lg:justify-between">
-              <div>
-                <p className="text-sm text-stone-500">
-                  {t.admin.signedInAs} <span className="font-semibold text-stone-900">{user.email}</span>
+        <div className="space-y-6">
+          <header className="rounded-2xl border border-slate-100 bg-gradient-to-br from-white to-sky-50/30 p-6 shadow-sm">
+            <div className="flex flex-col gap-6 xl:flex-row xl:items-center xl:justify-between">
+              <div className="space-y-2">
+                <p className="text-[11px] font-bold uppercase tracking-[0.15em] text-sky-700">Overview dashboard</p>
+                <h1 className="text-4xl font-black tracking-tight text-slate-900">Admin Console</h1>
+                <p className="max-w-2xl text-sm text-slate-500">
+                  Welcome back. Supervisa inventario, reservas y publicaciones desde un solo lugar.
                 </p>
-                <p className="mt-2 text-lg font-semibold tracking-[-0.03em] text-stone-950">Compact overview of the moving-sale operation.</p>
               </div>
-              <form action={signOutAction}>
-                <button type="submit" className="btn-secondary h-11">
-                  <LogOut size={15} />
-                  {t.admin.signOut}
+              <div className="flex flex-wrap items-center gap-3">
+                <div className="relative min-w-[260px] flex-1">
+                  <Search size={15} className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+                  <input
+                    disabled
+                    placeholder="Search inventory or orders..."
+                    className="h-11 w-full rounded-full border border-slate-200 bg-white pl-9 pr-4 text-sm text-slate-500"
+                  />
+                </div>
+                <button className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-slate-200 bg-white text-slate-500">
+                  <Bell size={15} />
                 </button>
-              </form>
+                <button className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-slate-200 bg-white text-slate-500">
+                  <CircleHelp size={15} />
+                </button>
+                <form action={signOutAction}>
+                  <button type="submit" className="btn-secondary h-10">
+                    <LogOut size={14} />
+                    {t.admin.signOut}
+                  </button>
+                </form>
+              </div>
             </div>
+          </header>
 
-            <div className="mt-4 grid gap-3 sm:grid-cols-3">
-              <div className="admin-metric">
-                <p className="data-label">Published items</p>
-                <p className="data-value">{dashboardStats.items}</p>
-                <p className="text-sm text-stone-500">Visible inventory records.</p>
+          <div className="grid gap-4 md:grid-cols-3">
+            <div className="rounded-xl border border-slate-100 bg-white p-5 shadow-sm">
+              <div className="flex items-center justify-between">
+                <span className="inline-flex rounded-lg bg-sky-50 p-2.5 text-sky-600"><Package2 size={18} /></span>
+                <span className="badge badge-success">Live</span>
               </div>
-              <div className="admin-metric">
-                <p className="data-label">Pending reservations</p>
-                <p className="data-value">{dashboardStats.pendingReservations}</p>
-                <p className="text-sm text-stone-500">Requests still waiting on action.</p>
+              <p className="mt-4 text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">Published Items</p>
+              <p className="mt-1 text-3xl font-black text-slate-900">{dashboardStats.items}</p>
+            </div>
+            <div className="rounded-xl border border-slate-100 bg-white p-5 shadow-sm">
+              <div className="flex items-center justify-between">
+                <span className="inline-flex rounded-lg bg-amber-50 p-2.5 text-amber-600"><Clock3 size={18} /></span>
+                <span className="badge badge-warning">Action</span>
               </div>
-              <div className="admin-metric">
-                <p className="data-label">Sold items</p>
-                <p className="data-value">{dashboardStats.soldItems}</p>
-                <p className="text-sm text-stone-500">Items already closed out.</p>
+              <p className="mt-4 text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">Pending Reservations</p>
+              <p className="mt-1 text-3xl font-black text-slate-900">{dashboardStats.pendingReservations}</p>
+            </div>
+            <div className="rounded-xl border border-slate-100 bg-white p-5 shadow-sm">
+              <div className="flex items-center justify-between">
+                <span className="inline-flex rounded-lg bg-indigo-50 p-2.5 text-indigo-600"><ShieldCheck size={18} /></span>
+                <span className="badge">Complete</span>
               </div>
+              <p className="mt-4 text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">Sold Items</p>
+              <p className="mt-1 text-3xl font-black text-slate-900">{dashboardStats.soldItems}</p>
             </div>
           </div>
 
-          <div className="grid gap-4 xl:grid-cols-2">
-            <Link href="/admin/items" className="admin-panel section-pad group">
-              <div className="flex items-start justify-between gap-4">
-                <div>
-                  <p className="eyebrow">Inventory</p>
-                  <p className="mt-2 text-xl font-semibold tracking-[-0.03em] text-stone-950">{t.admin.menu.items.label}</p>
-                  <p className="mt-2 text-sm text-stone-500">{t.admin.menu.items.subtitle}</p>
+          <section className="grid gap-5 lg:grid-cols-2">
+            <Link href="/admin/items" className="group relative overflow-hidden rounded-2xl border border-slate-100 bg-white p-7 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md">
+              <div className="absolute -right-20 -top-20 h-56 w-56 rounded-full bg-sky-50 transition group-hover:scale-110" />
+              <div className="relative z-10">
+                <span className="inline-flex rounded-xl bg-sky-100 p-3 text-sky-700"><Boxes size={20} /></span>
+                <h3 className="mt-4 text-2xl font-bold tracking-tight text-slate-900">Inventory Management</h3>
+                <p className="mt-2 text-sm leading-6 text-slate-500">Crea, edita y publica artículos con fotos y datos clave de entrega.</p>
+                <div className="mt-6 inline-flex items-center gap-2 text-sm font-semibold text-sky-700">
+                  Manage Inventory <ArrowRight size={14} />
                 </div>
-                <span className="flex h-11 w-11 items-center justify-center rounded-2xl border border-stone-200 bg-[hsl(var(--surface-muted))] text-stone-700">
-                  <Boxes size={18} />
-                </span>
-              </div>
-              <div className="mt-5 grid gap-3 sm:grid-cols-2">
-                <div className="admin-metric">
-                  <p className="data-label">Use when</p>
-                  <p className="text-sm font-medium text-stone-900">Publishing or updating stock</p>
-                </div>
-                <div className="admin-metric">
-                  <p className="data-label">Primary actions</p>
-                  <p className="text-sm font-medium text-stone-900">Create, edit, upload, mark sold</p>
-                </div>
-              </div>
-              <div className="mt-5 flex items-center justify-between border-t border-stone-200 pt-4 text-sm font-medium text-stone-600 group-hover:text-stone-950">
-                Open inventory admin
-                <ArrowUpRight size={16} />
               </div>
             </Link>
 
-            <Link href="/admin/reservations" className="admin-panel section-pad group">
-              <div className="flex items-start justify-between gap-4">
-                <div>
-                  <p className="eyebrow">Reservation queue</p>
-                  <p className="mt-2 text-xl font-semibold tracking-[-0.03em] text-stone-950">{t.admin.menu.reservations.label}</p>
-                  <p className="mt-2 text-sm text-stone-500">{t.admin.menu.reservations.subtitle}</p>
+            <Link href="/admin/reservations" className="group relative overflow-hidden rounded-2xl border border-slate-100 bg-white p-7 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md">
+              <div className="absolute -right-20 -top-20 h-56 w-56 rounded-full bg-indigo-50 transition group-hover:scale-110" />
+              <div className="relative z-10">
+                <span className="inline-flex rounded-xl bg-indigo-100 p-3 text-indigo-700"><CalendarCheck2 size={20} /></span>
+                <h3 className="mt-4 text-2xl font-bold tracking-tight text-slate-900">Reservations</h3>
+                <p className="mt-2 text-sm leading-6 text-slate-500">Confirma o cancela solicitudes y coordina el retiro con compradores.</p>
+                <div className="mt-6 inline-flex items-center gap-2 text-sm font-semibold text-indigo-700">
+                  Manage Reservations <ArrowRight size={14} />
                 </div>
-                <span className="flex h-11 w-11 items-center justify-center rounded-2xl border border-stone-200 bg-[hsl(var(--surface-muted))] text-stone-700">
-                  <CalendarCheck2 size={18} />
-                </span>
-              </div>
-              <div className="mt-5 grid gap-3 sm:grid-cols-2">
-                <div className="admin-metric">
-                  <p className="data-label">Use when</p>
-                  <p className="text-sm font-medium text-stone-900">Coordinating demand and pickup</p>
-                </div>
-                <div className="admin-metric">
-                  <p className="data-label">Priority</p>
-                  <p className="text-sm font-medium text-stone-900">Pending first, then confirmations</p>
-                </div>
-              </div>
-              <div className="mt-5 flex items-center justify-between border-t border-stone-200 pt-4 text-sm font-medium text-stone-600 group-hover:text-stone-950">
-                Open reservation admin
-                <ArrowUpRight size={16} />
               </div>
             </Link>
-          </div>
+          </section>
 
-          <div className="grid gap-4 lg:grid-cols-2">
-            <div className="admin-panel section-pad">
+          <footer className="rounded-2xl border-l-4 border-sky-400 bg-white p-5 shadow-sm">
+            <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
               <div className="flex items-center gap-3">
-                <Package2 size={18} className="text-stone-500" />
+                <span className="inline-flex h-10 w-10 items-center justify-center rounded-full bg-slate-100 text-sky-700"><Gavel size={16} /></span>
                 <div>
-                  <p className="text-sm font-semibold text-stone-950">Inventory rule</p>
-                  <p className="text-sm text-stone-500">Keep titles factual and statuses current so buyers can scan quickly.</p>
+                  <p className="text-xs font-bold uppercase tracking-[0.16em] text-slate-500">Listing Standards & Rules</p>
+                  <p className="text-sm text-slate-600">Mantén títulos factuales y evita texto promocional para mejorar confianza.</p>
                 </div>
               </div>
-            </div>
-            <div className="admin-panel section-pad">
-              <div className="flex items-center gap-3">
-                <Clock3 size={18} className="text-stone-500" />
-                <div>
-                  <p className="text-sm font-semibold text-stone-950">Response rule</p>
-                  <p className="text-sm text-stone-500">Pending reservations should be reviewed before more items are published.</p>
-                </div>
+              <div className="flex items-center gap-4 text-xs">
+                <span className="inline-flex items-center gap-2 rounded-full bg-emerald-50 px-3 py-1.5 font-semibold text-emerald-700">
+                  <span className="h-2 w-2 animate-pulse rounded-full bg-emerald-500" />
+                  All Systems Operational
+                </span>
+                <Link href="/admin" className="inline-flex items-center gap-2 rounded-md border border-slate-200 px-3 py-1.5 font-semibold text-slate-600 hover:bg-slate-50">
+                  <Settings size={14} /> System Logs
+                </Link>
               </div>
             </div>
+          </footer>
+
+          <div className="sticky bottom-4 z-20 mx-auto flex w-fit flex-wrap items-center gap-2 rounded-full border border-slate-200 bg-white/95 p-2 shadow-md backdrop-blur">
+            <Link href="/admin/items" className="inline-flex items-center gap-2 rounded-full px-3 py-2 text-xs font-semibold text-slate-600 hover:bg-sky-50 hover:text-sky-700">
+              <PlusSquare size={14} /> New Listing
+            </Link>
+            <Link href="/admin/items/import" className="inline-flex items-center gap-2 rounded-full px-3 py-2 text-xs font-semibold text-slate-600 hover:bg-sky-50 hover:text-sky-700">
+              <Upload size={14} /> Bulk Import
+            </Link>
+            <Link href="/admin/reservations" className="inline-flex items-center gap-2 rounded-full px-3 py-2 text-xs font-semibold text-slate-600 hover:bg-sky-50 hover:text-sky-700">
+              <FileBarChart size={14} /> Reservations Report
+            </Link>
           </div>
-        </section>
+        </div>
       )}
     </section>
   );
