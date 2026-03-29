@@ -86,6 +86,7 @@ export async function createReservationAction(
 
   const { itemId, name, email, phone, message, preferredPickupAt } = parsed.data;
   const normalizedEmail = email.toLowerCase();
+  const reservedAt = preferredPickupAt || new Date().toISOString();
 
   // Rate limit: max 3 reservations from the same email per hour
   const windowStart = new Date(Date.now() - RATE_LIMIT_WINDOW_MS).toISOString();
@@ -151,7 +152,7 @@ export async function createReservationAction(
       customer_phone: phone ?? null,
       message: message ?? null,
       status: "pending",
-      reserved_at: preferredPickupAt ?? null,
+      reserved_at: reservedAt,
     });
 
   if (insertError) {

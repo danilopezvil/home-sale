@@ -69,6 +69,7 @@ export async function createCartReservationsAction(
 
   const { itemIds, name, email, phone, message, preferredPickupAt } = parsed.data;
   const normalizedEmail = email.toLowerCase();
+  const reservedAt = preferredPickupAt || new Date().toISOString();
 
   const windowStart = new Date(Date.now() - RATE_LIMIT_WINDOW_MS).toISOString();
   const { count, error: countError } = await supabaseServiceRoleClient
@@ -113,7 +114,7 @@ export async function createCartReservationsAction(
       customer_phone: phone ?? null,
       message: message ?? null,
       status: "pending",
-      reserved_at: preferredPickupAt ?? null,
+      reserved_at: reservedAt,
     });
 
     if (insertError) {
