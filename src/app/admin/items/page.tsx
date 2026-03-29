@@ -95,20 +95,20 @@ export default async function AdminItemsPage({
   const soldCount = items.filter((item) => item.status === "sold").length;
 
   return (
-    <section className="space-y-5">
-      <header className="surface section-pad">
+    <section className="space-y-6">
+      <header className="rounded-2xl border border-slate-200 bg-white/95 p-6 shadow-sm">
         <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
           <div>
-            <p className="eyebrow">Admin / inventory</p>
-            <h1 className="section-title mt-2">{t.adminItems.heading}</h1>
-            <p className="section-copy mt-2 max-w-3xl">{t.adminItems.subtitle}</p>
+            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">Admin / inventory</p>
+            <h1 className="mt-2 text-3xl font-black tracking-tight text-slate-900">{t.adminItems.heading}</h1>
+            <p className="mt-2 max-w-3xl text-sm text-slate-500">{t.adminItems.subtitle}</p>
           </div>
           <div className="flex flex-wrap gap-3">
-            <Link href="/admin" className="btn-secondary h-11">
+            <Link href="/admin" className="inline-flex h-11 items-center gap-2 rounded-lg border border-slate-200 bg-white px-4 text-sm font-semibold text-slate-700 transition hover:bg-slate-50">
               <ArrowLeft size={15} />
               Admin home
             </Link>
-            <Link href="/admin/items/import" className="btn-primary h-11">
+            <Link href="/admin/items/import" className="inline-flex h-11 items-center gap-2 rounded-lg bg-sky-600 px-4 text-sm font-semibold text-white shadow-sm shadow-sky-200 transition hover:bg-sky-700">
               <FileJson size={15} />
               {t.adminItems.importJson}
             </Link>
@@ -121,57 +121,57 @@ export default async function AdminItemsPage({
       {itemsError ? <p className="notice-danger">Failed to load items: {itemsError.message}</p> : null}
       {imagesError ? <p className="notice-danger">Failed to load images: {imagesError.message}</p> : null}
 
-      <div className="grid gap-3 sm:grid-cols-3">
-        <div className="admin-metric">
+      <div className="grid gap-4 md:grid-cols-3">
+        <div className="rounded-xl border border-slate-100 bg-white p-5 shadow-sm">
           <div className="flex items-center justify-between gap-3">
             <div>
-              <p className="data-label">Available</p>
-              <p className="data-value">{availableCount}</p>
+              <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">Available</p>
+              <p className="mt-1 text-3xl font-extrabold text-slate-900">{availableCount}</p>
             </div>
             <CheckCircle2 size={18} className="text-[hsl(var(--success))]" />
           </div>
-          <p className="mt-1 text-sm text-stone-500">Currently open for reservation.</p>
+          <p className="mt-2 text-sm text-slate-500">Currently open for reservation.</p>
         </div>
-        <div className="admin-metric">
+        <div className="rounded-xl border border-slate-100 bg-white p-5 shadow-sm">
           <div className="flex items-center justify-between gap-3">
             <div>
-              <p className="data-label">Reserved</p>
-              <p className="data-value">{reservedCount}</p>
+              <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">Reserved</p>
+              <p className="mt-1 text-3xl font-extrabold text-slate-900">{reservedCount}</p>
             </div>
             <Clock3 size={18} className="text-[hsl(var(--warning))]" />
           </div>
-          <p className="mt-1 text-sm text-stone-500">Need pickup follow-through.</p>
+          <p className="mt-2 text-sm text-slate-500">Need pickup follow-through.</p>
         </div>
-        <div className="admin-metric">
+        <div className="rounded-xl border border-slate-100 bg-white p-5 shadow-sm">
           <div className="flex items-center justify-between gap-3">
             <div>
-              <p className="data-label">Sold</p>
-              <p className="data-value">{soldCount}</p>
+              <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">Sold</p>
+              <p className="mt-1 text-3xl font-extrabold text-slate-900">{soldCount}</p>
             </div>
             <Archive size={18} className="text-stone-500" />
           </div>
-          <p className="mt-1 text-sm text-stone-500">Already closed out of stock.</p>
+          <p className="mt-2 text-sm text-slate-500">Already closed out of stock.</p>
         </div>
       </div>
 
       <div className="admin-grid xl:items-start">
-        <section className="admin-panel section-pad space-y-5">
-          <div className="flex flex-col gap-4 border-b border-stone-200 pb-4 lg:flex-row lg:items-end lg:justify-between">
+        <section className="space-y-5 rounded-2xl border border-slate-100 bg-white p-6 shadow-sm">
+          <div className="flex flex-col gap-4 border-b border-slate-100 pb-4 lg:flex-row lg:items-end lg:justify-between">
             <div>
-              <p className="eyebrow">Current listings</p>
-              <h2 className="mt-2 flex items-center gap-2 text-xl font-semibold tracking-[-0.03em] text-stone-950">
-                <Boxes size={18} className="text-stone-500" />
+              <p className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">Current listings</p>
+              <h2 className="mt-2 flex items-center gap-2 text-xl font-bold tracking-tight text-slate-900">
+                <Boxes size={18} className="text-slate-500" />
                 Published inventory
               </h2>
-              <p className="mt-2 text-sm text-stone-500">Filter by status, search quickly and jump into editing without leaving the table context.</p>
+              <p className="mt-2 text-sm text-slate-500">Filter by status, search quickly and jump into editing without leaving the table context.</p>
             </div>
-            <div className="admin-panel px-4 py-3 text-sm text-stone-600">{items.length} matching items</div>
+            <div className="rounded-lg bg-slate-50 px-4 py-2 text-sm font-medium text-slate-600">{items.length} matching items</div>
           </div>
 
           <form className="grid gap-3 xl:grid-cols-[190px_minmax(0,1fr)_auto]" action="/admin/items" method="get">
-            <label className="field-shell">
-              <span className="field-label">{t.adminItems.filter.status}</span>
-              <select name="status" defaultValue={selectedStatus} className="select-base h-11">
+            <label className="space-y-1">
+              <span className="text-xs font-semibold uppercase tracking-wider text-slate-500">{t.adminItems.filter.status}</span>
+              <select name="status" defaultValue={selectedStatus} className="h-11 w-full rounded-lg border border-slate-200 bg-slate-50 px-3 text-sm text-slate-800 outline-none ring-sky-500 transition focus:ring-2">
                 {statusOptions.map((status) => (
                   <option key={status} value={status}>
                     {getStatusLabel(t.adminItems.status as Record<string, string>, status)}
@@ -179,17 +179,17 @@ export default async function AdminItemsPage({
                 ))}
               </select>
             </label>
-            <label className="field-shell">
-              <span className="field-label">Search</span>
+            <label className="space-y-1">
+              <span className="text-xs font-semibold uppercase tracking-wider text-slate-500">Search</span>
               <input
                 name="search"
                 defaultValue={searchTerm}
                 placeholder={t.adminItems.filter.search}
-                className="input-base h-11"
+                className="h-11 w-full rounded-lg border border-slate-200 bg-slate-50 px-3 text-sm text-slate-800 outline-none ring-sky-500 transition placeholder:text-slate-400 focus:ring-2"
               />
             </label>
             <div className="flex items-end gap-2">
-              <button type="submit" className="btn-primary h-11 w-full xl:w-auto">{t.adminItems.filter.apply}</button>
+              <button type="submit" className="h-11 w-full rounded-lg bg-sky-600 px-5 text-sm font-semibold text-white shadow-sm shadow-sky-200 transition hover:bg-sky-700 xl:w-auto">{t.adminItems.filter.apply}</button>
             </div>
           </form>
 
