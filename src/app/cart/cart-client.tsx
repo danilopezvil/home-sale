@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState, useEffect, useMemo, useState } from "react";
+import { useActionState, useCallback, useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { CheckCircle2, Clock3, Info, ShieldCheck, ShoppingCart, Trash2, Truck } from "lucide-react";
 
@@ -53,8 +53,7 @@ export function CartClient() {
     ];
   }, []);
 
-  useEffect(() => {
-    const ids = readCartItemIds();
+  const loadCartItems = useCallback(async (ids: string[]) => {
     setItemIds(ids);
 
     if (ids.length === 0) {
@@ -63,41 +62,60 @@ export function CartClient() {
       return;
     }
 
-    const load = async () => {
-      setIsLoading(true);
-      const { data, error } = await supabasePublicClient
-        .from("items")
-        .select("id, title, price, status, image_url, category")
-        .in("id", ids);
+    setIsLoading(true);
+    const { data, error } = await supabasePublicClient
+      .from("items")
+      .select("id, title, price, status, image_url, category")
+      .in("id", ids);
 
-      if (error) {
-        console.error("Could not load cart items", error);
-        clearCart();
-        setItemIds([]);
-        setItems([]);
-      } else {
-        const mappedItems = (data ?? []).map((item) => ({
-          id: item.id,
-          title: item.title,
-          price: item.price,
-          status: item.status,
-          imageUrl: item.image_url,
-          category: item.category,
-        }));
-
-        setItems(mappedItems);
-
-        const persistedIds = mappedItems.map((item) => item.id);
-        if (persistedIds.length !== ids.length) {
-          setItemIds(persistedIds);
-          writeCartItemIds(persistedIds);
-        }
-      }
+    if (error) {
+      console.error("Could not load cart items", error);
+      clearCart();
+      setItemIds([]);
+      setItems([]);
       setIsLoading(false);
+      return;
+    }
+
+    const itemMap = new Map((data ?? []).map((item) => [item.id, item]));
+    const orderedItems = ids
+      .map((id) => itemMap.get(id))
+      .filter((item): item is NonNullable<typeof data>[number] => Boolean(item));
+
+    const mappedItems = orderedItems.map((item) => ({
+      id: item.id,
+      title: item.title,
+      price: item.price,
+      status: item.status,
+      imageUrl: item.image_url,
+      category: item.category,
+    }));
+
+    setItems(mappedItems);
+
+    const persistedIds = mappedItems.map((item) => item.id);
+    if (persistedIds.length !== ids.length) {
+      setItemIds(persistedIds);
+      writeCartItemIds(persistedIds);
+    }
+
+    setIsLoading(false);
+  }, []);
+
+  useEffect(() => {
+    const syncFromStorage = () => {
+      void loadCartItems(readCartItemIds());
     };
 
-    void load();
-  }, []);
+    syncFromStorage();
+    window.addEventListener("storage", syncFromStorage);
+    window.addEventListener("cart:updated", syncFromStorage as EventListener);
+
+    return () => {
+      window.removeEventListener("storage", syncFromStorage);
+      window.removeEventListener("cart:updated", syncFromStorage as EventListener);
+    };
+  }, [loadCartItems]);
 
   useEffect(() => {
     if (state.status !== "success") return;
@@ -191,8 +209,7 @@ export function CartClient() {
                     type="button"
                     onClick={() => {
                       const nextIds = removeItemFromCart(item.id);
-                      setItemIds(nextIds);
-                      setItems((prev) => prev.filter((entry) => entry.id !== item.id));
+                      void loadCartItems(nextIds);
                     }}
                     className="rounded p-2 text-slate-500 transition hover:bg-slate-100 hover:text-red-600"
                     aria-label="Quitar artículo"

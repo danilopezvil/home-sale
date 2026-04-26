@@ -16,7 +16,6 @@ import {
 import { supabaseServerAnonClient } from "@/lib/supabase/server";
 import { getCategoryMeta } from "@/lib/category-meta";
 import { getTranslations, type Dictionary } from "@/lib/i18n";
-import { ReserveForm } from "./reserve-form";
 import { AddToCartButton } from "@/components/cart/add-to-cart-button";
 
 type ItemDetailPageProps = { params: Promise<{ id: string }> };
@@ -239,22 +238,21 @@ export default async function ItemDetailPage({ params }: ItemDetailPageProps) {
 
               <div className="rounded-2xl border border-slate-200 bg-[#f0f3ff] p-6 shadow-[0_20px_40px_rgba(17,28,45,0.06)]">
                 <p className="text-lg font-bold text-slate-900">Reserve this item</p>
-                <p className="mt-1 text-sm text-slate-600">Complete these quick steps to request your reservation.</p>
+                <p className="mt-1 text-sm text-slate-600">Agrega al carrito ahora y completa tus datos al revisar el carrito.</p>
 
                 <div className="mt-5 space-y-3 text-sm">
                   <div className="flex items-center gap-2 text-slate-600">
                     <span className="inline-flex h-6 w-6 items-center justify-center rounded-full bg-sky-600 text-xs font-bold text-white">1</span>
-                    <span>Add your contact details.</span>
+                    <span>Agrega este artículo al carrito.</span>
                   </div>
                   <div className="flex items-center gap-2 text-slate-600">
                     <span className="inline-flex h-6 w-6 items-center justify-center rounded-full bg-sky-100 text-xs font-bold text-sky-700">2</span>
-                    <span>Share a preferred pickup window.</span>
+                    <span>Ingresa tus datos y horario en checkout.</span>
                   </div>
                 </div>
 
                 {item.status === "available" ? (
-                  <div className="mt-6 space-y-4">
-                    <ReserveForm itemId={item.id} t={t.reserveForm} />
+                  <div className="mt-6">
                     <AddToCartButton
                       itemId={item.id}
                       cta={t.itemDetail.cart.add}
