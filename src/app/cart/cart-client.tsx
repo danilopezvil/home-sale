@@ -2,6 +2,7 @@
 
 import { useActionState, useCallback, useEffect, useMemo, useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { CheckCircle2, Clock3, Info, ShieldCheck, ShoppingCart, Trash2, Truck } from "lucide-react";
 
 import { clearCart, readCartItemIds, removeItemFromCart, writeCartItemIds } from "@/lib/cart";
@@ -34,12 +35,47 @@ type PickupSlot = {
 };
 
 const initialState: CartReservationFormState = { status: "idle", message: "" };
+const AUTO_REDIRECT_SECONDS = 5;
+
+function TinySummary({ titles }: { titles: string[] }) {
+  if (titles.length === 0) return null;
+  const preview = titles.slice(0, 2).join(" · ");
+  const rest = titles.length - 2;
+  return (
+    <p className="mt-2 text-xs text-slate-500">
+      Tus productos: {preview}
+      {rest > 0 ? ` +${rest} más` : ""}.
+    </p>
+  );
+}
+
+function ConfettiLayer() {
+  const pieces = Array.from({ length: 24 }, (_, i) => i);
+  return (
+    <div aria-hidden="true" className="pointer-events-none absolute inset-0 overflow-hidden rounded-2xl">
+      {pieces.map((piece) => (
+        <span
+          key={piece}
+          className="absolute top-[-12%] h-2.5 w-1.5 animate-[fall_1400ms_ease-out_forwards] rounded-sm opacity-90"
+          style={{
+            left: `${(piece * 97) % 100}%`,
+            animationDelay: `${(piece % 8) * 80}ms`,
+            backgroundColor: ["#0ea5e9", "#38bdf8", "#f59e0b", "#22c55e", "#a78bfa"][piece % 5],
+            transform: `rotate(${piece * 13}deg)`,
+          }}
+        />
+      ))}
+    </div>
+  );
+}
 
 export function CartClient() {
+  const router = useRouter();
   const [itemIds, setItemIds] = useState<string[]>([]);
   const [items, setItems] = useState<CartItem[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [selectedSlot, setSelectedSlot] = useState("today-18");
+  const [countdown, setCountdown] = useState(AUTO_REDIRECT_SECONDS);
   const [state, action, isPending] = useActionState(createCartReservationsAction, initialState);
 
   const pickupSlots = useMemo<PickupSlot[]>(() => {
@@ -146,6 +182,23 @@ export function CartClient() {
     else writeCartItemIds(nextIds);
   }, [state.status, state.reservedItemIds, itemIds]);
 
+  useEffect(() => {
+    if (state.status !== "success") return;
+
+    setCountdown(AUTO_REDIRECT_SECONDS);
+    const interval = window.setInterval(() => {
+      setCountdown((prev) => (prev <= 1 ? 0 : prev - 1));
+    }, 1000);
+    const timeout = window.setTimeout(() => {
+      router.push("/items");
+    }, AUTO_REDIRECT_SECONDS * 1000);
+
+    return () => {
+      window.clearInterval(interval);
+      window.clearTimeout(timeout);
+    };
+  }, [router, state.status]);
+
   const total = useMemo(() => items.reduce((sum, item) => sum + Number(item.price || 0), 0), [items]);
   const availableItems = items.filter((item) => item.status === "available");
 
@@ -178,6 +231,30 @@ export function CartClient() {
 
   return (
     <section className="mx-auto w-full max-w-7xl space-y-8 px-2 pb-24 sm:px-4">
+      {state.status === "success" ? (
+        <div className="fixed inset-0 z-50 grid place-items-center bg-slate-950/50 px-4">
+          <div className="relative w-full max-w-lg overflow-hidden rounded-2xl border border-sky-200 bg-white p-7 text-center shadow-2xl">
+            <ConfettiLayer />
+            <CheckCircle2 size={40} className="mx-auto text-emerald-500" />
+            <p className="mt-4 text-2xl font-bold text-slate-900">
+              Gracias, {state.customerName ?? "cliente"}.
+            </p>
+            <TinySummary titles={state.reservedItemTitles ?? []} />
+            <p className="mt-3 text-sm text-slate-700">{state.message}</p>
+            <p className="mt-4 text-xs font-semibold uppercase tracking-[0.14em] text-sky-700">
+              Regresando a artículos en {countdown}s
+            </p>
+            <button
+              type="button"
+              onClick={() => router.push("/items")}
+              className="mt-5 inline-flex items-center justify-center rounded-lg bg-gradient-to-r from-cyan-800 to-sky-500 px-5 py-2.5 text-sm font-bold text-white transition hover:opacity-90"
+            >
+              Regresar a artículos
+            </button>
+          </div>
+        </div>
+      ) : null}
+
       <div className="flex items-center justify-between rounded bg-sky-100 px-4 py-3 text-sky-900">
         <div className="flex items-center gap-3 text-sm font-medium">
           <Clock3 size={16} />
