@@ -216,7 +216,7 @@ export function CartClient() {
 
   if (isLoading) return <p className="text-sm text-slate-500">Cargando carrito…</p>;
 
-  if (items.length === 0) {
+  if (items.length === 0 && state.status !== "success") {
     return (
       <section className="rounded-xl border border-dashed border-slate-300 bg-white p-10 text-center">
         <ShoppingCart className="mx-auto text-slate-400" />
