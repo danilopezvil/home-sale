@@ -17,6 +17,15 @@ type CartItem = {
   category?: string | null;
 };
 
+type CartItemQueryRow = {
+  id: string;
+  title: string;
+  price: number | string;
+  status: string;
+  category?: string | null;
+  item_images?: { image_url: string; sort_order: number }[];
+};
+
 type PickupSlot = {
   id: string;
   label: string;
@@ -65,7 +74,7 @@ export function CartClient() {
     setIsLoading(true);
     const { data, error } = await supabasePublicClient
       .from("items")
-      .select("id, title, price, status, image_url, category")
+      .select("id, title, price, status, category, item_images(image_url, sort_order)")
       .in("id", ids);
 
     if (error) {
@@ -77,7 +86,7 @@ export function CartClient() {
       return;
     }
 
-    const itemMap = new Map((data ?? []).map((item) => [item.id, item]));
+    const itemMap = new Map(((data ?? []) as CartItemQueryRow[]).map((item) => [item.id, item]));
     const orderedItems = ids
       .map((id) => itemMap.get(id))
       .filter((item): item is NonNullable<typeof data>[number] => Boolean(item));
@@ -87,7 +96,11 @@ export function CartClient() {
       title: item.title,
       price: item.price,
       status: item.status,
-      imageUrl: item.image_url,
+      imageUrl:
+        item.item_images
+          ?.slice()
+          .sort((a, b) => a.sort_order - b.sort_order)[0]
+          ?.image_url ?? null,
       category: item.category,
     }));
 
