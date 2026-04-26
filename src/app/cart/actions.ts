@@ -11,6 +11,8 @@ export type CartReservationFormState = {
   message: string;
   errors?: Record<string, string[]>;
   reservedItemIds?: string[];
+  reservedItemTitles?: string[];
+  customerName?: string;
 };
 
 const RATE_LIMIT_WINDOW_MS = 60 * 60 * 1000;
@@ -91,6 +93,7 @@ export async function createCartReservationsAction(
   }
 
   const reservedItemIds: string[] = [];
+  const reservedItemTitles: string[] = [];
   const failedItemIds: string[] = [];
 
   for (const itemId of itemIds) {
@@ -125,6 +128,7 @@ export async function createCartReservationsAction(
     }
 
     reservedItemIds.push(itemId);
+    reservedItemTitles.push(claimed.title ?? "Artículo");
 
     sendReservationEmails({
       itemTitle: claimed.title ?? "Unknown item",
@@ -152,6 +156,8 @@ export async function createCartReservationsAction(
       status: "success",
       message: `Reserved ${reservedItemIds.length} item(s). ${failedItemIds.length} item(s) were already unavailable.`,
       reservedItemIds,
+      reservedItemTitles,
+      customerName: name,
     };
   }
 
@@ -159,5 +165,7 @@ export async function createCartReservationsAction(
     status: "success",
     message: `Reserved ${reservedItemIds.length} item(s). We'll email you shortly with pickup details.`,
     reservedItemIds,
+    reservedItemTitles,
+    customerName: name,
   };
 }
