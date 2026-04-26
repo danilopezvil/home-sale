@@ -5,6 +5,7 @@ import { getCategoryMeta } from "@/lib/category-meta";
 import type { Dictionary } from "@/lib/i18n";
 
 import type { CatalogItem } from "./types";
+import { QuickAddToCartButton } from "./quick-add-to-cart-button";
 
 const currency = new Intl.NumberFormat("en-US", {
   style: "currency",
@@ -75,16 +76,19 @@ export function ProductCard({ item, categories, conditionText, freeLabel }: Prod
         <h3 className="mb-1 line-clamp-1 font-bold text-slate-900">{item.title}</h3>
         <p className={`mb-4 text-2xl font-black ${status === "sold" ? "text-slate-400" : "text-sky-600"}`}>{priceLabel}</p>
 
-        <Link
-          href={`/items/${item.id}`}
-          className={`block w-full rounded-lg border py-2.5 text-center text-sm font-bold transition-all ${
-            status === "sold"
-              ? "cursor-not-allowed border-slate-100 text-slate-400 pointer-events-none"
-              : "border-slate-200 text-slate-700 hover:bg-slate-50"
-          }`}
-        >
-          {status === "sold" ? "Out of Stock" : "View Details"}
-        </Link>
+        <div className="flex items-center gap-2">
+          <Link
+            href={`/items/${item.id}`}
+            className={`block w-full rounded-lg border py-2.5 text-center text-sm font-bold transition-all ${
+              status === "sold"
+                ? "pointer-events-none cursor-not-allowed border-slate-100 text-slate-400"
+                : "border-slate-200 text-slate-700 hover:bg-slate-50"
+            }`}
+          >
+            {status === "sold" ? "Out of Stock" : "View Details"}
+          </Link>
+          <QuickAddToCartButton itemId={item.id} disabled={status === "sold"} />
+        </div>
       </div>
     </article>
   );
